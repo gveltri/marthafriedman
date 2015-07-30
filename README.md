@@ -4,18 +4,18 @@ This is the proto-type for a website that features an interactive sculpture gall
 
 # Thing to be worked
 
-...create an environment for the sculptures
-...decide on an aesthetic for the environment
+- create an environment for the sculptures
+- decide on an aesthetic for the environment
 
 ### Hairball Sculpture
 
-...model hairball sculpture in rhino
-...figure out how to load model into three.js
-...two separate forms
+- model hairball sculpture in rhino
+- figure out how to load model into three.js
+- two separate forms
 
 ## Future Sculpture
 
-...figure out how to model the movement of rubber for her bigger rubber-y works
+- figure out how to model the movement of rubber for her bigger rubber-y works
 
 # Authors
 
