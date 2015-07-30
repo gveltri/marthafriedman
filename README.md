@@ -7,7 +7,7 @@ This is the proto-type for a website that features an interactive sculpture gall
 ...create an environment for the sculptures
 ...decide on an aesthetic for the environment
 
-## Hairball Sculpture
+### Hairball Sculpture
 
 ...model hairball sculpture in rhino
 ...figure out how to load model into three.js
