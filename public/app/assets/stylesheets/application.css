@@ -37,12 +37,14 @@ header {
     margin:0;
     background-color:rgba(150,150,150,0.5);
     border-bottom: 3px solid rgba(150,150,150,0.75);
-    font-size:1.2em;
-    color:rgb(255,255,255);
 }
 
-#specialheader {
-    padding: 0.75em 2em;
+header h1 {
+    padding:.5em 2em;
+    font-size:1.2em;
+    color:rgb(255,255,255);
+    letter-spacing:0.5em;
+    margin: 0;
 }
 
 footer {
