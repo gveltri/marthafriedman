@@ -4,7 +4,7 @@ Physijs.scripts.worker = '/app/assets/javascripts/physijs_worker.js';
 Physijs.scripts.ammo = '/app/assets/javascripts/ammo.js';
 
 
-var initScene, render, renderer, scene, camera, box, dir_light, am_light, table, table_material, intersect_plane, selected_block, initEventHandling;
+var initScene, render, renderer, scene, camera, box, dir_light, am_light, table, table_material, intersect_plane, selected_box, initEventHandling, mouse_position;
 
 initScene = function() {
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -82,12 +82,13 @@ initScene = function() {
     intersect_plane.rotation.x = Math.PI / -2;
     scene.add( intersect_plane );
 
-
-    requestAnimationFrame( render );
+    initEventHandling(); //handle mouse clicks
+    requestAnimationFrame( render ); //render scene
+    scene.simulate(); // run physics
 };
 
 render = function() {
-    scene.simulate(); // run physics
+
     renderer.render( scene, camera); // render the scene
     requestAnimationFrame( render );
 };
@@ -103,75 +104,64 @@ function onWindowResize() {
 }
 
 //this shit is broken pls fix
-//Three.projector is old
-//have to reformulate
 
 initEventHandling = (function() {
-    var _vector = new THREE.Vector3,
-	projector = new THREE.Projector(),
-	handleMouseDown, handleMouseMove, handleMouseUp;
+    var _vector = new THREE.Vector3();
+    var raycaster = new THREE.Raycaster();
+    var handleMouseDown, handleMouseMove, handleMouseUp;
 
+    
     handleMouseDown = function( evt ) {
-	var ray, intersections;
+	var intersections
+	
+	_vector.set((evt.clientX / window.innerWidth) * 2 - 1,
+		    -(evt.clientY / window.innerHeight ) * 2 + 1,
+		   1);
+	
 
-	_vector.set(
-	    ( evt.clientX / window.innerWidth ) * 2 - 1,
-		-( evt.clientY / window.innerHeight ) * 2 + 1,
-	    1
-	);
+	raycaster.setFromCamera(_vector, camera);
+	intersections = raycaster.intersectObjects( box );
 
-	projector.unprojectVector( _vector, camera );
+	if (intersections.length > 0) {
+	    selected_box = intersections[0].object;
 
-	ray = new THREE.Raycaster( camera.position, _vector.sub( camera.position ).normalize() );
-	intersections = ray.intersectObjects( blocks );
-
-	if ( intersections.length > 0 ) {
-	    selected_block = intersections[0].object;
-
-	    _vector.set( 0, 0, 0 );
-	    selected_block.setAngularFactor( _vector );
-	    selected_block.setAngularVelocity( _vector );
-	    selected_block.setLinearFactor( _vector );
-	    selected_block.setLinearVelocity( _vector );
+	    _vector.set(0,0,0);
+	    selected_box.setAngularFactor( _vector);
+	    selected_box.setAngularVelocity( _vector);
+	    selected_box.setLinearFactor( _vector);
+	    selected_box.setLinearVelocity( _vector);
 
 	    mouse_position.copy( intersections[0].point );
-	    block_offset.subVectors( selected_block.position, mouse_position );
+	    box_offset.subVectors( selected_box.position, mouse_position);
 
 	    intersect_plane.position.y = mouse_position.y;
 	}
+
     };
 
     handleMouseMove = function( evt ) {
+	var intersection
 
-	var ray, intersection,
-	    i, scalar;
-
-	if ( selected_block !== null ) {
+	if (selected_box !== null) {
 
 	    _vector.set(
 		( evt.clientX / window.innerWidth ) * 2 - 1,
 		    -( evt.clientY / window.innerHeight ) * 2 + 1,
-		1
-	    );
-	    projector.unprojectVector( _vector, camera );
-
-	    ray = new THREE.Raycaster( camera.position, _vector.sub( camera.position ).normalize() );
-	    intersection = ray.intersectObject( intersect_plane );
-	    mouse_position.copy( intersection[0].point );
+		1);
+	    raycaster.setFromCamera(_vector, camera);
+	    intersection = raycaster.intersectObject(intersect_plane);
+	    mouse_position.copy( intersection[0].point);
 	}
-
     };
 
     handleMouseUp = function( evt ) {
 
-	if ( selected_block !== null ) {
-	    _vector.set( 1, 1, 1 );
-	    selected_block.setAngularFactor( _vector );
-	    selected_block.setLinearFactor( _vector );
-
-	    selected_block = null;
+	if (selected_box !== null) {
+	    _vector.set(1,1,1);
+	    selected_box.setAngularFactor( _vector );
+	    selected_box.setLinearFactor( _vector );
+	    selected_box = null;
 	}
-
     };
 
     return function() {
@@ -180,5 +170,7 @@ initEventHandling = (function() {
 	renderer.domElement.addEventListener( 'mouseup', handleMouseUp );
     };
 })();
+
+
 
 window.onload = initScene;
