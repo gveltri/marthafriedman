@@ -84,11 +84,11 @@ initScene = function() {
 
     initEventHandling(); //handle mouse clicks
     requestAnimationFrame( render ); //render scene
-    scene.simulate(); // run physics
+
 };
 
 render = function() {
-
+    scene.simulate(); // run physics
     renderer.render( scene, camera); // render the scene
     requestAnimationFrame( render );
 };
@@ -120,7 +120,7 @@ initEventHandling = (function() {
 	
 
 	raycaster.setFromCamera(_vector, camera);
-	intersections = raycaster.intersectObjects( box );
+	intersections = raycaster.intersectObject( box );
 
 	if (intersections.length > 0) {
 	    selected_box = intersections[0].object;
