@@ -121,7 +121,7 @@ initEventHandling = (function() {
 	
 	_vector.unproject( camera );
 	raycaster.setFromCamera(_vector, camera);
-	intersections = raycaster.intersectObjects( moveable_objects );
+	intersections = raycaster.intersectObjects( moveable_objects ); //is this working properly?
 
 	if (intersections.length > 0) {
 	    selected_thing = intersections[0].object;
@@ -132,7 +132,7 @@ initEventHandling = (function() {
 	    selected_thing.setLinearFactor( _vector);
 	    selected_thing.setLinearVelocity( _vector);
 
-	    mouse_position.copy( intersections[0].point );
+	    mouse_position.copy( intersections[0].point ); // this mouse position is not being set... maybe the conditional isn't working?
 	    thing_offset.subVectors( selected_thing.position, mouse_position);
 
 	    intersect_plane.position.y = mouse_position.y;
@@ -143,7 +143,7 @@ initEventHandling = (function() {
     handleMouseMove = function( evt ) {
 	var intersection
 
-	if (selected_thing !== null) {
+	if (selected_thing !== null) { // this if statement isn't working for some fucking reason
 
 	    _vector.set(
 		( evt.clientX / window.innerWidth ) * 2 - 1,
