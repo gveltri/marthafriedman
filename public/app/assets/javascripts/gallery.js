@@ -4,7 +4,7 @@ Physijs.scripts.worker = '/app/assets/javascripts/physijs_worker.js';
 Physijs.scripts.ammo = '/app/assets/javascripts/ammo.js';
 
 
-var initScene, render, renderer, scene, camera, box, dir_light, am_light, table, table_material, intersect_plane, selected_box, initEventHandling, mouse_position;
+var initScene, render, renderer, scene, camera, box, dir_light, am_light, table, table_material, intersect_plane, selected_thing, initEventHandling, mouse_position, moveable_objects = [], thing_offset = new THREE.Vector3;
 
 initScene = function() {
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -73,6 +73,7 @@ initScene = function() {
     box.castShadow = true;
     box.receiveShadow = true;
     scene.add( box );
+    moveable_objects.push( box ); //add box to the array of shit that can be moved
 
 
     intersect_plane = new THREE.Mesh(
@@ -118,21 +119,21 @@ initEventHandling = (function() {
 		    -(evt.clientY / window.innerHeight ) * 2 + 1,
 		   1);
 	
-
+	_vector.unproject( camera );
 	raycaster.setFromCamera(_vector, camera);
-	intersections = raycaster.intersectObject( box );
+	intersections = raycaster.intersectObjects( moveable_objects );
 
 	if (intersections.length > 0) {
-	    selected_box = intersections[0].object;
+	    selected_thing = intersections[0].object;
 
 	    _vector.set(0,0,0);
-	    selected_box.setAngularFactor( _vector);
-	    selected_box.setAngularVelocity( _vector);
-	    selected_box.setLinearFactor( _vector);
-	    selected_box.setLinearVelocity( _vector);
+	    selected_thing.setAngularFactor( _vector);
+	    selected_thing.setAngularVelocity( _vector);
+	    selected_thing.setLinearFactor( _vector);
+	    selected_thing.setLinearVelocity( _vector);
 
 	    mouse_position.copy( intersections[0].point );
-	    box_offset.subVectors( selected_box.position, mouse_position);
+	    thing_offset.subVectors( selected_thing.position, mouse_position);
 
 	    intersect_plane.position.y = mouse_position.y;
 	}
@@ -142,25 +143,27 @@ initEventHandling = (function() {
     handleMouseMove = function( evt ) {
 	var intersection
 
-	if (selected_box !== null) {
+	if (selected_thing !== null) {
 
 	    _vector.set(
 		( evt.clientX / window.innerWidth ) * 2 - 1,
 		    -( evt.clientY / window.innerHeight ) * 2 + 1,
 		1);
+	    
+	    _vector.unproject( camera );
 	    raycaster.setFromCamera(_vector, camera);
-	    intersection = raycaster.intersectObject(intersect_plane);
-	    mouse_position.copy( intersection[0].point);
+	    intersection = raycaster.intersectObject( intersect_plane );
+	    mouse_position.copy( intersection[0].point );
 	}
     };
 
     handleMouseUp = function( evt ) {
 
-	if (selected_box !== null) {
+	if (selected_thing !== null) {
 	    _vector.set(1,1,1);
-	    selected_box.setAngularFactor( _vector );
-	    selected_box.setLinearFactor( _vector );
-	    selected_box = null;
+	    selected_thing.setAngularFactor( _vector );
+	    selected_thing.setLinearFactor( _vector );
+	    selected_thing = null;
 	}
     };
 
