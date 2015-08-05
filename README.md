@@ -5,10 +5,12 @@ This is the proto-type for a website that features an interactive sculpture gall
 # Thing to be worked
 
 - create an environment for the sculpture
-  gjv- worked on this a bit. not set on the textures, but I think the lighting is generally good. maybe we can put in another directional light come from the left as well as the right. when we add in more sculptures, we could have some direct light as if it were a gallery with really dramatic lighting. definitely something be worked on much further down the line
+
+...  gjv- worked on this a bit. not set on the textures, but I think the lighting is generally good. maybe we can put in another directional light come from the left as well as the right. when we add in more sculptures, we could have some direct light as if it were a gallery with really dramatic lighting. definitely something be worked on much further down the line
 
 - get click and drag function working
-  based the click-drag function on physijs example of Jenga, however Jenga uses an outdated version of physijs. THREE.Projector is no longer available. currently trying to work around this while using the layout of the Jenga click function
+
+...  based the click-drag function on physijs example of Jenga, however Jenga uses an outdated version of physijs. THREE.Projector is no longer available. currently trying to work around this while using the layout of the Jenga click function
 
 
 
