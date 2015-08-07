@@ -4,7 +4,7 @@ Physijs.scripts.worker = '/app/assets/javascripts/physijs_worker.js';
 Physijs.scripts.ammo = '/app/assets/javascripts/ammo.js';
 
 
-var initScene, render, renderer, scene, camera, box, dir_light, am_light, table, table_material, intersect_plane, selected_thing, initEventHandling, mouse_position, moveable_objects = [], thing_offset = new THREE.Vector3;
+var initScene, render, renderer, scene, camera, box, dir_light, am_light, table, table_material, intersect_plane, initEventHandling, moveable_objects = [], thing_offset = new THREE.Vector3;
 
 initScene = function() {
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -110,7 +110,8 @@ initEventHandling = (function() {
     var _vector = new THREE.Vector3();
     var raycaster = new THREE.Raycaster();
     var handleMouseDown, handleMouseMove, handleMouseUp;
-
+    var selected_thing = null
+    var mouse_position
     
     handleMouseDown = function( evt ) {
 	var intersections
