@@ -10,8 +10,9 @@ This is the proto-type for a website that features an interactive sculpture gall
 
 - get click and drag function working
 
-   based the click-drag function on physijs example of Jenga, however Jenga uses an outdated version of physijs. THREE.Projector is no longer available. currently trying to work around this while using the layout of the Jenga click function
+   gjv- click and drag function working, yay. would like to add a way to move objects along the y-axis. currently, the object is moved where the raycaster intersects with the intersect_plane. perhaps we can use the keyboard arrow keys to move the object along the y-axis... or maybe scroll? scroll would be the most elegant but then it limits mobile users. both actually do. fuck
 
+   
 
 
 ### Hairball Sculpture
@@ -19,6 +20,7 @@ This is the proto-type for a website that features an interactive sculpture gall
 - model hairball sculpture in rhino
 - figure out how to load model into three.js
 - two separate forms
+- figure out reflectivity
 
 ## Future Sculpture
 
