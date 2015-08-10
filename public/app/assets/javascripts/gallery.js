@@ -4,7 +4,7 @@ Physijs.scripts.worker = '/app/assets/javascripts/physijs_worker.js';
 Physijs.scripts.ammo = '/app/assets/javascripts/ammo.js';
 
 
-var initScene, render, renderer, scene, camera, box, dir_light, am_light, table, table_material, intersect_plane, initEventHandling, moveable_objects = [], thing_offset = new THREE.Vector3, selected_thing = null, mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3;
+var initScene, render, renderer, scene, camera, box, dir_light, am_light, table, table_material, intersect_plane, initEventHandling, moveable_objects = [], thing_offset = new THREE.Vector3, selected_thing = null, mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3, sphere;
 
 initScene = function() {
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -94,12 +94,25 @@ initScene = function() {
     scene.add( box );
     moveable_objects.push( box ); //add box to the array of shit that can be moved
 
+    sphere = new Physijs.SphereMesh(
+	new THREE.SphereGeometry(5),
+	new THREE.MeshLambertMaterial({ color: 0x663300 }),
+	    .9,
+	    .4
+    );
+    sphere.position.y=30;
+    sphere.castShadow = true;
+    sphere.receiveShadow= true;
+    scene.add( sphere );
+    moveable_objects.push( sphere );
+
 
     intersect_plane = new THREE.Mesh(
 	new THREE.PlaneGeometry( 150, 150 ),
 	new THREE.MeshBasicMaterial({ opacity: 0, transparent: true })
     );
     intersect_plane.rotation.x = Math.PI / -2;
+    intersect_plane.position
     scene.add( intersect_plane );
 
     initEventHandling(); //handle mouse clicks
