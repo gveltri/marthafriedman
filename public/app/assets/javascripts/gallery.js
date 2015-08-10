@@ -4,7 +4,7 @@ Physijs.scripts.worker = '/app/assets/javascripts/physijs_worker.js';
 Physijs.scripts.ammo = '/app/assets/javascripts/ammo.js';
 
 
-var initScene, render, renderer, scene, camera, box, dir_light, am_light, table, table_material, intersect_plane, initEventHandling, moveable_objects = [], thing_offset = new THREE.Vector3;
+var initScene, render, renderer, scene, camera, box, dir_light, am_light, table, table_material, intersect_plane, initEventHandling, moveable_objects = [], thing_offset = new THREE.Vector3, selected_thing = null, mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3;
 
 initScene = function() {
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -17,7 +17,26 @@ initScene = function() {
     document.body.appendChild(renderer.domElement);
 
     scene = new Physijs.Scene;
+    scene.setGravity(new THREE.Vector3(0,-30,0));
+    scene.addEventListener(
+	'update',
+	function() {
+	    if ( selected_thing !== null ) {
 
+		_v3.copy( mouse_position ).sub( selected_thing.position ).multiplyScalar( 5 );
+		_v3.y = 0;
+		selected_thing.setLinearVelocity( _v3 );
+
+		// Reactivate all of the blocks
+		_v3.set( 0, 0, 0 );
+		for ( _i = 0; _i < moveable_objects.length; _i++ ) {
+		    moveable_objects[_i].applyCentralImpulse( _v3 );
+		}
+	    }
+	    scene.simulate( undefined, 1 );
+	}
+    );
+    
     camera = new THREE.PerspectiveCamera(
 	35,
 	window.innerWidth / window.innerHeight,
@@ -65,7 +84,7 @@ initScene = function() {
     box = new Physijs.BoxMesh(
 	new THREE.BoxGeometry( 10, 10, 10 ),
 	new THREE.MeshLambertMaterial({ color: 0xFF66FF }),
-	    .4,
+	    .9,
 	.4
 	
     );
@@ -110,8 +129,6 @@ initEventHandling = (function() {
     var _vector = new THREE.Vector3();
     var raycaster = new THREE.Raycaster();
     var handleMouseDown, handleMouseMove, handleMouseUp;
-    var selected_thing = null
-    var mouse_position
     
     handleMouseDown = function( evt ) {
 	var intersections
@@ -120,7 +137,6 @@ initEventHandling = (function() {
 		    -(evt.clientY / window.innerHeight ) * 2 + 1,
 		   1);
 	
-	_vector.unproject( camera );
 	raycaster.setFromCamera(_vector, camera);
 	intersections = raycaster.intersectObjects( moveable_objects ); //is this working properly?
 
@@ -133,7 +149,7 @@ initEventHandling = (function() {
 	    selected_thing.setLinearFactor( _vector);
 	    selected_thing.setLinearVelocity( _vector);
 
-	    mouse_position.copy( intersections[0].point ); // this mouse position is not being set... maybe the conditional isn't working?
+	    mouse_position.copy(intersections[0].point); // this mouse position is not being set... maybe the conditional isn't working?
 	    thing_offset.subVectors( selected_thing.position, mouse_position);
 
 	    intersect_plane.position.y = mouse_position.y;
@@ -151,10 +167,9 @@ initEventHandling = (function() {
 		    -( evt.clientY / window.innerHeight ) * 2 + 1,
 		1);
 	    
-	    _vector.unproject( camera );
 	    raycaster.setFromCamera(_vector, camera);
 	    intersection = raycaster.intersectObject( intersect_plane );
-	    mouse_position.copy( intersection[0].point );
+	    mouse_position.copy(intersection[0].point);
 	}
     };
 
