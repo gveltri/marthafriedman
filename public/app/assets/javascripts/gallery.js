@@ -98,7 +98,7 @@ initScene = function() {
 	new THREE.SphereGeometry(5),
 	new THREE.MeshLambertMaterial({ color: 0x663300 }),
 	    .9,
-	    .4
+	{ restitution: .9, friction: .8 }
     );
     sphere.position.y=30;
     sphere.castShadow = true;
