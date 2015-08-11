@@ -30,4 +30,4 @@ This is the proto-type for a website that features an interactive sculpture gall
 
 Gerardo Veltri - gerardo@workandtext.com
 
-Nick Schmidt - ???@???.com
+Nick Schmidt - nicolas.p.schmidt@gmail.com
