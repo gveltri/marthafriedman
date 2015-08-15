@@ -27,7 +27,7 @@ initScene = function() {
 		_v3.y = 0;
 		selected_thing.setLinearVelocity( _v3 );
 
-		// Reactivate all of the blocks
+		// Reactivate all of the moveable objects
 		_v3.set( 0, 0, 0 );
 		for ( _i = 0; _i < moveable_objects.length; _i++ ) {
 		    moveable_objects[_i].applyCentralImpulse( _v3 );
@@ -108,48 +108,7 @@ initScene = function() {
     moveable_objects.push( sphere );
 
 
-    // add dope custom glsl material
-    var texture;
-    texture = THREE.ImageUtils.loadTexture("app/assets/textures/sheep.jpg");
-    //don't know what the next line does
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
-    var uniforms = {
-        inflate : {type: 'f', value: '0'},
-        ambient :     { type: "c", value: new THREE.Color( "#6e5bc5" ) },
-        diffuse :     { type: "c", value: new THREE.Color( "#bb4b4b" ) },
-        specular :     { type: "c", value: new THREE.Color( "#afaf66" ) },
-        // gonna need to figure out this lightDir component to get this really working
-        lightDir : {type: "v3", value : new THREE.Vector3( -1, 1, 1 )},
-        texture : {type: 't', value: texture },
-        shininess: {type: 'f', value: '.5'},
-    };
-
-    var mat = new THREE.ShaderMaterial({
-        vertexShader:   parseTxt('app/assets/shaders/Bump-vert.txt'),
-        fragmentShader: parseTxt('app/assets/shaders/Bump-frag.txt'),
-    });
-    //console.log(mat);
-
-    // How to load custom objects into the scene
-    var manager = new THREE.LoadingManager();
-    var loader = new THREE.OBJLoader( manager );
-    
-
-
-    loader.load('app/assets/obj/sheep.obj', function ( object ){
-        console.log(object);
-        object.children[0].material = mat;
-
-        scene.add(object);
-
-        // How to add to phys and movable objeects??
-        // var sheep = new Physijs.HeightfieldMesh( object, THREE.MeshLambertMaterial({ color: 0xFF66FF }, 10 ));
-        // moveable_objects.push( sheep );
-
-
-    });
-    
 
     intersect_plane = new THREE.Mesh(
 	new THREE.PlaneGeometry( 150, 150 ),
@@ -180,18 +139,7 @@ function onWindowResize() {
 
 }
 
-// from cos426 method of doing this...
-// textFile should be path to textFile
-function parseTxt( textFile ) {
-    var request = new XMLHttpRequest();
-    request.open("GET", textFile, false);
-    request.overrideMimeType('text/plain');
-    request.send(null);
-    return request.responseText;
-}
 
-
-//this shit is broken pls fix
 
 initEventHandling = (function() {
     var _vector = new THREE.Vector3();
