@@ -108,7 +108,7 @@ initScene = function() {
     moveable_objects.push( sphere );
 
 
-
+    
 
     intersect_plane = new THREE.Mesh(
 	new THREE.PlaneGeometry( 150, 150 ),
@@ -130,6 +130,10 @@ render = function() {
 };
 
 
+
+//handles resizing of the window
+//pleae do not edit 
+
 function onWindowResize() {
 
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -140,6 +144,10 @@ function onWindowResize() {
 }
 
 
+
+//MOUSE-CLICKING FUNCTION
+//DO NOT EDIT
+//please
 
 initEventHandling = (function() {
     var _vector = new THREE.Vector3();
@@ -154,7 +162,7 @@ initEventHandling = (function() {
 		   1);
 	
 	raycaster.setFromCamera(_vector, camera);
-	intersections = raycaster.intersectObjects( moveable_objects ); //is this working properly?
+	intersections = raycaster.intersectObjects( moveable_objects ); 
 
 	if (intersections.length > 0) {
 	    selected_thing = intersections[0].object;
@@ -165,7 +173,7 @@ initEventHandling = (function() {
 	    selected_thing.setLinearFactor( _vector);
 	    selected_thing.setLinearVelocity( _vector);
 
-	    mouse_position.copy(intersections[0].point); // this mouse position is not being set... maybe the conditional isn't working?
+	    mouse_position.copy(intersections[0].point);
 	    thing_offset.subVectors( selected_thing.position, mouse_position);
 
 	    intersect_plane.position.y = mouse_position.y;
@@ -176,7 +184,7 @@ initEventHandling = (function() {
     handleMouseMove = function( evt ) {
 	var intersection
 
-	if (selected_thing !== null) { // this if statement isn't working for some fucking reason
+	if (selected_thing !== null) { 
 
 	    _vector.set(
 		( evt.clientX / window.innerWidth ) * 2 - 1,
