@@ -23,13 +23,11 @@ initScene = function() {
     document.body.appendChild(renderer.domElement);
 
     // Initialize Physijs Scene
-    scene = new Physijs.Scene;
-    scene.setGravity(new THREE.Vector3(0,-30,0));
+    scene = new Physijs.Scene();
+    scene.setGravity( new THREE.Vector3(0, -30, 0) );
     
-    // Click and Drag functionality
-    scene.addEventListener(
-	'update',
-	function() {
+    // Click-and-drag functionality
+    scene.addEventListener( 'update', function() {
 	    if ( selected_thing !== null ) {
 
 		_v3.copy( mouse_position ).sub( selected_thing.position ).multiplyScalar( 5 );
@@ -50,13 +48,15 @@ initScene = function() {
     camera = new THREE.PerspectiveCamera(
 	35,
 	window.innerWidth / window.innerHeight,
-	1,
+	.001,
 	1000
     );
 
     camera.position.set(70,50,70);
     camera.lookAt(scene.position);
-    scene.add(camera);
+    // scene.add(camera);
+    // camera = new THREE.PerspectiveCamera( 27.0, window.innerWidth / window.innerHeight, 0.001, 15.0 );
+    // camera.position.set( 0.0, 1.0, 4.5 );
 
     // ambient light
     am_light = new THREE.AmbientLight( 0x444444 );
@@ -123,9 +123,10 @@ initScene = function() {
     moveable_objects.push( sphere );
 
     /* Load the dragon statue */
-    var loader = new THREE.OBJLoader();
+    var manager = new THREE.LoadingManager();
+    var loader = new THREE.PLYLoader(manager);
     // loader.load( 'app/assets/ply/dragon_vrip_res3.ply', function ( geometry ){
-    loader.load( 'app/assets/obj/hand.obj', function ( geometry ){
+    loader.load( 'app/assets/ply/ascii/dragon_vrip_res3.ply', function ( object ){
  
         var material = new THREE.MeshPhongMaterial( {
             ambient  : 0xffffff,
@@ -133,15 +134,23 @@ initScene = function() {
             specular : 0xffffff,
             shininess: 100
         } );
+        // console.log(object);
 
-        var mesh = new Physijs.BoxMesh( geometry, Physijs.createMaterial( material, 10.0, 0.0), 0.0 );
-        console.log(mesh);
-        mesh.position.set( -0.25, -0.70, -0.5 );
+        object.applyMatrix( new THREE.Matrix4().makeScale( 15, 15, 15 ) );
+
+
+        var mesh = new Physijs.BoxMesh( object, Physijs.createMaterial( material, 10.0, 0.0), 0.0 );
+        // console.log(mesh);
+        mesh.position.set( -5, -3, 20 );
         mesh.scale.set   ( 5.0, 5.0, 5.0 );
         mesh.castShadow     = true;
         mesh.receiveShadow  = true;
+
         scene.add( mesh );
+        // Don't know why this isn't working
+        moveable_objects.push( mesh );
     } );
+
 
     intersect_plane = new THREE.Mesh(
 	   new THREE.PlaneGeometry( 150, 150 ),
