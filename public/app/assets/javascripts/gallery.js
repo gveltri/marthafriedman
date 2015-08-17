@@ -139,9 +139,9 @@ initScene = function() {
         object.applyMatrix( new THREE.Matrix4().makeScale( 15, 15, 15 ) );
 
 
-        var mesh = new Physijs.BoxMesh( object, Physijs.createMaterial( material, 10.0, 0.0), 0.0 );
+        var mesh = new Physijs.BoxMesh( object, Physijs.createMaterial( material, 10.0, 0.0), .9 );
         // console.log(mesh);
-        mesh.position.set( -5, -3, 20 );
+        mesh.position.set( -5, 0, 20 );
         mesh.scale.set   ( 5.0, 5.0, 5.0 );
         mesh.castShadow     = true;
         mesh.receiveShadow  = true;
