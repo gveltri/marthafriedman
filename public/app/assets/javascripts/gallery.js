@@ -24,7 +24,7 @@ initScene = function() {
 
     // Initialize Physijs Scene
     scene = new Physijs.Scene();
-    scene.setGravity( new THREE.Vector3(0, -30, 0) );
+    scene.setGravity( new THREE.Vector3(0, -10, 0) );
     
     // Click-and-drag functionality
     scene.addEventListener( 'update', function() {
@@ -55,8 +55,6 @@ initScene = function() {
     camera.position.set(70,50,70);
     camera.lookAt(scene.position);
     // scene.add(camera);
-    // camera = new THREE.PerspectiveCamera( 27.0, window.innerWidth / window.innerHeight, 0.001, 15.0 );
-    // camera.position.set( 0.0, 1.0, 4.5 );
 
     // ambient light
     am_light = new THREE.AmbientLight( 0x444444 );
@@ -66,12 +64,12 @@ initScene = function() {
     dir_light.position.set( 20, 30, -5 );
     dir_light.target.position.copy( scene.position );
     dir_light.castShadow = true;
-    dir_light.shadowCameraLeft = -30;
-    dir_light.shadowCameraTop = -30;
-    dir_light.shadowCameraRight = 30;
-    dir_light.shadowCameraBottom = 30;
-    dir_light.shadowCameraNear = 20;
-    dir_light.shadowCameraFar = 200;
+    dir_light.shadowCameraLeft = -75;
+    dir_light.shadowCameraTop = -75;
+    dir_light.shadowCameraRight = 75;
+    dir_light.shadowCameraBottom = 75;
+    dir_light.shadowCameraNear = 0;
+    dir_light.shadowCameraFar = 75;
     dir_light.shadowBias = -.001
     dir_light.shadowMapWidth = dir_light.shadowMapHeight = 2048;
     dir_light.shadowDarkness = .5;
@@ -87,7 +85,7 @@ initScene = function() {
     );
     
     table.receiveShadow = true;
-    table.position.y = -.5;
+    table.position.y = -15;
     table.position.z = 6;
     table.position.x = 20;
     
@@ -125,30 +123,25 @@ initScene = function() {
     /* Load the dragon statue */
     var manager = new THREE.LoadingManager();
     var loader = new THREE.PLYLoader(manager);
-    // loader.load( 'app/assets/ply/dragon_vrip_res3.ply', function ( geometry ){
-    loader.load( 'app/assets/ply/ascii/dragon_vrip_res3.ply', function ( object ){
- 
-        var material = new THREE.MeshPhongMaterial( {
-            ambient  : 0xffffff,
-            color    : 0xffffff,
-            specular : 0xffffff,
-            shininess: 100
-        } );
-        // console.log(object);
 
-        object.applyMatrix( new THREE.Matrix4().makeScale( 15, 15, 15 ) );
+    loader.load( './app/assets/ply/ascii/dragon_vrip_res3.ply', function ( geometry ){
+            var material = new THREE.MeshPhongMaterial( {
+                ambient  : 0xffffff,
+                color    : 0xffffff,
+                specular : 0xffffff,
+                shininess: 100
+            } );
 
+            // Adjust geometry to match something ;?
+            geometry.applyMatrix( new THREE.Matrix4().makeTranslation( 0, -.125, 0 ) );
 
-        var mesh = new Physijs.BoxMesh( object, Physijs.createMaterial( material, 10.0, 0.0), .9 );
-        // console.log(mesh);
-        mesh.position.set( -5, 0, 20 );
-        mesh.scale.set   ( 5.0, 5.0, 5.0 );
-        mesh.castShadow     = true;
-        mesh.receiveShadow  = true;
-
-        scene.add( mesh );
-        // Don't know why this isn't working
-        moveable_objects.push( mesh );
+            var mesh = new Physijs.BoxMesh( geometry, Physijs.createMaterial( material, 10.0, 0.0), 10.0 );
+            mesh.position.set( -0.25, -0.70, -0.5 );
+            mesh.scale.set   ( 50.0, 50.0, 50.0 );
+            mesh.castShadow     = true;
+            mesh.receiveShadow  = true;
+            scene.add( mesh );
+            moveable_objects.push( mesh );
     } );
 
 
