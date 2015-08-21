@@ -94,8 +94,8 @@ initScene = function() {
     box = new Physijs.BoxMesh(
 	   new THREE.BoxGeometry( 10, 10, 10 ),
 	   new THREE.MeshLambertMaterial({ color: 0xFF66FF }),
-	    .9,
-	   .4
+	    10,
+	   10
 	);
 
     box.position.y = 20;
@@ -106,11 +106,17 @@ initScene = function() {
     //add box to the array of shit that can be moved
     moveable_objects.push( box ); 
 
+    var sphere_material = Physijs.createMaterial(
+	new THREE.MeshBasicMaterial({ color: 0x663300 }),
+	0.9,
+	0.9
+    );
+    
+    
     sphere = new Physijs.SphereMesh(
-	   new THREE.SphereGeometry(5),
-	   new THREE.MeshLambertMaterial({ color: 0x663300 }),
-	   .9,
-	   { restitution: .9, friction: .8 }
+	new THREE.SphereGeometry(5,20),
+	   sphere_material,
+	  9
     );
 
     sphere.position.y=30;
@@ -120,54 +126,49 @@ initScene = function() {
     scene.add( sphere );
     moveable_objects.push( sphere );
 
-    /* Load the dragon statue */
-    var manager = new THREE.LoadingManager();
-    var loader = new THREE.PLYLoader(manager);
 
-    loader.load( './app/assets/ply/ascii/dragon_vrip_res3.ply', function ( geometry ){
-            var material = new THREE.MeshPhongMaterial( {
-                ambient  : 0xffffff,
-                color    : 0xffffff,
-                specular : 0xffffff,
-                shininess: 100
-            } );
+    armature = new Physijs.BoxMesh(
+	   new THREE.BoxGeometry( 4, 4, 4 ),
+	   new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
+	    .9,
+	   .4
+    );
 
-            // Adjust geometry to match something ;?
-            geometry.applyMatrix( new THREE.Matrix4().makeTranslation( 0, -.125, 0 ) );
+    cylinder = new Physijs.CylinderMesh(
+	new THREE.CylinderGeometry(0.5,0.5,30,8),
+	new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
+	    .9,
+	    .4
 
-            var mesh = new Physijs.BoxMesh( geometry, Physijs.createMaterial( material, 10.0, 0.0), 10.0 );
-            mesh.position.set( -0.25, -0.70, -0.5 );
-            mesh.scale.set   ( 50.0, 50.0, 50.0 );
-            mesh.castShadow     = true;
-            mesh.receiveShadow  = true;
-            scene.add( mesh );
-            moveable_objects.push( mesh );
-    } );
+    );
+    cylinder.position.y = 15;
+    cylinder.castShadow = true;
+    cylinder.receiveShadow = true;
+    armature.add(cylinder);
 
-    /* Load the armature */
-    var loader = new THREE.PLYLoader(manager);
+    armature.position.set(-10,-7,10);
+    armature.castShadow = true;
+    armature.receiveShadow= true;
+    scene.add( armature );
+    moveable_objects.push( armature );
+ 
 
-    loader.load( './app/assets/ply/ascii/stand.ply', function ( geometry ){
-            var material = new THREE.MeshPhongMaterial( {
-                ambient  : 0xffffff,
-                color    : 0xffffff,
-                specular : 0xffffff,
-                shininess: 100
-            } );
-
-            // Adjust geometry to match something ;?
-            geometry.applyMatrix( new THREE.Matrix4().makeTranslation( 0, -.125, 0 ) );
-
-            var mesh = new Physijs.BoxMesh( geometry, Physijs.createMaterial( material, 10.0, 0.0), 10.0 );
-            mesh.position.set( 5, 5, -5 );
-            mesh.scale.set   ( 10.0, 10.0, 10.0 );
-            mesh.castShadow     = true;
-            mesh.receiveShadow  = true;
-            scene.add( mesh );
-            moveable_objects.push( mesh );
-    } );
+    torus = new Physijs.ConvexMesh (
+	new THREE.TorusGeometry( 3, 1, 5, 6),
+	Physijs.createMaterial(
+	    new THREE.MeshBasicMaterial({color:0x00bb00}), 0.2, 0.5
+	),
+	3
+    );
 
 
+    torus.castShadow = true;
+    torus.receiveShadow = true;
+    torus.rotation.x= -Math.PI / 2;
+    torus.position.set(-10,25,10);
+    scene.add( torus );
+    moveable_objects.push( torus );
+    
 
     intersect_plane = new THREE.Mesh(
 	   new THREE.PlaneGeometry( 150, 150 ),
