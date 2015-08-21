@@ -144,6 +144,30 @@ initScene = function() {
             moveable_objects.push( mesh );
     } );
 
+    /* Load the armature */
+    var loader = new THREE.PLYLoader(manager);
+
+    loader.load( './app/assets/ply/ascii/stand.ply', function ( geometry ){
+            var material = new THREE.MeshPhongMaterial( {
+                ambient  : 0xffffff,
+                color    : 0xffffff,
+                specular : 0xffffff,
+                shininess: 100
+            } );
+
+            // Adjust geometry to match something ;?
+            geometry.applyMatrix( new THREE.Matrix4().makeTranslation( 0, -.125, 0 ) );
+
+            var mesh = new Physijs.BoxMesh( geometry, Physijs.createMaterial( material, 10.0, 0.0), 10.0 );
+            mesh.position.set( 5, 5, -5 );
+            mesh.scale.set   ( 10.0, 10.0, 10.0 );
+            mesh.castShadow     = true;
+            mesh.receiveShadow  = true;
+            scene.add( mesh );
+            moveable_objects.push( mesh );
+    } );
+
+
 
     intersect_plane = new THREE.Mesh(
 	   new THREE.PlaneGeometry( 150, 150 ),
