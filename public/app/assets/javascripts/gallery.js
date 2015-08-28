@@ -1,15 +1,12 @@
 
-// What was this doing?
-// 'use strict';
-
 Physijs.scripts.worker = '/app/assets/javascripts/physijs_worker.js';
 Physijs.scripts.ammo = '/app/assets/javascripts/ammo.js';
 
-// Do all of these variables need to be global?
+
 var initScene, render, renderer, scene, 
     camera, box, dir_light, am_light, table, intersect_plane, sphere, table_material, 
     initEventHandling, moveable_objects = [], thing_offset = new THREE.Vector3, 
-    selected_thing = null, mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3;
+    selected_thing = null, mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3, olives = [];
 
 initScene = function() {
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -24,7 +21,7 @@ initScene = function() {
 
     // Initialize Physijs Scene
     scene = new Physijs.Scene();
-    scene.setGravity( new THREE.Vector3(0, -10, 0) );
+    scene.setGravity( new THREE.Vector3(0, -20, 0) );
     
     // Click-and-drag functionality
     scene.addEventListener( 'update', function() {
@@ -81,7 +78,7 @@ initScene = function() {
 	   new THREE.BoxGeometry(150,1,150),
 	   new THREE.MeshLambertMaterial({ color: 0xd7c6cf }),
 	   0, // mass
-	   { restitution: .2, friction: .8 }
+	   { restitution: 10, friction: 10 }
     );
     
     table.receiveShadow = true;
@@ -98,7 +95,7 @@ initScene = function() {
 	   10
 	);
 
-    box.position.y = 20;
+    box.position.set(-10, -9.5, 10);
     box.castShadow = true;
     box.receiveShadow = true;
 
@@ -119,7 +116,7 @@ initScene = function() {
 	  9
     );
 
-    sphere.position.y=30;
+    sphere.position.set(-10, 0.3, 10);
     sphere.castShadow = true;
     sphere.receiveShadow= true;
     
@@ -130,45 +127,72 @@ initScene = function() {
     armature = new Physijs.BoxMesh(
 	   new THREE.BoxGeometry( 4, 4, 4 ),
 	   new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
-	    .9,
+	    0,
 	   .4
     );
 
-    cylinder = new Physijs.CylinderMesh(
+    cylinder = new THREE.Mesh(
 	new THREE.CylinderGeometry(0.5,0.5,30,8),
-	new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
-	    .9,
-	    .4
-
+	new THREE.MeshLambertMaterial({ color: 0xEEEEEE })
     );
     cylinder.position.y = 15;
     cylinder.castShadow = true;
     cylinder.receiveShadow = true;
     armature.add(cylinder);
 
-    armature.position.set(-10,-7,10);
+    armature.position.set(10,-12.5, -10);
     armature.castShadow = true;
     armature.receiveShadow= true;
     scene.add( armature );
-    moveable_objects.push( armature );
- 
-
-    torus = new Physijs.ConvexMesh (
-	new THREE.TorusGeometry( 3, 1, 5, 6),
-	Physijs.createMaterial(
-	    new THREE.MeshBasicMaterial({color:0x00bb00}), 0.2, 0.5
-	),
-	3
-    );
 
 
-    torus.castShadow = true;
-    torus.receiveShadow = true;
-    torus.rotation.x= -Math.PI / 2;
-    torus.position.set(-10,25,10);
-    scene.add( torus );
-    moveable_objects.push( torus );
-    
+
+    //olive constructor
+    function Olive() {
+	var olive1 = new Physijs.CapsuleMesh(
+	    new THREE.CylinderGeometry(2.5,2.5,2.5,20),
+	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
+	    0,
+	    20
+	);
+
+	var side1 = new Physijs.SphereMesh(
+	    new THREE.SphereGeometry(2.5,10,10),
+	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
+	    0,
+	    20
+	);
+	side1.position.y=1;
+	olive1.add( side1 );
+	var side2 = new Physijs.SphereMesh(
+	    new THREE.SphereGeometry(2.5,10,10),
+	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
+	    0,
+	    20
+	);
+
+	side2.position.y=-1;
+	olive1.add( side2 );
+	olive1.castShadow = true;
+	olive1.receiveShadow = true;
+	return olive1;
+    }
+
+    function OliveCreator(num) {
+	for (var i = 0; i < num; i++) {
+	    var y = -8 + (i * 5);
+	    var olive = Olive();
+	    olive.position.set(10,y,-10);
+	    olive.rotation.x=Math.PI / 2;
+	    olive.rotation.z=Math.PI / 2;
+	    scene.add( olive );
+	    moveable_objects.push( olive );
+	    olives.push( olive );
+	}	    
+    }
+
+    //creates olives and adds them to the scene
+    OliveCreator(6);
 
     intersect_plane = new THREE.Mesh(
 	   new THREE.PlaneGeometry( 150, 150 ),
@@ -208,6 +232,7 @@ function onWindowResize() {
 //MOUSE-CLICKING FUNCTION
 //DO NOT EDIT
 //please
+//jk edit me a lil ;-P
 initEventHandling = (function() {
     var _vector = new THREE.Vector3();
     var raycaster = new THREE.Raycaster();
@@ -225,7 +250,10 @@ initEventHandling = (function() {
 
 	if (intersections.length > 0) {
 	    selected_thing = intersections[0].object;
-
+	    if (selected_thing.mass == 0 && selected_thing == olives[olives.length-1]) {
+		selected_thing.mass = 5;
+		olives.pop();
+	    }
 	    _vector.set(0,0,0);
 	    selected_thing.setAngularFactor( _vector);
 	    selected_thing.setAngularVelocity( _vector);
@@ -252,7 +280,9 @@ initEventHandling = (function() {
 	    
 	    raycaster.setFromCamera(_vector, camera);
 	    intersection = raycaster.intersectObject( intersect_plane );
-	    mouse_position.copy(intersection[0].point);
+	    if ( intersection[0] != undefined) {
+		mouse_position.copy(intersection[0].point);
+	    }
 	}
     };
 
