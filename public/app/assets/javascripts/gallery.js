@@ -6,7 +6,7 @@ Physijs.scripts.ammo = '/app/assets/javascripts/ammo.js';
 var initScene, render, renderer, scene, 
     camera, box, dir_light, am_light, table, intersect_plane, sphere, table_material, 
     initEventHandling, moveable_objects = [], thing_offset = new THREE.Vector3, 
-    selected_thing = null, mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3, olives = [];
+    selected_thing = null, mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3, olives = [], cylinder, snap = false;
 
 initScene = function() {
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -25,8 +25,10 @@ initScene = function() {
     
     // Click-and-drag functionality
     scene.addEventListener( 'update', function() {
-	    if ( selected_thing !== null ) {
+	if ( selected_thing !== null && !(snap) ) {
 
+ 		
+		
 		_v3.copy( mouse_position ).sub( selected_thing.position ).multiplyScalar( 5 );
 		_v3.y = 0;
 		selected_thing.setLinearVelocity( _v3 );
@@ -73,10 +75,13 @@ initScene = function() {
 
     scene.add( dir_light );
 
+    var table_texture = new THREE.ImageUtils.loadTexture( 'app/assets/textures/parquet.jpg');
+    table_texture.wrapS = table_texture.wrapT = THREE.RepeatWrapping;
+    table_texture.repeat.set(10,10);
 
     table = new Physijs.BoxMesh(
 	   new THREE.BoxGeometry(150,1,150),
-	   new THREE.MeshLambertMaterial({ color: 0xd7c6cf }),
+	new THREE.MeshLambertMaterial({ map: table_texture, ambient: 0xFFFFFF }),
 	   0, // mass
 	   { restitution: 10, friction: 10 }
     );
@@ -85,6 +90,7 @@ initScene = function() {
     table.position.y = -15;
     table.position.z = 6;
     table.position.x = 20;
+    table.rotation.y = -Math.PI / 6;
     
     scene.add( table );
 
@@ -124,55 +130,41 @@ initScene = function() {
     moveable_objects.push( sphere );
 
 
-    armature = new Physijs.BoxMesh(
+    armature = new Physijs.ConvexMesh(
 	   new THREE.BoxGeometry( 4, 4, 4 ),
 	   new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
-	    0,
+	    9,
 	   .4
     );
 
-    cylinder = new THREE.Mesh(
-	new THREE.CylinderGeometry(0.5,0.5,30,8),
-	new THREE.MeshLambertMaterial({ color: 0xEEEEEE })
-    );
-    cylinder.position.y = 15;
-    cylinder.castShadow = true;
-    cylinder.receiveShadow = true;
-    armature.add(cylinder);
+    intersect_cylinder = new THREE.Mesh(
+	new THREE.CylinderGeometry(0.5,0.5,30.8),
+	new THREE.MeshLambertMaterial());
+    intersect_cylinder.position.set(10,2,-10);
+    scene.add(intersect_cylinder);
+
+    intersect_cylinder.castShadow = true;
+    intersect_cylinder.receiveShadow = true;
 
     armature.position.set(10,-12.5, -10);
     armature.castShadow = true;
     armature.receiveShadow= true;
+    
     scene.add( armature );
 
+    var _v3 = new THREE.Vector3(0,0,0);
+    armature.setAngularFactor(_v3);
+    armature.setLinearFactor(_v3);
 
 
     //olive constructor
     function Olive() {
-	var olive1 = new Physijs.CapsuleMesh(
-	    new THREE.CylinderGeometry(2.5,2.5,2.5,20),
+	var olive1 = new Physijs.CylinderMesh(
+	    new THREE.CylinderGeometry(2.5,2.5,5,20),
 	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-	    0,
+	    5,
 	    20
 	);
-
-	var side1 = new Physijs.SphereMesh(
-	    new THREE.SphereGeometry(2.5,10,10),
-	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-	    0,
-	    20
-	);
-	side1.position.y=1;
-	olive1.add( side1 );
-	var side2 = new Physijs.SphereMesh(
-	    new THREE.SphereGeometry(2.5,10,10),
-	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-	    0,
-	    20
-	);
-
-	side2.position.y=-1;
-	olive1.add( side2 );
 	olive1.castShadow = true;
 	olive1.receiveShadow = true;
 	return olive1;
@@ -185,14 +177,21 @@ initScene = function() {
 	    olive.position.set(10,y,-10);
 	    olive.rotation.x=Math.PI / 2;
 	    olive.rotation.z=Math.PI / 2;
+	    
 	    scene.add( olive );
-	    moveable_objects.push( olive );
+
+	    var _v3 = new THREE.Vector3(0,0,0);
+	    olive.setAngularFactor(_v3);
+	    olive.setLinearFactor(_v3);
+
 	    olives.push( olive );
 	}	    
     }
 
     //creates olives and adds them to the scene
+    //makes last olive moveable
     OliveCreator(6);
+    moveable_objects.push(olives[olives.length-1]);
 
     intersect_plane = new THREE.Mesh(
 	   new THREE.PlaneGeometry( 150, 150 ),
@@ -240,6 +239,7 @@ initEventHandling = (function() {
     
     handleMouseDown = function( evt ) {
 	var intersections
+	mouse_up = false;
 	
 	_vector.set((evt.clientX / window.innerWidth) * 2 - 1,
 		    -(evt.clientY / window.innerHeight ) * 2 + 1,
@@ -250,10 +250,15 @@ initEventHandling = (function() {
 
 	if (intersections.length > 0) {
 	    selected_thing = intersections[0].object;
-	    if (selected_thing.mass == 0 && selected_thing == olives[olives.length-1]) {
-		selected_thing.mass = 5;
+	    
+	    // if it is on the olive totem, pop it and make it dynamic
+	    if (selected_thing == olives[olives.length-1]) {
 		olives.pop();
+		if (olives.length !== 0)
+		moveable_objects.push(olives[olives.length-1]);
 	    }
+	    // end olive totem
+	    
 	    _vector.set(0,0,0);
 	    selected_thing.setAngularFactor( _vector);
 	    selected_thing.setAngularVelocity( _vector);
@@ -288,10 +293,65 @@ initEventHandling = (function() {
 
     handleMouseUp = function( evt ) {
 
+
 	if (selected_thing !== null) {
+
+	   
+		
 	    _vector.set(1,1,1);
 	    selected_thing.setAngularFactor( _vector );
 	    selected_thing.setLinearFactor( _vector );
+
+
+	    // snapping to armature
+
+	    //this raycasting loop can be refactored around the mouse...
+	    //also physijs provides an object collision function
+	    var obj_origin = selected_thing.position.clone();
+	    for (var vertexIndex = 0; vertexIndex < selected_thing.geometry.vertices.length; vertexIndex++) {
+	    	var localVertex = selected_thing.geometry.vertices[vertexIndex].clone();
+	    	var globalVertex = localVertex.applyMatrix4( selected_thing.matrix );
+	    	var directionVector = globalVertex.sub( selected_thing.position );
+
+	    	var ray = new THREE.Raycaster( obj_origin, directionVector.clone().normalize() );
+	    	var collisionResults = ray.intersectObjects( [intersect_cylinder, armature] );
+	    	if ( collisionResults.length !== 0) {
+		    if (olives.length == 0) {
+		    	var snap_y = -11 + selected_thing.geometry.boundingSphere.radius;		
+		    }
+		    else {
+	    		var snap_y = olives[olives.length-1].position.y + olives[olives.length-1].geometry.boundingSphere.radius + selected_thing.geometry.boundingSphere.radius - 2;
+		    }
+	    	    snap= true;
+	    	}
+	    }
+	    if (snap == true) {
+		selected_thing.__dirtyPosition = true;
+
+		//put object in position
+		selected_thing.position.x=armature.position.x;
+		selected_thing.position.y=snap_y;
+		selected_thing.position.z=armature.position.z;
+
+
+		//make object static
+		var _v3 = new THREE.Vector3(0,0,0);
+		selected_thing.setAngularFactor(_v3);
+		selected_thing.setLinearFactor(_v3);
+		selected_thing.setLinearVelocity(_v3);
+
+		//make last object on olive totem moveable
+		var last_index = moveable_objects.indexOf(olives[olives.length-1]);
+		moveable_objects.splice(last_index,last_index);
+		if (moveable_objects.indexOf(selected_thing) == null) {
+		    moveable_objects.push(selected_thing); // avoids creating duplicates if the object is already in the moveable objects array
+		}
+		olives.push(selected_thing);
+		    
+	    	snap = false;
+	    }
+	    //end snapping
+	    
 	    selected_thing = null;
 	}
     };
