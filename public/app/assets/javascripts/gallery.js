@@ -239,7 +239,6 @@ initEventHandling = (function() {
     
     handleMouseDown = function( evt ) {
 	var intersections
-	mouse_up = false;
 	
 	_vector.set((evt.clientX / window.innerWidth) * 2 - 1,
 		    -(evt.clientY / window.innerHeight ) * 2 + 1,
@@ -305,27 +304,22 @@ initEventHandling = (function() {
 
 	    // snapping to armature
 
-	    //this raycasting loop can be refactored around the mouse...
-	    //also physijs provides an object collision function
-	    var obj_origin = selected_thing.position.clone();
-	    for (var vertexIndex = 0; vertexIndex < selected_thing.geometry.vertices.length; vertexIndex++) {
-	    	var localVertex = selected_thing.geometry.vertices[vertexIndex].clone();
-	    	var globalVertex = localVertex.applyMatrix4( selected_thing.matrix );
-	    	var directionVector = globalVertex.sub( selected_thing.position );
+	    	_vector.set((evt.clientX / window.innerWidth) * 2 - 1,
+		    -(evt.clientY / window.innerHeight ) * 2 + 1,
+		   1);
 
-	    	var ray = new THREE.Raycaster( obj_origin, directionVector.clone().normalize() );
-	    	var collisionResults = ray.intersectObjects( [intersect_cylinder, armature] );
-	    	if ( collisionResults.length !== 0) {
-		    if (olives.length == 0) {
-		    	var snap_y = -11 + selected_thing.geometry.boundingSphere.radius;		
-		    }
-		    else {
-	    		var snap_y = olives[olives.length-1].position.y + olives[olives.length-1].geometry.boundingSphere.radius + selected_thing.geometry.boundingSphere.radius - 2;
-		    }
-	    	    snap= true;
-	    	}
-	    }
-	    if (snap == true) {
+
+	    raycaster.setFromCamera(_vector, camera);
+	    var collisionResults = raycaster.intersectObjects( [intersect_cylinder, armature].concat(olives) );
+	    
+	    if ( collisionResults.length !== 0) {
+		if (olives.length == 0) {
+		    var snap_y = -11 + selected_thing.geometry.boundingSphere.radius;		
+		}
+		else {
+	    	    var snap_y = olives[olives.length-1].position.y + olives[olives.length-1].geometry.boundingSphere.radius + selected_thing.geometry.boundingSphere.radius - 2;
+		}
+
 		selected_thing.__dirtyPosition = true;
 
 		//put object in position
@@ -348,8 +342,9 @@ initEventHandling = (function() {
 		}
 		olives.push(selected_thing);
 		    
-	    	snap = false;
+
 	    }
+	    
 	    //end snapping
 	    
 	    selected_thing = null;
