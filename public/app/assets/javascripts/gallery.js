@@ -4,13 +4,13 @@ Physijs.scripts.ammo = '/app/assets/javascripts/ammo.js';
 
 
 var initScene, render, renderer, scene, 
-    camera, box, dir_light, am_light, table, intersect_plane, sphere, table_material, 
-    initEventHandling, moveable_objects = [], thing_offset = new THREE.Vector3, 
-    selected_thing = null, mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3, olives = [], cylinder, snap = false;
+    camera, dir_light, am_light, intersect_plane, table_material, 
+    initEventHandling, moveable_objects = [], selected_thing = null,
+    mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3, olives = [],
+    armature, intersect_cylinder;
 
 initScene = function() {
     renderer = new THREE.WebGLRenderer({antialias:true});
-    // Does this return the right container? Let's make sure we can add some html stuff if we want
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMapEnabled = true;
     renderer.shadowMapSoft = true;
@@ -18,21 +18,19 @@ initScene = function() {
     renderer.shadowMapAutoUpdate = true;
     renderer.setClearColor( 0xFFFFFF );
     document.body.appendChild(renderer.domElement);
-
+    //allows keydown to be heard 
+    renderer.domElement.setAttribute("tabindex", 0);
+    
     // Initialize Physijs Scene
     scene = new Physijs.Scene();
     scene.setGravity( new THREE.Vector3(0, -20, 0) );
     
     // Click-and-drag functionality
     scene.addEventListener( 'update', function() {
-	if ( selected_thing !== null && !(snap) ) {
-
- 		
-		
+	if ( selected_thing !== null ) {
 		_v3.copy( mouse_position ).sub( selected_thing.position ).multiplyScalar( 5 );
 		_v3.y = 0;
 		selected_thing.setLinearVelocity( _v3 );
-
 		// Reactivate all of the moveable objects
 		_v3.set( 0, 0, 0 );
 		for ( _i = 0; _i < moveable_objects.length; _i++ ) {
@@ -40,10 +38,13 @@ initScene = function() {
 		}
 	    }
 	    scene.simulate( undefined, 1 );
-	}
+    }
+
+
+	
     );
     
-    // We should change this to ortho camera
+
     camera = new THREE.PerspectiveCamera(
 	35,
 	window.innerWidth / window.innerHeight,
@@ -51,9 +52,8 @@ initScene = function() {
 	1000
     );
 
-    camera.position.set(70,50,70);
+    camera.position.set(120,70,120);
     camera.lookAt(scene.position);
-    // scene.add(camera);
 
     // ambient light
     am_light = new THREE.AmbientLight( 0x444444 );
@@ -63,12 +63,12 @@ initScene = function() {
     dir_light.position.set( 20, 30, -5 );
     dir_light.target.position.copy( scene.position );
     dir_light.castShadow = true;
-    dir_light.shadowCameraLeft = -75;
-    dir_light.shadowCameraTop = -75;
-    dir_light.shadowCameraRight = 75;
-    dir_light.shadowCameraBottom = 75;
+    dir_light.shadowCameraLeft = -100;
+    dir_light.shadowCameraTop = -100;
+    dir_light.shadowCameraRight = 100;
+    dir_light.shadowCameraBottom = 100;
     dir_light.shadowCameraNear = 0;
-    dir_light.shadowCameraFar = 75;
+    dir_light.shadowCameraFar = 100;
     dir_light.shadowBias = -.001
     dir_light.shadowMapWidth = dir_light.shadowMapHeight = 2048;
     dir_light.shadowDarkness = .5;
@@ -77,121 +77,124 @@ initScene = function() {
 
     var table_texture = new THREE.ImageUtils.loadTexture( 'app/assets/textures/parquet.jpg');
     table_texture.wrapS = table_texture.wrapT = THREE.RepeatWrapping;
-    table_texture.repeat.set(10,10);
+    table_texture.repeat.set(15,15);
 
-    table = new Physijs.BoxMesh(
-	   new THREE.BoxGeometry(150,1,150),
+    var table = new Physijs.BoxMesh(
+	new THREE.BoxGeometry(150,1,150),
 	new THREE.MeshLambertMaterial({ map: table_texture, ambient: 0xFFFFFF }),
-	   0, // mass
+	   0,
 	   { restitution: 10, friction: 10 }
     );
     
     table.receiveShadow = true;
     table.position.y = -15;
-    table.position.z = 6;
-    table.position.x = 20;
-    table.rotation.y = -Math.PI / 6;
+    table.rotation.y = -Math.PI / 4;
     
     scene.add( table );
 
-    box = new Physijs.BoxMesh(
-	   new THREE.BoxGeometry( 10, 10, 10 ),
-	   new THREE.MeshLambertMaterial({ color: 0xFF66FF }),
+    //Hairball Constructor
+    function Hairball(x,z) {
+	var box = new Physijs.BoxMesh(
+	    new THREE.BoxGeometry( 10, 10, 10 ),
+	    new THREE.MeshLambertMaterial({ color: 0xFF66FF }),
 	    10,
-	   10
+	    10
 	);
 
-    box.position.set(-10, -9.5, 10);
-    box.castShadow = true;
-    box.receiveShadow = true;
+	box.position.set(x, -9.5, z);
+	box.castShadow = true;
+	box.receiveShadow = true;
 
-    scene.add( box );
-    //add box to the array of shit that can be moved
-    moveable_objects.push( box ); 
+	scene.add( box );
+	moveable_objects.push( box ); 
 
-    var sphere_material = Physijs.createMaterial(
-	new THREE.MeshBasicMaterial({ color: 0x663300 }),
-	0.9,
-	0.9
-    );
-    
-    
-    sphere = new Physijs.SphereMesh(
-	new THREE.SphereGeometry(5,20),
-	   sphere_material,
-	  9
-    );
+	var sphere_material = Physijs.createMaterial(
+	    new THREE.MeshBasicMaterial({ color: 0x663300 }),
+	    0.9,
+	    0.9
+	);
+	
+	
+	var sphere = new Physijs.SphereMesh(
+	    new THREE.SphereGeometry(5,20),
+	    sphere_material,
+	    9
+	);
 
-    sphere.position.set(-10, 0.3, 10);
-    sphere.castShadow = true;
-    sphere.receiveShadow= true;
-    
-    scene.add( sphere );
-    moveable_objects.push( sphere );
+	sphere.position.set(x, 0.3, z);
+	sphere.castShadow = true;
+	sphere.receiveShadow= true;
+	
+	scene.add( sphere );
+	moveable_objects.push( sphere );
+    }
+    //end hairball constructor
 
-
-    armature = new Physijs.ConvexMesh(
-	   new THREE.BoxGeometry( 4, 4, 4 ),
-	   new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
+    //Armature Constructor
+    function Armature(x,z) {
+	armature = new Physijs.ConvexMesh(
+	    new THREE.BoxGeometry( 4, 4, 4 ),
+	    new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
 	    9,
-	   .4
-    );
-
-    intersect_cylinder = new THREE.Mesh(
-	new THREE.CylinderGeometry(0.5,0.5,30.8),
-	new THREE.MeshLambertMaterial());
-    intersect_cylinder.position.set(10,2,-10);
-    scene.add(intersect_cylinder);
-
-    intersect_cylinder.castShadow = true;
-    intersect_cylinder.receiveShadow = true;
-
-    armature.position.set(10,-12.5, -10);
-    armature.castShadow = true;
-    armature.receiveShadow= true;
-    
-    scene.add( armature );
-
-    var _v3 = new THREE.Vector3(0,0,0);
-    armature.setAngularFactor(_v3);
-    armature.setLinearFactor(_v3);
-
-
-    //olive constructor
-    function Olive() {
-	var olive1 = new Physijs.CylinderMesh(
-	    new THREE.CylinderGeometry(2.5,2.5,5,20),
-	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-	    5,
-	    20
+		.4
 	);
-	olive1.castShadow = true;
-	olive1.receiveShadow = true;
-	return olive1;
+
+	armature.position.set(x,-12.5, z);
+	armature.castShadow = true;
+	armature.receiveShadow= true;
+	
+	scene.add( armature );
+
+	var _v3 = new THREE.Vector3(0,0,0);
+	armature.setAngularFactor(_v3);
+	armature.setLinearFactor(_v3);
+
+	intersect_cylinder = new THREE.Mesh(
+	    new THREE.CylinderGeometry(0.5,0.5,30.8),
+	    new THREE.MeshLambertMaterial());
+	intersect_cylinder.position.set(x,2,z);
+	intersect_cylinder.castShadow = true;
+	intersect_cylinder.receiveShadow = true;
+
+	scene.add(intersect_cylinder);
+
+	//olive constructor
+	function Olive() {
+	    var olive1 = new Physijs.CylinderMesh(
+		new THREE.CylinderGeometry(2.5,2.5,5,20),
+		new THREE.MeshLambertMaterial({ color: 0x66CC00}),
+		5,
+		20
+	    );
+	    olive1.castShadow = true;
+	    olive1.receiveShadow = true;
+	    return olive1;
+	}
+
+	function OliveCreator(num) {
+	    for (var i = 0; i < num; i++) {
+		var y = -8 + (i * 5);
+		var olive = Olive();
+		olive.position.set(armature.position.x,y,armature.position.z);
+		olive.rotation.x=Math.PI / 2;
+		olive.rotation.z=Math.PI / 2;
+		
+		scene.add( olive );
+
+		var _v3 = new THREE.Vector3(0,0,0);
+		olive.setAngularFactor(_v3);
+		olive.setLinearFactor(_v3);
+
+		olives.push( olive );
+	    }
+	    moveable_objects.push(olives[olives.length-1]);
+	}
+	OliveCreator(6);
     }
+    //end armature constructor
+    Armature(25,-25);
+    Hairball(-25,25);
 
-    function OliveCreator(num) {
-	for (var i = 0; i < num; i++) {
-	    var y = -8 + (i * 5);
-	    var olive = Olive();
-	    olive.position.set(10,y,-10);
-	    olive.rotation.x=Math.PI / 2;
-	    olive.rotation.z=Math.PI / 2;
-	    
-	    scene.add( olive );
-
-	    var _v3 = new THREE.Vector3(0,0,0);
-	    olive.setAngularFactor(_v3);
-	    olive.setLinearFactor(_v3);
-
-	    olives.push( olive );
-	}	    
-    }
-
-    //creates olives and adds them to the scene
-    //makes last olive moveable
-    OliveCreator(6);
-    moveable_objects.push(olives[olives.length-1]);
 
     intersect_plane = new THREE.Mesh(
 	   new THREE.PlaneGeometry( 150, 150 ),
@@ -216,7 +219,7 @@ render = function() {
 
 
 //handles resizing of the window
-//pleae do not edit 
+
 function onWindowResize() {
 
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -227,15 +230,12 @@ function onWindowResize() {
 }
 
 
-
-//MOUSE-CLICKING FUNCTION
-//DO NOT EDIT
-//please
-//jk edit me a lil ;-P
+//user input
 initEventHandling = (function() {
     var _vector = new THREE.Vector3();
     var raycaster = new THREE.Raycaster();
-    var handleMouseDown, handleMouseMove, handleMouseUp;
+    var handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown;
+    var thing_offset = new THREE.Vector3, 
     
     handleMouseDown = function( evt ) {
 	var intersections
@@ -317,7 +317,9 @@ initEventHandling = (function() {
 		    var snap_y = -11 + selected_thing.geometry.boundingSphere.radius;		
 		}
 		else {
-	    	    var snap_y = olives[olives.length-1].position.y + olives[olives.length-1].geometry.boundingSphere.radius + selected_thing.geometry.boundingSphere.radius - 2;
+	    	    var snap_y = olives[olives.length-1].position.y
+			+ olives[olives.length-1].geometry.boundingSphere.radius
+			+ selected_thing.geometry.boundingSphere.radius - 2;
 		}
 
 		selected_thing.__dirtyPosition = true;
@@ -351,10 +353,36 @@ initEventHandling = (function() {
 	}
     };
 
+    //rotate camera
+    handleKeyDown =  function( evt ){
+
+	var x = camera.position.x,
+	    y = camera.position.y,
+	    z = camera.position.z;
+
+	var rotSpeed = 0.05;
+	
+	//left
+	if (evt.keyCode=="37"){
+	    camera.position.x = x * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
+	    camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
+	}
+	//right
+	else if (evt.keyCode=="39"){
+	    camera.position.x = x * Math.cos(rotSpeed) - z * Math.sin(rotSpeed);
+	    camera.position.z = z * Math.cos(rotSpeed) + x * Math.sin(rotSpeed);
+	}
+
+	camera.lookAt(scene.position);
+
+    }
+
+
     return function() {
 	renderer.domElement.addEventListener( 'mousedown', handleMouseDown );
 	renderer.domElement.addEventListener( 'mousemove', handleMouseMove );
 	renderer.domElement.addEventListener( 'mouseup', handleMouseUp );
+	renderer.domElement.addEventListener( 'keydown', handleKeyDown );
     };
 })();
 
