@@ -6,8 +6,7 @@ Physijs.scripts.ammo = '/app/assets/javascripts/ammo.js';
 var initScene, render, renderer, scene, 
     camera, dir_light, am_light, intersect_plane, table_material, 
     initEventHandling, moveable_objects = [], selected_thing = null,
-    mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3, olives = [],
-    armature, intersect_cylinder;
+    mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3, sculptures=[];
 
 initScene = function() {
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -92,105 +91,6 @@ initScene = function() {
     
     scene.add( table );
 
-    //Hairball Constructor
-    function Hairball(x,z) {
-	var box = new Physijs.BoxMesh(
-	    new THREE.BoxGeometry( 10, 10, 10 ),
-	    new THREE.MeshLambertMaterial({ color: 0xFF66FF }),
-	    10,
-	    10
-	);
-
-	box.position.set(x, -9.5, z);
-	box.castShadow = true;
-	box.receiveShadow = true;
-
-	scene.add( box );
-	moveable_objects.push( box ); 
-
-	var sphere_material = Physijs.createMaterial(
-	    new THREE.MeshBasicMaterial({ color: 0x663300 }),
-	    0.9,
-	    0.9
-	);
-	
-	
-	var sphere = new Physijs.SphereMesh(
-	    new THREE.SphereGeometry(5,20),
-	    sphere_material,
-	    9
-	);
-
-	sphere.position.set(x, 0.3, z);
-	sphere.castShadow = true;
-	sphere.receiveShadow= true;
-	
-	scene.add( sphere );
-	moveable_objects.push( sphere );
-    }
-    //end hairball constructor
-
-    //Armature Constructor
-    function Armature(x,z) {
-	armature = new Physijs.ConvexMesh(
-	    new THREE.BoxGeometry( 4, 4, 4 ),
-	    new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
-	    9,
-		.4
-	);
-
-	armature.position.set(x,-12.5, z);
-	armature.castShadow = true;
-	armature.receiveShadow= true;
-	
-	scene.add( armature );
-
-	var _v3 = new THREE.Vector3(0,0,0);
-	armature.setAngularFactor(_v3);
-	armature.setLinearFactor(_v3);
-
-	intersect_cylinder = new THREE.Mesh(
-	    new THREE.CylinderGeometry(0.5,0.5,30.8),
-	    new THREE.MeshLambertMaterial());
-	intersect_cylinder.position.set(x,2,z);
-	intersect_cylinder.castShadow = true;
-	intersect_cylinder.receiveShadow = true;
-
-	scene.add(intersect_cylinder);
-
-	//olive constructor
-	function Olive() {
-	    var olive1 = new Physijs.CylinderMesh(
-		new THREE.CylinderGeometry(2.5,2.5,5,20),
-		new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-		5,
-		20
-	    );
-	    olive1.castShadow = true;
-	    olive1.receiveShadow = true;
-	    return olive1;
-	}
-
-	function OliveCreator(num) {
-	    for (var i = 0; i < num; i++) {
-		var y = -8 + (i * 5);
-		var olive = Olive();
-		olive.position.set(armature.position.x,y,armature.position.z);
-		olive.rotation.x=Math.PI / 2;
-		olive.rotation.z=Math.PI / 2;
-		
-		scene.add( olive );
-
-		var _v3 = new THREE.Vector3(0,0,0);
-		olive.setAngularFactor(_v3);
-		olive.setLinearFactor(_v3);
-
-		olives.push( olive );
-	    }
-	    moveable_objects.push(olives[olives.length-1]);
-	}
-	OliveCreator(6);
-    }
     //end armature constructor
     Armature(25,-25);
     Hairball(-25,25);
@@ -218,8 +118,119 @@ render = function() {
 
 
 
-//handles resizing of the window
+//Hairball Constructor
+function Hairball(x,z) {
+    var box = new Physijs.BoxMesh(
+	new THREE.BoxGeometry( 10, 10, 10 ),
+	new THREE.MeshLambertMaterial({ color: 0xFF66FF }),
+	10,
+	10
+    );
 
+    box.position.set(x, -9.5, z);
+    box.castShadow = true;
+    box.receiveShadow = true;
+
+    scene.add( box );
+    moveable_objects.push( box ); 
+
+    var sphere_material = Physijs.createMaterial(
+	new THREE.MeshBasicMaterial({ color: 0x663300 }),
+	0.9,
+	0.9
+    );
+    
+    
+    var sphere = new Physijs.SphereMesh(
+	new THREE.SphereGeometry(5,20),
+	sphere_material,
+	9
+    );
+
+    sphere.position.set(x, 0.3, z);
+    sphere.castShadow = true;
+    sphere.receiveShadow= true;
+    
+    scene.add( sphere );
+    moveable_objects.push( sphere );
+}
+//end hairball constructor
+
+//Armature Constructor
+function Armature(x,z) {
+    var armature = new Physijs.ConvexMesh(
+	new THREE.BoxGeometry( 4, 4, 4 ),
+	new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
+	9,
+	    .4
+    );
+
+    armature.position.set(x,-12.5, z);
+    armature.castShadow = true;
+    armature.receiveShadow= true;
+    
+    scene.add( armature );
+
+    var _v3 = new THREE.Vector3(0,0,0);
+    armature.setAngularFactor(_v3);
+    armature.setLinearFactor(_v3);
+
+    intersect_cylinder = new THREE.Mesh(
+	new THREE.CylinderGeometry(0.5,0.5,30.8),
+	new THREE.MeshLambertMaterial());
+    intersect_cylinder.position.set(x,2,z);
+    intersect_cylinder.castShadow = true;
+    intersect_cylinder.receiveShadow = true;
+
+    scene.add(intersect_cylinder);
+
+    //olive constructor
+    function Olive() {
+	var olive1 = new Physijs.CylinderMesh(
+	    new THREE.CylinderGeometry(2.5,2.5,5,20),
+	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
+	    5,
+	    20
+	);
+	olive1.castShadow = true;
+	olive1.receiveShadow = true;
+	return olive1;
+    }
+
+    var olives = [];
+    
+    function OliveCreator(num) {
+	for (var i = 0; i < num; i++) {
+	    var y = -8 + (i * 5);
+	    var olive = Olive();
+	    olive.position.set(armature.position.x,y,armature.position.z);
+	    olive.rotation.x=Math.PI / 2;
+	    olive.rotation.z=Math.PI / 2;
+	    
+	    scene.add( olive );
+
+	    var _v3 = new THREE.Vector3(0,0,0);
+	    olive.setAngularFactor(_v3);
+	    olive.setLinearFactor(_v3);
+	    olives.push(olive);
+
+	}
+    }
+    OliveCreator(6);
+    sculpture = new Sculpture(armature,olives);
+}
+
+// relates armature and modules
+var Sculpture = function(armature,modules) {
+    this.armature = armature;
+    this.modules = modules;
+    
+    sculptures.push(this);
+    moveable_objects.push(modules[modules.length-1]);
+};
+
+
+//handles resizing of the window
 function onWindowResize() {
 
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -251,10 +262,14 @@ initEventHandling = (function() {
 	    selected_thing = intersections[0].object;
 	    
 	    // if it is on the olive totem, pop it and make it dynamic
-	    if (selected_thing == olives[olives.length-1]) {
-		olives.pop();
-		if (olives.length !== 0)
-		moveable_objects.push(olives[olives.length-1]);
+	    for (i = 0; i < sculptures.length; i++) {
+		if (selected_thing == sculptures[i].modules[sculptures[i].modules.length-1]) {
+		    sculptures[i].modules.pop();
+		    if (sculptures[i].modules.length !== 0)
+			moveable_objects.push(sculptures[i].modules[sculptures[i].modules.length-1]);
+		    break;
+		}
+
 	    }
 	    // end olive totem
 	    
@@ -304,30 +319,41 @@ initEventHandling = (function() {
 
 	    // snapping to armature
 
-	    	_vector.set((evt.clientX / window.innerWidth) * 2 - 1,
-		    -(evt.clientY / window.innerHeight ) * 2 + 1,
-		   1);
+	    var sculpture;
+	    var collisionResults;
 
+	    _vector.set((evt.clientX / window.innerWidth) * 2 - 1,
+			-(evt.clientY / window.innerHeight ) * 2 + 1,
+			1);
 
 	    raycaster.setFromCamera(_vector, camera);
-	    var collisionResults = raycaster.intersectObjects( [intersect_cylinder, armature].concat(olives) );
-	    
+
+	    //iterates through sculpture objects
+	    for (i = 0; i < sculptures.length; i++) {
+		collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
+		if (collisionResults.length !== 0) {
+		    sculpture = sculptures[i];
+		    break;
+		}
+	    }
+
+
 	    if ( collisionResults.length !== 0) {
-		if (olives.length == 0) {
-		    var snap_y = -11 + selected_thing.geometry.boundingSphere.radius;		
+		if (sculpture.modules.length == 0) {
+		    var snap_y = -11 + selected_thing.geometry.boundingSphere.radius;
 		}
 		else {
-	    	    var snap_y = olives[olives.length-1].position.y
-			+ olives[olives.length-1].geometry.boundingSphere.radius
-			+ selected_thing.geometry.boundingSphere.radius - 2;
+		    var snap_y = sculpture.modules[sculpture.modules.length-1].position.y
+		        + sculpture.modules[sculpture.modules.length-1].geometry.boundingBox.max.x
+		        + selected_thing.geometry.boundingBox.max.x;
 		}
 
 		selected_thing.__dirtyPosition = true;
 
 		//put object in position
-		selected_thing.position.x=armature.position.x;
+		selected_thing.position.x=sculpture.armature.position.x;
 		selected_thing.position.y=snap_y;
-		selected_thing.position.z=armature.position.z;
+		selected_thing.position.z=sculpture.armature.position.z;
 
 
 		//make object static
@@ -336,17 +362,19 @@ initEventHandling = (function() {
 		selected_thing.setLinearFactor(_v3);
 		selected_thing.setLinearVelocity(_v3);
 
-		//make last object on olive totem moveable
-		var last_index = moveable_objects.indexOf(olives[olives.length-1]);
-		moveable_objects.splice(last_index,last_index);
+		//make last object on sculpture stack moveable
+		var last_index = moveable_objects.indexOf(sculpture.modules[sculpture.modules.length-1]);
+		moveable_objects.splice(last_index,1);
 		if (moveable_objects.indexOf(selected_thing) == null) {
-		    moveable_objects.push(selected_thing); // avoids creating duplicates if the object is already in the moveable objects array
+		    moveable_objects.push(selected_thing);
+		// avoids creating duplicates if the object is already in the moveable objects array
 		}
-		olives.push(selected_thing);
-		    
+
+		//finally, push selected_thing on the sculpture stack
+		sculpture.modules.push(selected_thing);
+
 
 	    }
-	    
 	    //end snapping
 	    
 	    selected_thing = null;
