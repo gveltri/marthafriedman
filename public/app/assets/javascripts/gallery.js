@@ -15,7 +15,7 @@ initScene = function() {
     renderer.shadowMapSoft = true;
     renderer.shadowMapType = THREE.PCFShadowMap;
     renderer.shadowMapAutoUpdate = true;
-    renderer.setClearColor( 0xFFFFFF );
+    renderer.setClearColor( 0xece7eb );
     document.body.appendChild(renderer.domElement);
     //allows keydown to be heard 
     renderer.domElement.setAttribute("tabindex", 0);
@@ -74,15 +74,37 @@ initScene = function() {
 
     scene.add( dir_light );
 
-    var table_texture = new THREE.ImageUtils.loadTexture( 'app/assets/textures/parquet.jpg');
+    dir_light2 = new THREE.DirectionalLight( 0xFFFFFF);
+    dir_light2.position.set( -5, 30, 20 );
+    dir_light2.target.position.copy( scene.position );
+    dir_light2.castShadow = true;
+    dir_light2.shadowCameraLeft = -100;
+    dir_light2.shadowCameraTop = -100;
+    dir_light2.shadowCameraRight = 100;
+    dir_light2.shadowCameraBottom = 100;
+    dir_light2.shadowCameraNear = 0;
+    dir_light2.shadowCameraFar = 100;
+    dir_light2.shadowBias = -.001
+    dir_light2.shadowMapWidth = dir_light2.shadowMapHeight = 2048;
+    dir_light2.shadowDarkness = .1;
+    dir_light2.intensity = 0.3;
+
+    scene.add( dir_light2 );
+
+
+    var table_texture = new THREE.ImageUtils.loadTexture( 'app/assets/textures/parquet-2.jpg');
     table_texture.wrapS = table_texture.wrapT = THREE.RepeatWrapping;
     table_texture.repeat.set(15,15);
 
+    var table_material = new Physijs.createMaterial(
+	new THREE.MeshPhongMaterial({ map: table_texture, ambient: 0xFFFFFF }),
+	0.8,
+	0.9);
+    
     var table = new Physijs.BoxMesh(
 	new THREE.BoxGeometry(150,1,150),
-	new THREE.MeshLambertMaterial({ map: table_texture, ambient: 0xFFFFFF }),
-	   0,
-	   { restitution: 10, friction: 10 }
+	table_material,
+	   0
     );
     
     table.receiveShadow = true;
@@ -120,11 +142,16 @@ render = function() {
 
 //Hairball Constructor
 function Hairball(x,z) {
+
+    var box_material = Physijs.createMaterial(
+	new THREE.MeshLambertMaterial({ color: 0xFF66FF }),
+	0.9,
+	0.2);
+
     var box = new Physijs.BoxMesh(
 	new THREE.BoxGeometry( 10, 10, 10 ),
-	new THREE.MeshLambertMaterial({ color: 0xFF66FF }),
-	10,
-	10
+	box_material,
+	30
     );
 
     box.position.set(x, -9.5, z);
@@ -134,11 +161,15 @@ function Hairball(x,z) {
     scene.add( box );
     moveable_objects.push( box ); 
 
+    var sphere_texture = THREE.ImageUtils.loadTexture('app/assets/textures/hair.jpg',THREE.SphericalRefractionMapping);
+
+    sphere_texture.wrapS = sphere_texture.wrapT = THREE.RepeatWrapping;
+    sphere_texture.repeat.set(3,3);
+
     var sphere_material = Physijs.createMaterial(
-	new THREE.MeshBasicMaterial({ color: 0x663300 }),
-	0.9,
-	0.9
-    );
+	new THREE.MeshPhongMaterial({ map: sphere_texture, ambient: 0x904716 }),
+	0.3,
+	0.9);
     
     
     var sphere = new Physijs.SphereMesh(
@@ -161,8 +192,7 @@ function Armature(x,z) {
     var armature = new Physijs.ConvexMesh(
 	new THREE.BoxGeometry( 4, 4, 4 ),
 	new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
-	9,
-	    .4
+	9
     );
 
     armature.position.set(x,-12.5, z);
@@ -186,11 +216,16 @@ function Armature(x,z) {
 
     //olive constructor
     function Olive() {
+
+	var olive_material = new Physijs.createMaterial (
+	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
+	    0.5,
+	    0.5
+	);
 	var olive1 = new Physijs.CylinderMesh(
 	    new THREE.CylinderGeometry(2.5,2.5,5,20),
-	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-	    5,
-	    20
+	    olive_material,  
+	    5	   
 	);
 	olive1.castShadow = true;
 	olive1.receiveShadow = true;
