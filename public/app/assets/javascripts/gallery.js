@@ -250,12 +250,14 @@ function Armature(x,z) {
 		);
 	
 		for (var i = 0; i < num; i++) {
-		    var y = -8 + (i * 5);
+		    // var y = -8 + (i * 5);
 		    // olive_loader loads in geometry
 		    // position olive in callback	
 		    console.log(i);	    
 		    var olive = olive_loader.load('./app/assets/ply/ascii/Olive.ply', function( geometry ){
 		    	// console.log(geometry);
+		    	var y = -8 + (olives.length * 5);
+
 		    	var oliveMesh = new Physijs.CylinderMesh(
 		    		geometry,
 		    		olive_material,  
@@ -276,6 +278,7 @@ function Armature(x,z) {
 			    oliveMesh.setLinearFactor(_v3);
 
 			    olives.push(oliveMesh);
+			    
 			    if (olives.length == num){
 			    	sculpture = new Sculpture( armature, olives);
 			    }
