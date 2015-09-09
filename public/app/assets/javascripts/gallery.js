@@ -173,7 +173,7 @@ function Hairball(x,z) {
     
     
     var sphere = new Physijs.SphereMesh(
-	new THREE.SphereGeometry(5,20),
+	new THREE.SphereGeometry(5,20,20),
 	sphere_material,
 	9
     );
