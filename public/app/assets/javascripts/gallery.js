@@ -189,10 +189,10 @@ function Hairball(x,z) {
 
 //Armature Constructor
 function Armature(x,z) {
-    var armature = new Physijs.ConvexMesh(
-	new THREE.BoxGeometry( 4, 4, 4 ),
-	new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
-	9
+    var armature = new Physijs.BoxMesh(
+		new THREE.BoxGeometry( 4, 4, 4 ),
+		new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
+		9
     );
 
     armature.position.set(x,-12.5, z);
@@ -206,53 +206,88 @@ function Armature(x,z) {
     armature.setLinearFactor(_v3);
 
     intersect_cylinder = new THREE.Mesh(
-	new THREE.CylinderGeometry(0.5,0.5,30.8),
-	new THREE.MeshLambertMaterial());
-    intersect_cylinder.position.set(x,2,z);
+		new THREE.CylinderGeometry(0.5,0.5,30.8),
+		new THREE.MeshLambertMaterial()
+	);
+
+    intersect_cylinder.position.set(x, 2,z);
     intersect_cylinder.castShadow = true;
     intersect_cylinder.receiveShadow = true;
 
     scene.add(intersect_cylinder);
 
-    //olive constructor
-    function Olive() {
 
-	var olive_material = new Physijs.createMaterial (
-	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-	    0.5,
-	    0.5
-	);
-	var olive1 = new Physijs.CylinderMesh(
-	    new THREE.CylinderGeometry(2.5,2.5,5,20),
-	    olive_material,  
-	    5	   
-	);
-	olive1.castShadow = true;
-	olive1.receiveShadow = true;
-	return olive1;
-    }
+    // olive constructor
+ 	// function Olive() {
+
+		// var olive_material = new Physijs.createMaterial (
+		//     new THREE.MeshLambertMaterial({ color: 0x66CC00}),
+		//     0.5,
+		//     0.5
+		// );
+		
+		// var olive = new Physijs.CylinderMesh(
+		//     geometry,
+		//     olive_material,  
+		//     5	   
+		// );
+	
+		// olive.castShadow = true;
+		// olive.receiveShadow = true;
+
+  	// }
 
     var olives = [];
     
     function OliveCreator(num) {
-	for (var i = 0; i < num; i++) {
-	    var y = -8 + (i * 5);
-	    var olive = Olive();
-	    olive.position.set(armature.position.x,y,armature.position.z);
-	    olive.rotation.x=Math.PI / 2;
-	    olive.rotation.z=Math.PI / 2;
-	    
-	    scene.add( olive );
+    
+    	var olive_loader = new THREE.PLYLoader();
 
-	    var _v3 = new THREE.Vector3(0,0,0);
-	    olive.setAngularFactor(_v3);
-	    olive.setLinearFactor(_v3);
-	    olives.push(olive);
+    	var olive_material = new Physijs.createMaterial (
+		    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
+		    0.5,
+		    0.5
+		);
+	
+		for (var i = 0; i < num; i++) {
+		    var y = -8 + (i * 5);
+		    // olive_loader loads in geometry
+		    // position olive in callback	
+		    console.log(i);	    
+		    var olive = olive_loader.load('./app/assets/ply/ascii/Olive.ply', function( geometry ){
+		    	// console.log(geometry);
+		    	var oliveMesh = new Physijs.CylinderMesh(
+		    		geometry,
+		    		olive_material,  
+		    		5	   
+				);
+				// console.log(oliveMesh);
+				oliveMesh.castShadow = true;
+				oliveMesh.receiveShadow = true;
 
+				oliveMesh.position.set(armature.position.x, y, armature.position.z);
+			    oliveMesh.rotation.x=Math.PI / 2;
+			    oliveMesh.rotation.z=Math.PI / 2;
+				// return olive1;
+				scene.add( oliveMesh );
+
+				var _v3 = new THREE.Vector3(0,0,0);
+			    oliveMesh.setAngularFactor(_v3);
+			    oliveMesh.setLinearFactor(_v3);
+
+			    olives.push(oliveMesh);
+			    if (olives.length == num){
+			    	sculpture = new Sculpture( armature, olives);
+			    }
+		    });
+		}
+		// console.log("hi" + olives);
 	}
-    }
-    OliveCreator(6);
-    sculpture = new Sculpture(armature,olives);
+
+	OliveCreator(6);
+	// console.log(olives);
+	// sculpture = new Sculpture(armature,olives);
+
 }
 
 // relates armature and modules
