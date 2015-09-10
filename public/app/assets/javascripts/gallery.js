@@ -6,7 +6,8 @@ Physijs.scripts.ammo = '/app/assets/javascripts/ammo.js';
 var initScene, render, renderer, scene, 
     camera, dir_light, am_light, intersect_plane, table_material, 
     initEventHandling, moveable_objects = [], selected_thing = null,
-    mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3, sculptures=[];
+    mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3, sculptures=[],
+    static_surfaces=[];
 
 initScene = function() {
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -92,30 +93,14 @@ initScene = function() {
     scene.add( dir_light2 );
 
 
-    var table_texture = new THREE.ImageUtils.loadTexture( 'app/assets/textures/parquet-2.jpg');
-    table_texture.wrapS = table_texture.wrapT = THREE.RepeatWrapping;
-    table_texture.repeat.set(15,15);
-
-    var table_material = new Physijs.createMaterial(
-	new THREE.MeshPhongMaterial({ map: table_texture, ambient: 0xFFFFFF }),
-	0.8,
-	0.9);
-    
-    var table = new Physijs.BoxMesh(
-	new THREE.BoxGeometry(150,1,150),
-	table_material,
-	   0
-    );
-    
-    table.receiveShadow = true;
-    table.position.y = -15;
-    table.rotation.y = -Math.PI / 4;
-    
-    scene.add( table );
 
     //end armature constructor
     Armature(25,-25);
     Hairball(-25,25);
+    Table(0,-15,0,60,60,0);
+    Table(-45,-15,0,30,60,0);
+    Table(-30,-15,-55,60,50,0);    
+    
 
 
     intersect_plane = new THREE.Mesh(
@@ -138,7 +123,32 @@ render = function() {
     requestAnimationFrame( render );
 };
 
+function Table(x,y,z,x_size,y_size,rotation) {
 
+    rotation = typeof rotation !== 'undefined' ? rotation : (-Math.PI / 4);
+    
+    var table_texture = new THREE.ImageUtils.loadTexture( 'app/assets/textures/parquet-2.jpg');
+    table_texture.wrapS = table_texture.wrapT = THREE.RepeatWrapping;
+    table_texture.repeat.set(15,15);
+
+    var table_material = new Physijs.createMaterial(
+	new THREE.MeshPhongMaterial({ map: table_texture, ambient: 0xFFFFFF }),
+	0.8,
+	0.9);
+    
+    var table = new Physijs.BoxMesh(
+	new THREE.BoxGeometry(x_size,1,y_size),
+	table_material,
+	   0
+    );
+    
+    table.receiveShadow = true;
+    table.position.set(x,y,z);
+    table.rotation.y = rotation;
+    
+    scene.add( table );
+    static_surfaces.push(table);
+};
 
 //Hairball Constructor
 function Hairball(x,z) {
@@ -240,8 +250,8 @@ function Armature(x,z) {
 	   
 	    
 	    var oliveMesh = new Physijs.CylinderMesh(
-		//new THREE.CylinderGeometry(2.5,2.5,5,20),
-		geometry,
+		new THREE.CylinderGeometry(2.5,2.5,5,20),
+		// geometry,
 		olive_material,  
 		5
 	    );
