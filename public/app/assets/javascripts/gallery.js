@@ -143,6 +143,7 @@ function Table(x,y,z,x_size,y_size,rotation) {
     );
     
     table.receiveShadow = true;
+    table.castShadow = false;
     table.position.set(x,y,z);
     table.rotation.y = rotation;
     
