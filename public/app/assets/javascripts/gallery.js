@@ -168,7 +168,7 @@ function Hairball(x,z) {
 
     var sphere_material = Physijs.createMaterial(
 	new THREE.MeshPhongMaterial({ map: sphere_texture, ambient: 0x904716 }),
-	0.3,
+	0.5,
 	0.9);
     
     
@@ -216,27 +216,6 @@ function Armature(x,z) {
 
     scene.add(intersect_cylinder);
 
-
-    // olive constructor
- 	// function Olive() {
-
-		// var olive_material = new Physijs.createMaterial (
-		//     new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-		//     0.5,
-		//     0.5
-		// );
-		
-		// var olive = new Physijs.CylinderMesh(
-		//     geometry,
-		//     olive_material,  
-		//     5	   
-		// );
-	
-		// olive.castShadow = true;
-		// olive.receiveShadow = true;
-
-  	// }
-
     var olives = [];
     
     function OliveCreator(num) {
@@ -245,47 +224,51 @@ function Armature(x,z) {
 
     	var olive_material = new Physijs.createMaterial (
 		    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-		    0.5,
-		    0.5
+		    0.1,
+		    0.7
 		);
 	
-		for (var i = 0; i < num; i++) {
-		    // var y = -8 + (i * 5);
-		    // olive_loader loads in geometry
-		    // position olive in callback	
-		    console.log(i);	    
-		    var olive = olive_loader.load('./app/assets/ply/ascii/Olive.ply', function( geometry ){
+		// for (var i = 0; i < num; i++) {
+
+	//console.log(i);
+	var olive = olive_loader.load('./app/assets/ply/ascii/Olive.ply', function( geometry ){
 		    	// console.log(geometry);
-		    	var y = -8 + (olives.length * 5);
+		    	// var y = -8 + (olives.length * 5);
+	for (var i = 0; i < num; i++){
+	    var y = -8 + (olives.length*7);
 
-		    	var oliveMesh = new Physijs.CylinderMesh(
-		    		geometry,
-		    		olive_material,  
-		    		5	   
-				);
-				// console.log(oliveMesh);
-				oliveMesh.castShadow = true;
-				oliveMesh.receiveShadow = true;
+	   
+	    
+	    var oliveMesh = new Physijs.CylinderMesh(
+		//new THREE.CylinderGeometry(2.5,2.5,5,20),
+		geometry,
+		olive_material,  
+		5
+	    );
+	    // console.log(oliveMesh);
+	    oliveMesh.castShadow = true;
+	    oliveMesh.receiveShadow = true;
 
-				oliveMesh.position.set(armature.position.x, y, armature.position.z);
-			    oliveMesh.rotation.x=Math.PI / 2;
-			    oliveMesh.rotation.z=Math.PI / 2;
-				// return olive1;
-				scene.add( oliveMesh );
+	    oliveMesh.position.set(armature.position.x, y, armature.position.z);
+	    oliveMesh.rotation.x=Math.PI / 2;
+	    oliveMesh.rotation.z=Math.PI / 2;
+	    // return olive1;
+	    scene.add( oliveMesh );
 
-				var _v3 = new THREE.Vector3(0,0,0);
-			    oliveMesh.setAngularFactor(_v3);
-			    oliveMesh.setLinearFactor(_v3);
+	    var _v3 = new THREE.Vector3(0,1,0);
+	    oliveMesh.setAngularFactor(_v3);
+	    oliveMesh.setLinearFactor(_v3);
 
-			    olives.push(oliveMesh);
+	    olives.push(oliveMesh);
 			    
-			    if (olives.length == num){
-			    	sculpture = new Sculpture( armature, olives);
-			    }
-		    });
-		}
-		// console.log("hi" + olives);
+			    //if (olives.length == num){
+			    //	sculpture = new Sculpture( armature, olives);
+			//}
+	    sculpture = new Sculpture( armature, olives);
 	}
+	});//	     }
+				      // console.log("hi" + olives);
+    }
 
 	OliveCreator(6);
 	// console.log(olives);
@@ -302,6 +285,32 @@ var Sculpture = function(armature,modules) {
     moveable_objects.push(modules[modules.length-1]);
 };
 
+// isolated an olive for debugging/playing with the mesh
+function freeOlive(x,z) {
+    var olive_material = new Physijs.createMaterial (
+	new THREE.MeshLambertMaterial({ color: 0x66CC00}),
+	0.5,
+	0.5
+    );
+
+    var olive_loader = new THREE.PLYLoader();
+    var olive = olive_loader.load('./app/assets/ply/ascii/Olive.ply', function( geometry ){
+
+	var oliveMesh = new Physijs.CapsuleMesh(
+	    geometry,
+	    olive_material,  
+	    5	   
+	);
+	// console.log(oliveMesh);
+	oliveMesh.castShadow = true;
+	oliveMesh.receiveShadow = true;
+
+	oliveMesh.position.set(x,0,z);
+	scene.add( oliveMesh );
+	moveable_objects.push(oliveMesh);
+    });
+}
+// isolated an olive for debugging/playing with the mesh
 
 //handles resizing of the window
 function onWindowResize() {
@@ -413,12 +422,12 @@ initEventHandling = (function() {
 
 	    if ( collisionResults.length !== 0) {
 		if (sculpture.modules.length == 0) {
-		    var snap_y = -11 + selected_thing.geometry.boundingSphere.radius;
+		    var snap_y = -12 + selected_thing.geometry.boundingSphere.radius;
 		}
 		else {
 		    var snap_y = sculpture.modules[sculpture.modules.length-1].position.y
-		        + sculpture.modules[sculpture.modules.length-1].geometry.boundingBox.max.x
-		        + selected_thing.geometry.boundingBox.max.x;
+		        + sculpture.modules[sculpture.modules.length-1].geometry.boundingBox.max.y
+		        + selected_thing.geometry.boundingBox.max.y;
 		}
 
 		selected_thing.__dirtyPosition = true;
@@ -430,18 +439,18 @@ initEventHandling = (function() {
 
 
 		//make object static
-		var _v3 = new THREE.Vector3(0,0,0);
+		var _v3 = new THREE.Vector3(0,1,0);
 		selected_thing.setAngularFactor(_v3);
 		selected_thing.setLinearFactor(_v3);
+		_v3 = new THREE.Vector3(0,0,0);
 		selected_thing.setLinearVelocity(_v3);
 
 		//make last object on sculpture stack moveable
-		var last_index = moveable_objects.indexOf(sculpture.modules[sculpture.modules.length-1]);
-		moveable_objects.splice(last_index,1);
-		if (moveable_objects.indexOf(selected_thing) == null) {
-		    moveable_objects.push(selected_thing);
-		// avoids creating duplicates if the object is already in the moveable objects array
-		}
+
+		// if (moveable_objects.indexOf(selected_thing) == null) {
+		//     moveable_objects.push(selected_thing);
+		// // avoids creating duplicates if the object is already in the moveable objects array
+		// }
 
 		//finally, push selected_thing on the sculpture stack
 		sculpture.modules.push(selected_thing);
