@@ -239,7 +239,7 @@ function Armature(x,z) {
 
 	   
 	    
-	    var oliveMesh = new Physijs.CylinderMesh(
+	    var oliveMesh = new Physijs.BoxMesh(
 		//new THREE.CylinderGeometry(2.5,2.5,5,20),
 		geometry,
 		olive_material,  
