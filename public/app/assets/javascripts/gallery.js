@@ -221,9 +221,16 @@ function Armature(x,z) {
     function OliveCreator(num) {
     
     	var olive_loader = new THREE.PLYLoader();
+    	var pimento_loader = new THREE.PLYLoader();
 
     	var olive_material = new Physijs.createMaterial (
 		    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
+		    0.1,
+		    0.7
+		);
+
+		var pimento_material = new Physijs.createMaterial (
+		    new THREE.MeshLambertMaterial({ color: 0xff0000}),
 		    0.1,
 		    0.7
 		);
@@ -231,20 +238,23 @@ function Armature(x,z) {
 		// for (var i = 0; i < num; i++) {
 
 	//console.log(i);
-	var olive = olive_loader.load('./app/assets/ply/ascii/Olive.ply', function( geometry ){
+	var olive = olive_loader.load('./app/assets/ply/ascii/Olive_nopimento.ply', function( geometry ){
+		var pimento = pimento_loader.load('./app/assets/ply/ascii/pimento.ply', function( pimento_geometry ){
 		    	// console.log(geometry);
 		    	// var y = -8 + (olives.length * 5);
 	for (var i = 0; i < num; i++){
 	    var y = -8 + (olives.length*7);
 
-	   
-	    
+	    var pimentoMesh = new THREE.Mesh(pimento_geometry);
+
 	    var oliveMesh = new Physijs.BoxMesh(
 		//new THREE.CylinderGeometry(2.5,2.5,5,20),
 		geometry,
 		olive_material,  
 		5
 	    );
+
+	    oliveMesh.add(pimentoMesh);
 	    // console.log(oliveMesh);
 	    oliveMesh.castShadow = true;
 	    oliveMesh.receiveShadow = true;
@@ -265,7 +275,8 @@ function Armature(x,z) {
 			    //	sculpture = new Sculpture( armature, olives);
 			//}
 	    sculpture = new Sculpture( armature, olives);
-	}
+		}
+	});
 	});//	     }
 				      // console.log("hi" + olives);
     }
