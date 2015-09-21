@@ -46,18 +46,27 @@ initScene = function() {
     
 
     camera = new THREE.PerspectiveCamera(
-	35,
-	window.innerWidth / window.innerHeight,
-	.001,
-	1000
+    	35,
+    	window.innerWidth / window.innerHeight,
+    	.001,
+    	1000
     );
 
-    camera.position.set(120,70,120);
+    
+
+    camera.position.set(120,50,50);
     camera.lookAt(scene.position);
 
     // ambient light
     am_light = new THREE.AmbientLight( 0x444444 );
     scene.add( am_light );
+
+    var light = new THREE.PointLight( 0xFFFFFF, 0.5, 100 );
+    light.position.set( -15, 20, -30 );
+    scene.add( light );
+
+
+
     // directional light
     dir_light = new THREE.DirectionalLight( 0xFFFFFF );
     dir_light.position.set( 20, 30, -5 );
@@ -71,12 +80,12 @@ initScene = function() {
     dir_light.shadowCameraFar = 100;
     dir_light.shadowBias = -.001
     dir_light.shadowMapWidth = dir_light.shadowMapHeight = 2048;
-    dir_light.shadowDarkness = .5;
+    dir_light.shadowDarkness = .3;
 
     scene.add( dir_light );
 
-    dir_light2 = new THREE.DirectionalLight( 0xFFFFFF);
-    dir_light2.position.set( -5, 30, 20 );
+    dir_light2 = new THREE.DirectionalLight( 0xFCD440);
+    dir_light2.position.set( 5, 30, 20 );
     dir_light2.target.position.copy( scene.position );
     dir_light2.castShadow = true;
     dir_light2.shadowCameraLeft = -100;
@@ -93,13 +102,20 @@ initScene = function() {
     scene.add( dir_light2 );
 
 
+    //space init
+    Wall(-60,5,-25,40,110,'app/assets/textures/stucco.jpg',0);
+    Wall(-30,5,-80,40,60,'app/assets/textures/stucco.jpg',Math.PI/2);
+    Table(-30,-15,-55,60,50,'app/assets/textures/concrete.jpg',0);
+    Table(-45,-15,0,30,60,'app/assets/textures/concrete.jpg',0);
+    Table(0,-15.5,10,60,80,'app/assets/textures/grass.jpg',0);
+    Wall(0,5,-55,40,50,'app/assets/textures/stucco.jpg',0,false);
+    Wall(-45,5,30,40,30,'app/assets/textures/stucco.jpg',Math.PI/2,false);    
 
-    //end armature constructor
-    Armature(25,-25);
-    Hairball(-25,25);
-    Table(0,-15,0,60,60,0);
-    Table(-45,-15,0,30,60,0);
-    Table(-30,-15,-55,60,50,0);    
+
+    //sculptures init
+    Armature(-20,-55);
+    Hairball(-45,18);
+    Egg(0,0);
     
 
 
@@ -123,13 +139,13 @@ render = function() {
     requestAnimationFrame( render );
 };
 
-function Table(x,y,z,x_size,y_size,rotation) {
+function Table(x,y,z,x_size,y_size,texture_path,rotation) {
 
     rotation = typeof rotation !== 'undefined' ? rotation : (-Math.PI / 4);
     
-    var table_texture = new THREE.ImageUtils.loadTexture( 'app/assets/textures/parquet-2.jpg');
+    var table_texture = new THREE.ImageUtils.loadTexture( texture_path );
     table_texture.wrapS = table_texture.wrapT = THREE.RepeatWrapping;
-    table_texture.repeat.set(15,15);
+    table_texture.repeat.set(3,3);
 
     var table_material = new Physijs.createMaterial(
 	new THREE.MeshPhongMaterial({ map: table_texture, ambient: 0xFFFFFF }),
@@ -143,12 +159,52 @@ function Table(x,y,z,x_size,y_size,rotation) {
     );
     
     table.receiveShadow = true;
-    table.castShadow = false;
     table.position.set(x,y,z);
     table.rotation.y = rotation;
     
     scene.add( table );
     static_surfaces.push(table);
+};
+
+
+function Wall(x,y,z,x_size,y_size,texture_path,rotation,visible) {
+
+    rotation = typeof rotation !== 'undefined' ? rotation : (-Math.PI / 4);
+    visible = typeof visible !== 'undefined' ? visible : true;
+    
+    var wall_texture = new THREE.ImageUtils.loadTexture( texture_path );
+    wall_texture.wrapS = wall_texture.wrapT = THREE.RepeatWrapping;
+    wall_texture.repeat.set(3,3);
+
+
+    
+    var wall_material = new Physijs.createMaterial(
+	new THREE.MeshPhongMaterial({ map: wall_texture, ambient: 0xFFFFFF }),
+	0.8,
+	0.9);
+
+    if (!visible) wall_material = new Physijs.createMaterial(
+	new THREE.MeshPhongMaterial({opacity: 0, transparent: true  }),
+	0.8,
+	0.9
+    );
+    
+    var wall = new Physijs.BoxMesh(
+	new THREE.BoxGeometry(x_size,1,y_size),
+	wall_material,
+	   0
+    );
+
+
+    
+    wall.receiveShadow = true;
+    wall.castShadow = true;
+    wall.position.set(x,y,z);
+    wall.rotation.z = Math.PI / 2;
+    wall.rotation.y = rotation;
+    
+    scene.add( wall );
+    static_surfaces.push(wall);
 };
 
 //Hairball Constructor
@@ -235,24 +291,23 @@ function Armature(x,z) {
 
     	var olive_material = new Physijs.createMaterial (
 		    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-		    0.1,
-		    0.7
+		    0.0,
+		    0.0
 		);
 	
 		// for (var i = 0; i < num; i++) {
 
 	//console.log(i);
 	var olive = olive_loader.load('./app/assets/ply/ascii/Olive.ply', function( geometry ){
-		    	// console.log(geometry);
-		    	// var y = -8 + (olives.length * 5);
+
 	for (var i = 0; i < num; i++){
-	    var y = -8 + (olives.length*7);
+	    var y = -8 + (olives.length*10);
 
 	   
 	    
 	    var oliveMesh = new Physijs.CylinderMesh(
-		new THREE.CylinderGeometry(2.5,2.5,5,20),
-		// geometry,
+		// new THREE.CylinderGeometry(2.5,2.5,5,20),
+		geometry,
 		olive_material,  
 		5
 	    );
@@ -286,6 +341,85 @@ function Armature(x,z) {
 	// sculpture = new Sculpture(armature,olives);
 
 }
+
+function Egg(x,z) {
+    var armature = new Physijs.BoxMesh(
+		new THREE.BoxGeometry( 5, 1, 5 ),
+		new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
+		9
+    );
+
+    armature.position.set(x,-14, z);
+    armature.castShadow = true;
+    armature.receiveShadow= true;
+    
+    scene.add( armature );
+
+    var _v3 = new THREE.Vector3(0,0,0);
+    armature.setAngularFactor(_v3);
+    armature.setLinearFactor(_v3);
+
+    intersect_cylinder = new THREE.Mesh(
+		new THREE.CylinderGeometry(0.5,0.5,40.8),
+		new THREE.MeshLambertMaterial()
+	);
+
+    intersect_cylinder.position.set(x,3,z);
+    intersect_cylinder.castShadow = true;
+    intersect_cylinder.receiveShadow = true;
+
+    scene.add(intersect_cylinder);
+
+    var eggs = [];
+    
+    function EggCreator(num) {
+    
+    	var egg_loader = new THREE.PLYLoader();
+
+    	var egg_material = new Physijs.createMaterial (
+		    new THREE.MeshLambertMaterial({ color: 0xFFFFFF}),
+		    0.1,
+		    0.7
+		);
+	
+	var egg = egg_loader.load('./app/assets/ply/ascii/olive.ply', function( geometry ){
+	    
+	for (var i = 0; i < num; i++){
+	    var y = -8 + (eggs.length*10);
+
+	   
+	    
+	    var eggMesh = new Physijs.CylinderMesh(
+		new THREE.CylinderGeometry(4,4,10,20),
+		egg_material,  
+		5
+	    );
+	    eggMesh.castShadow = true;
+	    eggMesh.receiveShadow = true;
+
+	    eggMesh.position.set(armature.position.x, y, armature.position.z);
+	    eggMesh.rotation.x=Math.PI / 2;
+	    if (i%2==0) eggMesh.rotation.z = Math.PI/2;
+	    // return olive1;
+	    scene.add( eggMesh );
+
+	    var _v3 = new THREE.Vector3(0,1,0);
+	    eggMesh.setAngularFactor(_v3);
+	    eggMesh.setLinearFactor(_v3);
+
+	    eggs.push(eggMesh);
+			    
+			 
+	    sculpture = new Sculpture( armature, eggs);	   
+	}
+	});			
+    }
+
+    EggCreator(5);
+
+
+}
+
 
 // relates armature and modules
 var Sculpture = function(armature,modules) {
@@ -356,14 +490,10 @@ initEventHandling = (function() {
 	    
 	    // if it is on the olive totem, pop it and make it dynamic
 	    for (i = 0; i < sculptures.length; i++) {
-		if (selected_thing == sculptures[i].modules[sculptures[i].modules.length-1]) {
-		    sculptures[i].modules.pop();
-		    if (sculptures[i].modules.length !== 0)
-			moveable_objects.push(sculptures[i].modules[sculptures[i].modules.length-1]);
-		    break;
-		}
-
+		sculptures[i].modules.splice(sculptures[i].modules.indexOf(selected_thing),1);
+		break;
 	    }
+
 	    // end olive totem
 	    
 	    _vector.set(0,0,0);
@@ -456,12 +586,6 @@ initEventHandling = (function() {
 		_v3 = new THREE.Vector3(0,0,0);
 		selected_thing.setLinearVelocity(_v3);
 
-		//make last object on sculpture stack moveable
-
-		// if (moveable_objects.indexOf(selected_thing) == null) {
-		//     moveable_objects.push(selected_thing);
-		// // avoids creating duplicates if the object is already in the moveable objects array
-		// }
 
 		//finally, push selected_thing on the sculpture stack
 		sculpture.modules.push(selected_thing);
