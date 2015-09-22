@@ -54,7 +54,7 @@ initScene = function() {
 
     
 
-    camera.position.set(120,50,50);
+    camera.position.set(120,40,60);
     camera.lookAt(scene.position);
 
     // ambient light
@@ -103,19 +103,18 @@ initScene = function() {
 
 
     //space init
-    Wall(-60,5,-25,40,110,'app/assets/textures/stucco.jpg',0);
-    Wall(-30,5,-80,40,60,'app/assets/textures/stucco.jpg',Math.PI/2);
-    Table(-30,-15,-55,60,50,'app/assets/textures/concrete.jpg',0);
-    Table(-45,-15,0,30,60,'app/assets/textures/concrete.jpg',0);
+    Wall(-110,5,-25,40,110,'app/assets/textures/stucco.jpg',0);
+    Wall(-50,5,-80,40,120,'app/assets/textures/stucco.jpg',Math.PI/2);
+    Table(-50,-15,-55,120,50,'app/assets/textures/concrete.jpg',0);
+    Table(-70,-15,0,80,60,'app/assets/textures/concrete.jpg',0);
     Table(0,-15.5,10,60,80,'app/assets/textures/grass.jpg',0);
-    Wall(0,5,-55,40,50,'app/assets/textures/stucco.jpg',0,false);
-    Wall(-45,5,30,40,30,'app/assets/textures/stucco.jpg',Math.PI/2,false);    
+
 
 
     //sculptures init
     Armature(-20,-55);
-    Hairball(-45,18);
-    Egg(0,0);
+    Hairball(-65, 10);
+    Egg(-70,-40);
     
 
 
@@ -254,18 +253,17 @@ function Hairball(x,z) {
 }
 //end hairball constructor
 
-//Armature Constructor
 function Armature(x,z) {
     var armature = new Physijs.BoxMesh(
-		new THREE.BoxGeometry( 4, 4, 4 ),
-		new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
-		9
+	new THREE.BoxGeometry( 4, 4, 4 ),
+	new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
+	9
     );
 
     armature.position.set(x,-12.5, z);
     armature.castShadow = true;
     armature.receiveShadow= true;
-    
+
     scene.add( armature );
 
     var _v3 = new THREE.Vector3(0,0,0);
@@ -273,72 +271,85 @@ function Armature(x,z) {
     armature.setLinearFactor(_v3);
 
     intersect_cylinder = new THREE.Mesh(
-		new THREE.CylinderGeometry(0.5,0.5,30.8),
-		new THREE.MeshLambertMaterial()
-	);
+	new THREE.CylinderGeometry(0.3,0.3,45.8),
+	new THREE.MeshLambertMaterial()
+    );
 
-    intersect_cylinder.position.set(x, 2,z);
+    intersect_cylinder.position.set(x, 5,z);
     intersect_cylinder.castShadow = true;
     intersect_cylinder.receiveShadow = true;
 
     scene.add(intersect_cylinder);
 
     var olives = [];
-    
+
     function OliveCreator(num) {
-    
-    	var olive_loader = new THREE.PLYLoader();
 
-    	var olive_material = new Physijs.createMaterial (
-		    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-		    0.0,
-		    0.0
-		);
-	
-		// for (var i = 0; i < num; i++) {
+	var olive_loader = new THREE.PLYLoader();
 
-	//console.log(i);
+	var olive_material = new Physijs.createMaterial (
+	    new THREE.MeshLambertMaterial({ color: 0x66CC00}),
+	    0.5,
+	    0.5
+	);
+
+	// The issue with the olive meshes was the same as the one we'd seen before
+	// When dealing with these meshes, we have to transform the geometry BEFORE creating a new Physijs mesh
+	// It's also more efficient, but that's beside the point
 	var olive = olive_loader.load('./app/assets/ply/ascii/Olive.ply', function( geometry ){
 
-	for (var i = 0; i < num; i++){
-	    var y = -8 + (olives.length*10);
+	    var m = new THREE.Matrix4();
+	    var m1 = new THREE.Matrix4();
 
-	   
-	    
-	    var oliveMesh = new Physijs.CylinderMesh(
-		// new THREE.CylinderGeometry(2.5,2.5,5,20),
-		geometry,
-		olive_material,  
-		5
-	    );
-	    // console.log(oliveMesh);
-	    oliveMesh.castShadow = true;
-	    oliveMesh.receiveShadow = true;
+	    m.makeRotationX( Math.PI/2 );
+	    m1.makeRotationZ( Math.PI/2 );
 
-	    oliveMesh.position.set(armature.position.x, y, armature.position.z);
-	    oliveMesh.rotation.x=Math.PI / 2;
-	    oliveMesh.rotation.z=Math.PI / 2;
-	    // return olive1;
-	    scene.add( oliveMesh );
+	    m.multiply( m1 );
 
-	    var _v3 = new THREE.Vector3(0,1,0);
-	    oliveMesh.setAngularFactor(_v3);
-	    oliveMesh.setLinearFactor(_v3);
+	    geometry.applyMatrix(m);
+	    geometry.computeBoundingBox();
 
-	    olives.push(oliveMesh);
-			    
-			    //if (olives.length == num){
-			    //	sculpture = new Sculpture( armature, olives);
-			//}
-	    sculpture = new Sculpture( armature, olives);
-	}
-	});//	     }
-				      // console.log("hi" + olives);
+	    // Bounding sphere radius doesn't seem accurate in this instance
+	    var radius = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
+
+	    // Need to find a solution to this
+	    // Can see my attempt here, what am I missing?
+	    var armature_y = -7.6; //armature.position.y + (armature.geometry.boundingBox.max.y - armature.geometry.boundingBox.min.y);
+
+	    for (var i = 0; i < num; i++) {
+
+		var y = armature_y + (olives.length * (radius));
+
+		var oliveMesh = new Physijs.CylinderMesh(
+		    geometry,
+		    olive_material,
+		    5
+		);
+
+		oliveMesh.castShadow = true;
+		oliveMesh.receiveShadow = true;
+
+		oliveMesh.position.set(armature.position.x, y, armature.position.z);
+		oliveMesh.scale.set(0.6,0.55,0.6);
+
+		scene.add( oliveMesh );
+
+		var _v3 = new THREE.Vector3(0,1,0);
+		oliveMesh.setAngularFactor(new THREE.Vector3(0,1,0));
+		oliveMesh.setLinearFactor(_v3);
+
+		olives.push(oliveMesh);
+		moveable_objects.push(oliveMesh);
+
+		if (olives.length == num){
+		    sculpture = new Sculpture( armature, olives);
+		}
+	    }
+	});
+
     }
 
-	OliveCreator(6);
-	// console.log(olives);
-	// sculpture = new Sculpture(armature,olives);
+    OliveCreator(13);
 
 }
 
@@ -404,13 +415,15 @@ function Egg(x,z) {
 	    scene.add( eggMesh );
 
 	    var _v3 = new THREE.Vector3(0,1,0);
-	    eggMesh.setAngularFactor(_v3);
+	    eggMesh.setAngularFactor(new THREE.Vector3(0,0,0));
 	    eggMesh.setLinearFactor(_v3);
 
 	    eggs.push(eggMesh);
-			    
-			 
-	    sculpture = new Sculpture( armature, eggs);	   
+	    moveable_objects.push(eggMesh);
+
+	    if (i==num-1) {
+		sculpture = new Sculpture( armature, eggs);
+	    }
 	}
 	});			
     }
@@ -429,33 +442,6 @@ var Sculpture = function(armature,modules) {
     sculptures.push(this);
     moveable_objects.push(modules[modules.length-1]);
 };
-
-// isolated an olive for debugging/playing with the mesh
-function freeOlive(x,z) {
-    var olive_material = new Physijs.createMaterial (
-	new THREE.MeshLambertMaterial({ color: 0x66CC00}),
-	0.5,
-	0.5
-    );
-
-    var olive_loader = new THREE.PLYLoader();
-    var olive = olive_loader.load('./app/assets/ply/ascii/Olive.ply', function( geometry ){
-
-	var oliveMesh = new Physijs.CapsuleMesh(
-	    geometry,
-	    olive_material,  
-	    5	   
-	);
-	// console.log(oliveMesh);
-	oliveMesh.castShadow = true;
-	oliveMesh.receiveShadow = true;
-
-	oliveMesh.position.set(x,0,z);
-	scene.add( oliveMesh );
-	moveable_objects.push(oliveMesh);
-    });
-}
-// isolated an olive for debugging/playing with the mesh
 
 //handles resizing of the window
 function onWindowResize() {
@@ -488,13 +474,14 @@ initEventHandling = (function() {
 	if (intersections.length > 0) {
 	    selected_thing = intersections[0].object;
 	    
-	    // if it is on the olive totem, pop it and make it dynamic
+	    // if it is on a sculpture, pop it and make it dynamic
 	    for (i = 0; i < sculptures.length; i++) {
-		sculptures[i].modules.splice(sculptures[i].modules.indexOf(selected_thing),1);
-		break;
+		if (sculptures[i].modules.indexOf(selected_thing) >= 0) {
+		    sculptures[i].modules.splice(sculptures[i].modules.indexOf(selected_thing),1);
+		    break;
+		}
 	    }
 
-	    // end olive totem
 	    
 	    _vector.set(0,0,0);
 	    selected_thing.setAngularFactor( _vector);
