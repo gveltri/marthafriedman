@@ -1,0 +1,17 @@
+uniform float inflate;
+
+varying vec3 vNormal;
+varying vec3 vPosition;
+varying vec2 vUv;
+
+void main() {
+    // ----------- STUDENT CODE BEGIN ------------
+    // add inflate feature here
+    
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(normal * inflate + position, 1.0 );
+    // ----------- STUDENT CODE END ------------
+
+	vNormal = normalize(normal);
+	vUv = uv;
+}
