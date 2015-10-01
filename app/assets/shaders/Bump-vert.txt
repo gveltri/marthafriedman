@@ -1,0 +1,36 @@
+
+uniform float inflate;
+uniform vec3 ambient;
+uniform vec3 diffuse;
+uniform vec3 specular;
+uniform sampler2D texture;
+uniform vec3 lightDir;
+uniform float shininess;
+
+varying vec3 vColor;
+void main() {
+    // ----------- STUDENT CODE BEGIN ------------
+
+    vec3 n = normalize(normal);
+    vec3 l = normalize(lightDir);
+	vec3 v = normalize(cameraPosition - position);
+
+
+    float diff = dot(n, l);
+
+    vec3 r = normalize(2.0 * dot(l, n) * n - l);//l - ((dot(2.0 * l, n))/pow(length(n),2.0)) * n;
+    // Add EPS = .001
+    float spec = pow(max(0.001, dot(r,v)), shininess + .001);
+
+    //vColor = diffuse * diff + specular * spec + ambient;
+    vColor = vec3( texture2D(texture, uv));
+
+    //Bump
+    vec3 norm = normal * inflate;
+    norm *= vec3( texture2D(texture, uv));
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(norm + position, 1.0 );
+    // ----------- STUDENT CODE END ------------
+    
+
+}
