@@ -18,6 +18,7 @@
      height:100%;
      width:100%;
      font-family:sans-serif;
+     overflow-y: hidden;
  }
 
  body {
@@ -30,6 +31,12 @@
      -moz-user-select: none;
      -ms-user-select: none;
      user-select: none;
+     overflow-y: hidden;
+ }
+
+#container {
+     height: 100%;
+     width: 100%;
  }
 
  header {

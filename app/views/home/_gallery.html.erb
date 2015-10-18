@@ -17,7 +17,8 @@ initScene = function() {
     renderer.shadowMapType = THREE.PCFShadowMap;
     renderer.shadowMapAutoUpdate = true;
     renderer.setClearColor( 0xece7eb );
-    document.body.appendChild(renderer.domElement);
+
+    document.getElementById('container').appendChild(renderer.domElement);
     //allows keydown to be heard
     renderer.domElement.setAttribute("tabindex", 0);
     renderer.sortObjects = true;
@@ -379,7 +380,7 @@ function Egg(x,z) {
     armature.setLinearFactor(_v3);
 
     intersect_cylinder = new THREE.Mesh(
-	new THREE.CylinderGeometry(0.5,0.5,40.8),
+	new THREE.CylinderGeometry(0.25,0.25,40.8),
 	new THREE.MeshLambertMaterial()
     );
 
