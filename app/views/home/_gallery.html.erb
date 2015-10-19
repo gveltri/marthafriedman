@@ -7,7 +7,7 @@ var initScene, render, renderer, scene,
     camera, dir_light, am_light, intersect_plane, table_material,
     initEventHandling, moveable_objects = [], selected_thing = null,
     mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3, sculptures=[],
-    static_surfaces=[];
+    static_surfaces=[], intersect_planes = [], intersect_plane_y;
 
 initScene = function() {
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -31,7 +31,7 @@ initScene = function() {
     scene.addEventListener( 'update', function() {
 	if ( selected_thing !== null ) {
 	    _v3.copy( mouse_position ).sub( selected_thing.position ).multiplyScalar( 5 );
-	    _v3.y = 0;
+	    // _v3.y = 0;
 	    selected_thing.setLinearVelocity( _v3 );
 	    // Reactivate all of the moveable objects
 	    _v3.set( 0, 0, 0 );
@@ -119,14 +119,31 @@ initScene = function() {
 
 
     intersect_plane = new THREE.Mesh(
-	new THREE.PlaneGeometry( 150, 150 ),
-	new THREE.MeshBasicMaterial({ opacity: 0, transparent: true })
+	new THREE.PlaneGeometry( 200, 200 ),
+	new THREE.MeshBasicMaterial({ color: 0x00FF00, opacity: 0.2 , transparent: true })
     );
 
+    // intersect_plane.rotation.x = Math.PI / -4;
     intersect_plane.rotation.x = Math.PI / -2;
-    intersect_plane.position
+    // intersect_plane.rotation.z = Math.PI / 8;
+    // intersect_plane.rotation.y = Math.PI / 4;
+	
+    // intersect_plane.position
 
     scene.add( intersect_plane );
+
+    intersect_plane_y = new THREE.Mesh(
+	new THREE.PlaneGeometry( 300, 150 ),
+	new THREE.MeshBasicMaterial({ color: 0xFF0000, opacity: 0.2 , transparent: true })
+    );
+
+    intersect_plane_y.rotation.y = Math.PI/ 4;
+    intersect_plane_y.position = (0, 0, 0)
+    scene.add( intersect_plane_y );
+
+    intersect_planes.push(intersect_plane);
+    intersect_planes.push(intersect_plane_y);
+
 
     initEventHandling(); //handle mouse clicks
     requestAnimationFrame( render ); //render scene
@@ -514,6 +531,9 @@ initEventHandling = (function() {
 	    thing_offset.subVectors( selected_thing.position, mouse_position);
 
 	    intersect_plane.position.y = mouse_position.y;
+	    intersect_plane_y.position.x = mouse_position.x;
+	    intersect_plane_y.position.z = mouse_position.z;
+
 	}
 	else {
 	    intersections = raycaster.intersectObjects( static_surfaces );
@@ -538,7 +558,7 @@ initEventHandling = (function() {
 		1);
 
 	    raycaster.setFromCamera(_vector, camera);
-	    intersection = raycaster.intersectObject( intersect_plane );
+	    intersection = raycaster.intersectObjects( intersect_planes );
 	    if ( intersection[0] != undefined) {
 		mouse_position.copy(intersection[0].point);
 	    }
