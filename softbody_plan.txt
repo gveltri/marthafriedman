@@ -1,0 +1,42 @@
+plan for soft bodies in marthafriedman
+----
+
+1. create springs between vertices in PLY geometry
+	http://lab.aerotwist.com/webgl/reactive-ball/
+
+2. Deform, apply velocity to vertices upon collision with Physijs objects
+	http://stackoverflow.com/questions/31778584/soft-body-point-of-contact-in-three-js-physijs
+
+	make direct calls to ammo js, interface with physijs collision context...
+
+	How does physijs make calls to ammo js?
+		interface between physijs and ammo js is in physijs_worker, abstracted similarly in other demo
+			maybe the soft body code can make use of the same worker, or maybe add functions to the worker?
+			Physijs line 393: this._worker = new Worker( Physijs.scripts.worker || 'physijs_worker.js' );
+
+	Strategy #0 "the right way"
+	Extend physijs's use of ammo js to include ammo js's built in soft body capabilities
+
+	Cons: would need to touch a lot of Physijs and deeply understand ammo js and it's interaction with physijs
+		probably going to be true no matter what
+
+
+	Strategy #1
+	Create new physijs type "soft body"
+		similar to convex code where each triangle is added to ammo js
+	
+	In physijs updateCollisions
+		if type is soft body
+		call custom collision function
+			very similar to existing collision code but treats each face as its own object
+			if there is a (new) collision
+				update all vertices according to force exerted with springs
+					similar to code in aerotwist example
+
+
+
+IDEA FOR FUTURE:
+	Low poly models with high poly soft body collisions
+	Keep exerted force between each spring low by subdividing mesh (adding vertices and springs) from point of impact
+	recusrively?
+	would be dope
