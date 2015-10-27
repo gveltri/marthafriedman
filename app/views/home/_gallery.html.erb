@@ -115,6 +115,7 @@ initScene = function() {
     oliveSculpture(-20,-55);
     hairballSculpture(-65, 10);
     eggSculpture(-70,-40);
+    wedgeSculpture(0,12);
 
     //intersection planes
     
@@ -447,11 +448,111 @@ function eggSculpture(x,z) {
     }
 }
 
+function wedgeSculpture(x,z) {
+    var wedges = [];
+    var armature = new Physijs.BoxMesh(
+	new THREE.BoxGeometry( 20, .5, 20 ),
+	new THREE.MeshPhongMaterial({ color: 0xEEEEEE }),
+	9
+    );
+
+    armature.position.set(x,-14.5, z);
+    armature.castShadow = true;
+    armature.receiveShadow= true;
+
+    scene.add( armature );
+
+    armature.setAngularFactor( armature_factor );
+    armature.setLinearFactor( armature_factor );
+
+    var intersect_cylinder_one = new THREE.Mesh(
+	new THREE.CylinderGeometry(0.25,0.25,40.8),
+	new THREE.MeshLambertMaterial()
+    );
+
+    intersect_cylinder_one.position.set(x + .75 ,3 , z - .75);
+    intersect_cylinder_one.castShadow = true;
+    intersect_cylinder_one.receiveShadow = true;
+
+    var intersect_cylinder_two = new THREE.Mesh(
+	new THREE.CylinderGeometry(0.25,0.25,40.8),
+	new THREE.MeshLambertMaterial()
+    );
+
+    intersect_cylinder_two.position.set(x - .75 ,3 ,z + .75);
+    intersect_cylinder_two.castShadow = true;
+    intersect_cylinder_two.receiveShadow = true;
+
+    scene.add(intersect_cylinder_one);
+    scene.add(intersect_cylinder_two);
+
+    // flatWedgeCreator will add flat wedges to the wedges array in the appropriate positions
+    // The structure of the wedge stack is hard coded to match the existing sculpture
+    // if it needs to be dynamic we can revisit
+    flatWedgeCreator();
+    new Sculpture( armature, wedges );
+
+    function flatWedgeCreator() {
+    	var num = 47;
+
+    	var wedge_loader = new THREE.PLYLoader();
+
+    	var wedge_material = new Physijs.createMaterial (
+	    	// we need to work on these materials etc... I guess we know that though
+	    	new THREE.MeshLambertMaterial({ color: 0x000000, emissive: 0xDDDDDD}),
+	    	0.9,
+	    1
+	);
+
+	var wedge_flat = wedge_loader.load('<%= asset_path 'ascii/Wedge_Flat.ply' %>', function( geometry ){
+	    
+	    var m = new THREE.Matrix4();
+	    var m1 = new THREE.Matrix4();
+	    
+	    m.makeTranslation(-1.0, -8, 3.8);
+	    m1.makeRotationY( Math.PI/4 );
+	    m.multiply(m1).multiplyScalar(0.5);
+	    
+	    geometry.applyMatrix(m);
+
+	    // console.log(geometry.boundingSphere.radius);
+
+	    var yFactor = geometry.boundingSphere.radius;
+	   	
+	    for (var i = 0; i < num; i++){
+	    	var y = (wedges.length * 1.4) - 8;
+
+	    	var wedgeMesh = new Physijs.ConvexMesh(
+	    		geometry,
+	    		wedge_material,
+	    		20
+	    	);
+
+	    	wedgeMesh.castShadow = true;
+	    	wedgeMesh.receiveShadow = true;
+			wedgeMesh.position.set(armature.position.x, y, armature.position.z);
+		
+	    	scene.add( wedgeMesh );
+		
+			wedgeMesh.__dirtyRotation = true;
+			// wedgeMesh.rotation.x = Math.PI/2;
+	    	if (i % 2 == 0) wedgeMesh.rotation.y = Math.PI;
+		
+	    	wedgeMesh.setAngularFactor( module_factor );
+	    	wedgeMesh.setLinearFactor( module_factor );
+
+	    	wedges.push(wedgeMesh);
+	    	moveable_objects.push(wedgeMesh);
+	    }
+	});
+    }
+}
+
 // relates armature and modules
 var Sculpture = function(armature,modules,limit) {
     this.armature = armature;
     this.modules = modules;
-    this.limit = limit || 20;
+    this.limit = limit || 50;
 
     // add scupture object to array of sculptures
     sculptures.push(this);
