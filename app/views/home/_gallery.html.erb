@@ -501,31 +501,42 @@ function wedgeSculpture(x,z) {
 	    	// we need to work on these materials etc... I guess we know that though
 	    	new THREE.MeshLambertMaterial({ color: 0x000000, emissive: 0xDDDDDD}),
 	    	0.9,
-	    1
+	    	.9
 	);
 
 	var wedge_flat = wedge_loader.load('<%= asset_path 'ascii/Wedge_Flat.ply' %>', function( geometry ){
 	    
 	    var m = new THREE.Matrix4();
-	    var m1 = new THREE.Matrix4();
+	    //var m1 = new THREE.Matrix4();
+	   	var geo_left = geometry.clone();
+
+	    // m.makeTranslation(-1.0, -8, 3.8);
+	    m.makeRotationY( Math.PI );
+	    // m.multiplyScalar( 2 );
 	    
-	    m.makeTranslation(-1.0, -8, 3.8);
-	    m1.makeRotationY( Math.PI/4 );
-	    m.multiply(m1).multiplyScalar(0.5);
-	    
-	    geometry.applyMatrix(m);
+
+	   	geometry.applyMatrix(m);
 
 	    // console.log(geometry.boundingSphere.radius);
 
 	    var yFactor = geometry.boundingSphere.radius;
 	   	
 	    for (var i = 0; i < num; i++){
-	    	var y = (wedges.length * 1.4) - 8;
+	    	var y = (wedges.length * 1.2) - 14;
+
+	    	var geo;
+	    	
+	    	if ( i % 2 == 0) {
+	    		geo = geo_left;
+	    	}
+	    	else {
+	    		geo = geometry;
+	    	}
 
 	    	var wedgeMesh = new Physijs.ConvexMesh(
-	    		geometry,
+	    		geo,
 	    		wedge_material,
-	    		20
+	    		2
 	    	);
 
 	    	wedgeMesh.castShadow = true;
@@ -536,7 +547,6 @@ function wedgeSculpture(x,z) {
 		
 			wedgeMesh.__dirtyRotation = true;
 			// wedgeMesh.rotation.x = Math.PI/2;
-	    	if (i % 2 == 0) wedgeMesh.rotation.y = Math.PI;
 		
 	    	wedgeMesh.setAngularFactor( module_factor );
 	    	wedgeMesh.setLinearFactor( module_factor );
