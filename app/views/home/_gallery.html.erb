@@ -108,14 +108,19 @@ initScene = function() {
 
     //space init
     Table(-50,-15,-55,120,50,'<%= asset_path 'concrete_1.jpg' %>',0);
-    Table(-70,-15,0,80,60,'<%= asset_path 'concrete_1.jpg' %>',0);
+    Table(-70,-15,0,80,80,'<%= asset_path 'concrete_1.jpg' %>',0);
     Table(0,-15.5,10,60,80,'<%= asset_path 'grass.jpg' %>',0);
 
-    //sculptures init
-    oliveSculpture(-20,-55);
-    hairballSculpture(-65, 10);
-    eggSculpture(-70,-40);
-    wedgeSculpture(0,12);
+	//sculptures init
+    
+    oliveSculpture(-10,-55);
+    hairballSculpture(-65, 20);
+    wedgeSculpture(-60,-55);
+    eggSculpture(-70,-10);
+
+    sculptures.forEach(function(sculpture) {
+	sculpture.addIntersectSphere();
+    });
 
     //intersection planes
     
@@ -500,8 +505,8 @@ function wedgeSculpture(x,z) {
     	var wedge_material = new Physijs.createMaterial (
 	    	// we need to work on these materials etc... I guess we know that though
 	    	new THREE.MeshLambertMaterial({ color: 0x000000, emissive: 0xDDDDDD}),
-	    	0.9,
-	    	.9
+	    	0.1,
+	    	.1
 	);
 
 	var wedge_flat = wedge_loader.load('<%= asset_path 'ascii/Wedge_Flat.ply' %>', function( geometry ){
@@ -536,7 +541,7 @@ function wedgeSculpture(x,z) {
 	    	var wedgeMesh = new Physijs.ConvexMesh(
 	    		geo,
 	    		wedge_material,
-	    		2
+	    		0.5
 	    	);
 
 	    	wedgeMesh.castShadow = true;
@@ -548,7 +553,7 @@ function wedgeSculpture(x,z) {
 			wedgeMesh.__dirtyRotation = true;
 			// wedgeMesh.rotation.x = Math.PI/2;
 		
-	    	wedgeMesh.setAngularFactor( module_factor );
+	    	wedgeMesh.setAngularFactor( new THREE.Vector3(0,0,0) );
 	    	wedgeMesh.setLinearFactor( module_factor );
 
 	    	wedges.push(wedgeMesh);
@@ -563,6 +568,7 @@ var Sculpture = function(armature,modules,limit) {
     this.armature = armature;
     this.modules = modules;
     this.limit = limit || 50;
+    this.intersect_sphere;
 
     // add scupture object to array of sculptures
     sculptures.push(this);
@@ -607,6 +613,24 @@ Sculpture.prototype.addModule = function(obj) {
 Sculpture.prototype.isAtLimit = function() {
     return ( this.modules.length >= this.limit ) ? true : false;
 };
+
+Sculpture.prototype.addIntersectSphere = function() {
+    // this.intersect_sphere = new THREE.Mesh(
+    // 	new THREE.SphereGeometry( 10 ),
+    // 	new THREE.MeshBasicMaterial({ color: 0x0000ff, opacity: 1 , transparent: true })
+    // );
+    
+    // if (modules.length > 0) {
+    // 	this.intersect_sphere.position.copy(this.modules[this.modules.length-1].position);
+    // 	this.intersect_sphere.position.y+=3;
+    // }
+    // else {
+    // 	this.intersect_sphere.position.copy(this.armature.position);
+    // 	this.intersect_sphere.position.y+=3;
+    // }
+    // scene.add(this.intersect_sphere);
+
+}
 
 //user input
 initEventHandling = (function() {
