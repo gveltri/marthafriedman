@@ -16,3 +16,4 @@
 //= require three.min
 //= require physi
 //= require PLYLoader
+//= require slick

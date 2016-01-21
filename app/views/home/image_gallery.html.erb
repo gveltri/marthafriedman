@@ -1,0 +1,42 @@
+<div class="site-wrapper-inner">
+  <div class="cover-container">
+    <div class="image-gallery">
+      <div><%= image_tag("test.jpg") %></div>
+      <div><%= image_tag("test2.jpg") %></div>
+      <div><%= image_tag("test3.jpg") %></div>
+      <div><%= image_tag("test4.jpg") %></div>
+    </div>
+    <div class="image-gallery-nav">
+	    <div><%= image_tag("test.jpg") %></div>
+	    <div><%= image_tag("test2.jpg") %></div>
+	    <div><%= image_tag("test3.jpg") %></div>
+	    <div><%= image_tag("test4.jpg") %></div>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function(){
+	$('.image-gallery').slick({
+		dots: false,
+		infinite: true,
+		speed: 400,
+		slidesToShow: 1,
+		slidesToScroll: 1,
+		asNavFor: '.image-gallery-nav',
+		arrows: false		
+	});
+});
+$(document).ready(function(){
+	$('.image-gallery-nav').slick({
+		dots: false,
+		infinite: true,
+		speed: 400,
+		slidesToShow: 3,
+		slidesToScroll: 1,
+		asNavFor: '.image-gallery',
+		centerMode: true,
+		focusOnSelect: true
+	});
+});
+</script>
