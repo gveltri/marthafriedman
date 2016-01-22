@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Martha Friedman</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-  <%= csrf_meta_tags %>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>  
-</head>
-<body>
-	<div id="container">
-		<header>
-			<div class="dropdown">
-				<div type="button" id="dropdownMenu1" data-toggle="dropdown"><h1 style="font-weight:700;"><span class="caret"></span> MARTHA FRIEDMAN</h1></div>
-				<ul class="dropdown-menu">
-					<li><a href="/work">Images</a></li>
-					<li><a href="/about">About</a></li>
-					<li><a href="/cv">CV</a></li>
-				</ul>
-			</div>
-		</header>
+  <head>
+    <title>Martha Friedman</title>
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+    <%= csrf_meta_tags %>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>  
+  </head>
+  <body>
+    <div id="container">
+      <header>
+	<ul>
+	  <li><a class="title" href="#">MARTHA FRIEDMAN</a>
+	    <ul>
+	      <li><%= link_to("3D Gallery", threed_path) %></li>
+	      <li><a href="/work">Image Gallery</a></li>
+	      <li><a href="/about">About</a></li>
+	      <li><a href="/cv">CV</a></li>
+	    </ul>
+	  </li>
+	</ul>
+      </header>
 
-		<%= yield %>
-	</div>
-</body>
+      <%= yield %>
+    </div>
+  </body>
 </html>

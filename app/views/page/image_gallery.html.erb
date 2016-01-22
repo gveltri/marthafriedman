@@ -1,19 +1,22 @@
 <div class="site-wrapper-inner">
   <div class="cover-container">
     <div class="image-gallery">
-      <div><%= image_tag("test.jpg") %></div>
+      <div><%= image_tag("test.jpg") %>
+	<p>didactic information</p></div>
       <div><%= image_tag("test2.jpg") %></div>
       <div><%= image_tag("test3.jpg") %></div>
       <div><%= image_tag("test4.jpg") %></div>
     </div>
     <div class="image-gallery-nav">
-	    <div><%= image_tag("test.jpg") %></div>
-	    <div><%= image_tag("test2.jpg") %></div>
-	    <div><%= image_tag("test3.jpg") %></div>
-	    <div><%= image_tag("test4.jpg") %></div>
+      <div><%= image_tag("test.jpg") %></div>
+      <div><%= image_tag("test2.jpg") %></div>
+      <div><%= image_tag("test3.jpg") %></div>
+      <div><%= image_tag("test4.jpg") %></div>
     </div>
   </div>
 </div>
+
+<%= render 'kill' %>
 
 <script>
 $(document).ready(function(){
