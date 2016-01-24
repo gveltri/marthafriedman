@@ -1,16 +1,19 @@
 <div class="site-wrapper-inner">
   <div class="cover-container">
-	  <div class="inner">
-		  <div id="listWithHandle" class="list-group sortable">
-		  <% @works.each do |work| %>
-
-		    <div class="list-group-item" data-id="<%= work.id %>">
-			    <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
-			    <%= work.name  %>
-		    </div>
-		  <% end %>
-		  </div>
-		    
+    <div class="inner">
+      <h1>Drag Works Into Order</h1>
+      <br>
+      <div id="listWithHandle" class="list-group sortable">
+	<% @works.each do |work| %>
+	<div class="list-group-item" data-id="<%= work.id %>">
+	  <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+	  <%= work.name  %>
+	</div>
+	<% end %>
+      </div>
+      <br>
+      <%= link_to "Work Dashboard", works_path %>
+      
     </div>
   </div>
 </div>

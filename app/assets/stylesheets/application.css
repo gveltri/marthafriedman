@@ -11,7 +11,7 @@
  * file per style scope.
  *
  *= require slick
- *= require_tree .
+ *= require slick-theme
  *= require_self
  */
 
@@ -111,7 +111,6 @@ footer a:hover {
 
 .site-wrapper-inner {
     display: table-cell;
-
     vertical-align: middle;
 }
 .cover-container {
@@ -126,32 +125,60 @@ footer a:hover {
     padding: 30px 20px 20px;
 }
 
-
-
-@media (max-width: 768px) {
-    /* Pull out the header and footer */
-    /* Start the vertical centering */
-
-    .site-wrapper-inner {
-	vertical-align: middle;	
+/* prevent divs from overlapping */
+@media (max-height: 500px) {
+    .inner {
+	padding-top: 60px;
     }
-    /* Handle the widths */
+    .image-gallery {
+	padding-top: 60px;
+    }
 }
 
-@media (max-width: 992px) {
+/* mobile version */
+@media (max-width: 768px) {
+    
+    div.image-gallery-nav {
+	display: none;
+    }
+
+    div.image-gallery {
+	margin-top: 50px;
+	width: 500px;
+	margin-left: auto;
+	margin-right: auto;
+    }
+
+    div.cover-container {
+	margin: 20% 0 0;
+	width: 100%;
+    }
+
+    div.image-gallery img {
+	max-height: 500px;
+	max-width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+    }
+
+}
+
+@media (max-width: 1024px) {
     .masthead,
     .mastfoot,
     .cover-container {
-	width: 500px;
+	width: 700px;
     }
 
 }
 
-div.image-gallery img {
-    max-height: 400px;
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
+@media (min-width: 769px) {
+    div.image-gallery img {
+	max-height: 400px;
+	max-width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+    }
 }
 
 div.image-gallery p {
@@ -165,6 +192,7 @@ div.image-gallery p {
 }
 
 div.image-gallery-nav img {
+    display: block;
     max-height: 75px;
     max-width: 100%;
     margin-left: auto;
@@ -219,3 +247,11 @@ header ul li:hover > ul
 		   {
 		       display:block
 		   }
+
+/* Sortable placeholder  */
+
+.sortable-placeholder {
+    border: 1px dashed #CCC;
+    background-color: #f9f9f9;
+    height: 40px;
+}
