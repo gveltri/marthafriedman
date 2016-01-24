@@ -1,0 +1,41 @@
+<div class="site-wrapper-inner">
+  <div class="cover-container">
+    <div class="inner">
+
+
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Works</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Year</th>
+      <th>Order</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @works.each do |work| %>
+      <tr>
+        <td><%= work.name %></td>
+        <td><%= work.year %></td>
+        <td><%= work.order %></td>
+        <td><%= link_to 'Show', work %></td>
+        <td><%= link_to 'Edit', edit_work_path(work) %></td>
+        <td><%= link_to 'Destroy', work, method: :delete %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Work', new_work_path %><br>
+<%= link_to 'Edit Work Order', work_order_path %>
+
+    </div>
+  </div>
+</div>

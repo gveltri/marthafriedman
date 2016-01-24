@@ -14,14 +14,26 @@
 	<ul>
 	  <li><a class="title" href="#">MARTHA FRIEDMAN</a>
 	    <ul>
-	      <li><%= link_to("3D Gallery", threed_path) %></li>
+	      <li style="padding-top:10px" ><%= link_to("3D Gallery", threed_path) %></li>
 	      <li><a href="/work">Image Gallery</a></li>
 	      <li><a href="/about">About</a></li>
 	      <li><a href="/cv">CV</a></li>
+	      <% if admin_signed_in? %>
+		      <li><%= link_to "work dashboard", works_path,  style: "color:green;" %></li>		      
+		      <li><%= link_to "edit profile", edit_admin_registration_path,  style: "color:green;" %></li>
+		      <li><%= link_to "sign out", destroy_admin_session_path, method: :delete, style: "color:red;" %></li>
+	      <% end %>
 	    </ul>
 	  </li>
 	</ul>
       </header>
+
+      <!-- if the scene is running already, kill it. very important script,
+      keeps the scene from rendering when it's not actually being displayed -->
+      <script>
+      if (scene) { scene = null; }
+      </script>
+
 
       <%= yield %>
     </div>

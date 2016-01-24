@@ -1,0 +1,28 @@
+<div class="site-wrapper-inner">
+  <div class="cover-container">
+    <div class="inner">
+
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @work.name %>
+</p>
+
+<p>
+  <strong>Year:</strong>
+  <%= @work.year %>
+</p>
+
+<p>
+  <strong>Order:</strong>
+  <%= @work.order %>
+</p>
+
+<%= link_to 'Edit', edit_work_path(@work) %> |
+<%= link_to 'Back', works_path %>
+
+    </div>
+  </div>
+</div>

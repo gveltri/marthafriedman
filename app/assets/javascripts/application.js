@@ -17,3 +17,4 @@
 //= require physi
 //= require PLYLoader
 //= require slick
+//= require html.sortable.min

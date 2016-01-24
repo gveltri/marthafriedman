@@ -41,7 +41,7 @@ end
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', '~> 2.0'
-
+  gem 'pry'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
 end
@@ -50,3 +50,18 @@ group :production do
   gem 'pg'
   gem 'rails_12factor', '0.0.2'
 end
+
+# admin mvc
+gem 'devise'
+
+# image uploads
+
+gem 'paperclip'
+gem 'aws-sdk'
+
+
+# environment
+
+gem 'dotenv-rails', :groups => [:development, :test]
+
+
