@@ -16,6 +16,10 @@
 !/log/.keep
 /tmp
 
+#ignore sensitive data for server and keys
+config/database.yml
+config/applicaiton.yml
+
 
 # Ignore env files
 *.env

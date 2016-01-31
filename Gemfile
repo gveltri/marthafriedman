@@ -49,7 +49,18 @@ end
 group :production do
   gem 'pg'
   gem 'rails_12factor', '0.0.2'
+
+  gem 'capistrano'
+  gem 'capistrano3-puma'
+  gem 'capistrano-rails', require: false
+  gem 'capistrano-bundler', require: false
+  gem 'capistrano-rvm'
 end
+
+# ec2 instance gems
+
+gem 'figaro'
+gem 'puma'
 
 # admin mvc
 gem 'devise'
