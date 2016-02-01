@@ -78,7 +78,7 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   # fix for ec2
-  # config.serve_static_files = false
+  config.serve_static_files = true
 
   config.aperclip_defaults = {
     :storage => :s3,
