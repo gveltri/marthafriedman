@@ -29,7 +29,7 @@ Rails.application.configure do
   # config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
-  config.assets.compile = true
+  config.assets.compile = false
 
   # Asset digests allow you to set far-future HTTP expiration dates on all assets,
   # yet still be able to expire them through the digest params.
@@ -39,7 +39,7 @@ Rails.application.configure do
 
   # Specifies the header that your server uses for sending files.
   # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache
-  # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for NGINX
+  config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for NGINX
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   # config.force_ssl = true
@@ -78,9 +78,9 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   # fix for ec2
-  config.serve_static_files = false
+  # config.serve_static_files = false
 
-  config.paperclip_defaults = {
+  config.aperclip_defaults = {
     :storage => :s3,
     :s3_credentials => {
       :bucket => ENV['S3_BUCKET_NAME'],
