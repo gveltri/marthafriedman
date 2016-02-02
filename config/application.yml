@@ -1,5 +1,5 @@
 production:
-S3_BUCKET_NAME: "marthafriedmanwork.com"
-AWS_ACCESS_KEY_ID: "AKIAI7BAIK4NTYTCNW3Q"
-AWS_SECRET_ACCESS_KEY: "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"
-login_password: "Gerardoisthecutest!"
+S3_BUCKET_NAME=marthafriedmanwork.com
+AWS_ACCESS_KEY_ID="AKIAI7BAIK4NTYTCNW3Q"
+AWS_SECRET_ACCESS_KEY="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"
+login_password="Gerardoisthecutest!"
