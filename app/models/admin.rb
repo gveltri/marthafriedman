@@ -8,7 +8,7 @@ class Admin < ActiveRecord::Base
   
   validates_each :admin_code, :on => :create do |record, attr, value|
     record.errors.add attr, "Please enter correct invite code" unless
-      value && value == "12345"
+      value && value == ENV["login_password"]
   end
   
 end
