@@ -17,8 +17,8 @@
 /tmp
 
 #ignore sensitive data for server and keys
-config/database.yml
-config/application.yml
+/config/database.yml
+/config/application.yml
 
 
 # Ignore env files
