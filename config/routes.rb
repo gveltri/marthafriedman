@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  resources :information
   authenticated :admin do 
     resources :works do
       put :sort, on: :collection
