@@ -7,10 +7,11 @@
 
 <h1>Listing Works</h1>
 
-<div class="table-responsive">
+<div class="table-responsive" style="overflow-y: scroll; height: 300px;">
 <table class="table">
   <thead>
-    <tr>
+	  <tr>
+		  <th>Image</th>
       <th>Name</th>
       <th>Year</th>
       <th>Order</th>
@@ -20,7 +21,8 @@
 
   <tbody>
     <% @works.each do |work| %>
-      <tr>
+	    <tr>
+		    <td><%= image_tag work.image.url(:tiny_thumb) %></td>
         <td><%= work.name %></td>
         <td><%= work.year %></td>
         <td><%= work.order %></td>

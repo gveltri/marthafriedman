@@ -3,11 +3,16 @@
     <div class="inner">
       <h1>Drag Works Into Order</h1>
       <br>
-      <div id="listWithHandle" class="list-group sortable">
+      <div id="listWithHandle" class="list-group sortable" style="overflow-y: scroll; height: 300px;">
 	<% @works.each do |work| %>
 	<div class="list-group-item" data-id="<%= work.id %>">
 	  <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
-	  <%= work.name  %>
+	  &nbsp;&nbsp;&nbsp; 
+	  <%= image_tag work.image.url(:tiny_thumb)  %>
+	  &nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; 
+	  <%= work.name  %> //
+	  <%= work.year %>
+
 	</div>
 	<% end %>
       </div>

@@ -1,17 +1,15 @@
 <div class="site-wrapper-inner">
   <div class="cover-container">
     <div class="image-gallery">
-      <div><%= image_tag("test.jpg") %>
-	<p>didactic information</p></div>
-      <div><%= image_tag("test2.jpg") %></div>
-      <div><%= image_tag("test3.jpg") %></div>
-      <div><%= image_tag("test4.jpg") %></div>
+      <% @works.each do |work|  %>
+      <div><%= image_tag work.image.url(:medium) %>
+	<p><%= work.name %> // <%= work.year %></p></div>
+      <% end %>
     </div>
     <div class="image-gallery-nav">
-      <div><%= image_tag("test.jpg") %></div>
-      <div><%= image_tag("test2.jpg") %></div>
-      <div><%= image_tag("test3.jpg") %></div>
-      <div><%= image_tag("test4.jpg") %></div>
+      <% @works.each do |work|  %>
+      <div><%= image_tag work.image.url(:thumb) %></div>
+      <% end %>
     </div>
   </div>
 </div>
@@ -25,7 +23,7 @@ $(document).ready(function(){
 		slidesToShow: 1,
 		slidesToScroll: 1,
 		asNavFor: '.image-gallery-nav',
-		arrows: false		
+		arrows: true		
 	});
 });
 $(document).ready(function(){
@@ -33,11 +31,12 @@ $(document).ready(function(){
 		dots: false,
 		infinite: true,
 		speed: 400,
-		slidesToShow: 3,
+		slidesToShow: 5,
 		slidesToScroll: 1,
 		asNavFor: '.image-gallery',
 		centerMode: true,
-		focusOnSelect: true
+focusOnSelect: true,
+arrows: false
 	});
 });
 </script>

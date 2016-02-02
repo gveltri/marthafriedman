@@ -18,7 +18,7 @@
 
 #ignore sensitive data for server and keys
 config/database.yml
-config/applicaiton.yml
+config/application.yml
 
 
 # Ignore env files
