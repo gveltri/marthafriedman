@@ -55,7 +55,7 @@ initScene = function() {
     camera.lookAt(scene.position);
 
     // ambient light
-    am_light = new THREE.AmbientLight( 0x444444 );
+    am_light = new THREE.AmbientLight( 0xE0E0E0 );
     scene.add( am_light );
 
     //point light
@@ -64,7 +64,7 @@ initScene = function() {
     scene.add( point_light );
 
     // directional lights
-    dir_light = new THREE.DirectionalLight( 0xFFFFFF );
+    dir_light = new THREE.DirectionalLight( 0x404040 );
     dir_light.position.set( 20, 30, -5 );
     dir_light.target.position.copy( scene.position );
     dir_light.castShadow = true;
@@ -73,14 +73,14 @@ initScene = function() {
     dir_light.shadowCameraRight = 100;
     dir_light.shadowCameraBottom = 100;
     dir_light.shadowCameraNear = 0;
-    dir_light.shadowCameraFar = 100;
-    dir_light.shadowBias = -.001
+    dir_light.shadowCameraFar = 150;
+    dir_light.shadowBias = .001
     dir_light.shadowMapWidth = dir_light.shadowMapHeight = 2048;
     dir_light.shadowDarkness = .3;
 
     scene.add( dir_light );
 
-    dir_light2 = new THREE.DirectionalLight( 0xFCD440);
+    dir_light2 = new THREE.DirectionalLight( 0x404040);
     dir_light2.position.set( 5, 30, 20 );
     dir_light2.target.position.copy( scene.position );
     dir_light2.castShadow = true;
@@ -89,8 +89,8 @@ initScene = function() {
     dir_light2.shadowCameraRight = 100;
     dir_light2.shadowCameraBottom = 100;
     dir_light2.shadowCameraNear = 0;
-    dir_light2.shadowCameraFar = 100;
-    dir_light2.shadowBias = -.001
+    dir_light2.shadowCameraFar = 150;
+    dir_light2.shadowBias = .001
     dir_light2.shadowMapWidth = dir_light2.shadowMapHeight = 2048;
     dir_light2.shadowDarkness = .1;
     dir_light2.intensity = 0.3;
@@ -213,7 +213,7 @@ function Wall(x,y,z,x_size,y_size,texture_path,rotation,visible) {
     var wall = new Physijs.BoxMesh(
 	new THREE.BoxGeometry(x_size,1,y_size),
 	wall_material,
-	0
+	1
     );
 
     wall.receiveShadow = true;
@@ -312,11 +312,11 @@ function oliveSculpture(x,z) {
 
 	var olive_loader = new THREE.PLYLoader();
 
-	var olive_material = new Physijs.createMaterial (
-	    new THREE.MeshPhongMaterial({ color: 0x00FFFF, ambient: 0x904716}),
-	    0.5,
-	    0.5
-	);
+	// var olive_material = new Physijs.createMaterial (
+	//     new THREE.MeshPhongMaterial({ color: 0x00FFFF, ambient: 0x904716}),
+	//     0.5,
+	//     0.5
+	// );
 
 	var olive = olive_loader.load('<%= asset_path 'ascii/Olive_nopimento.ply' %>', function( geometry ){
 
@@ -331,42 +331,62 @@ function oliveSculpture(x,z) {
 
 	    var radius = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
 	    var armature_y = -7.6;
+
 	    var pimento_material = new THREE.MeshPhongMaterial({color: 0xFF0000});
+
+        var colors = [0x9F9812, 0x6D632A, 0x5A603E, 
+                      0x626220, 0x5E5E3C, 0x738754, 
+                      0x595A4C, 0x878032, 0x949C3E, 
+                      0x69613A, 0x595532, 0xA4962E, 
+                      0x605C49];
+
+        console.log(geometry);
 
 	    for (var i = 0; i < num; i++) {
 
-		var y = armature_y + (olives.length * (radius));
+    		var y = armature_y + (olives.length * (radius));
 
-		var oliveMesh = new Physijs.CylinderMesh(
-		    geometry,
-		    olive_material,
-		    5
-		);
+            var c = colors[i];
 
-		var pimento = new THREE.Mesh(
-		    new THREE.CylinderGeometry(1.5,1.5,1.5,5),
-		    pimento_material
-		);
-		pimento.position.x = -0.5;
-		pimento.position.z = 2;
-		
+            var olive_material = new Physijs.createMaterial (
+                new THREE.MeshPhongMaterial({ color: c, ambient: 0x904716}),
+                0.5,
+                0.5
+            );
 
-		oliveMesh.add(pimento);
+    		var oliveMesh = new Physijs.CylinderMesh(
+    		    geometry,
+    		    olive_material,
+    		    5
+    		);
 
-		oliveMesh.castShadow = true;
-		oliveMesh.receiveShadow = true;
+            if (i == 0){
+                console.log(geometry);
+            }
+    		var pimento = new THREE.Mesh(
+    		    new THREE.CylinderGeometry(1.5,1.5,1.5,5),
+                pimento_material
+    		);
 
-		oliveMesh.position.set(armature.position.x, y, armature.position.z);
-		oliveMesh.scale.set(0.6,0.55,0.6);
+    		pimento.position.x = -0.5;
+    		pimento.position.z = 2.5;
+    		
 
+    		oliveMesh.add(pimento);
 
-		scene.add( oliveMesh );
+    		oliveMesh.castShadow = true;
+    		oliveMesh.receiveShadow = true;
 
-		oliveMesh.setAngularFactor( module_factor );
-		oliveMesh.setLinearFactor( module_factor );
+    		oliveMesh.position.set(armature.position.x, y, armature.position.z);
+    		oliveMesh.scale.set(0.6,0.55,0.6);
 
-		olives.push(oliveMesh);
-		moveable_objects.push(oliveMesh);
+    		scene.add( oliveMesh );
+
+    		oliveMesh.setAngularFactor( module_factor );
+    		oliveMesh.setLinearFactor( module_factor );
+
+    		olives.push(oliveMesh);
+    		moveable_objects.push(oliveMesh);
 	    }
 	});
     }
@@ -408,7 +428,7 @@ function eggSculpture(x,z) {
     	var egg_loader = new THREE.PLYLoader();
 
     	var egg_material = new Physijs.createMaterial (
-	    new THREE.MeshLambertMaterial({ color: 0xEEEEEE, emissive: 0xDDDDDD}),
+	    new THREE.MeshLambertMaterial({ color: 0xFFFFFF, emissive: 0x999999}),
 	    0.1,
 	    0.7
 	);
@@ -456,10 +476,13 @@ function eggSculpture(x,z) {
 
 function wedgeSculpture(x,z) {
     var wedges = [];
-    var armature = new Physijs.BoxMesh(
-	new THREE.BoxGeometry( 20, .5, 20 ),
-	new THREE.MeshPhongMaterial({ color: 0xEEEEEE }),
-	9
+    var armature_mat = new THREE.MeshPhongMaterial({ color: 0x664935 });
+
+    var armature = new Physijs.BoxMesh(    
+    new THREE.BoxGeometry( 20, .5, 20 ),
+	   armature_mat,
+	   1,
+        1
     );
 
     armature.position.set(x,-14.5, z);
@@ -473,7 +496,7 @@ function wedgeSculpture(x,z) {
 
     var intersect_cylinder_one = new THREE.Mesh(
 	new THREE.CylinderGeometry(0.25,0.25,40.8),
-	new THREE.MeshLambertMaterial()
+	armature_mat
     );
 
     intersect_cylinder_one.position.set(x + .75 ,3 , z - .75);
@@ -482,7 +505,7 @@ function wedgeSculpture(x,z) {
 
     var intersect_cylinder_two = new THREE.Mesh(
 	new THREE.CylinderGeometry(0.25,0.25,40.8),
-	new THREE.MeshLambertMaterial()
+	armature_mat
     );
 
     intersect_cylinder_two.position.set(x - .75 ,3 ,z + .75);
@@ -505,10 +528,10 @@ function wedgeSculpture(x,z) {
 
     	var wedge_material = new Physijs.createMaterial (
 	    	// we need to work on these materials etc... I guess we know that though
-	    	new THREE.MeshLambertMaterial({ color: 0x000000, emissive: 0xDDDDDD}),
+	    	new THREE.MeshLambertMaterial({ color: 0xDDDDDD }),
 	    	0.1,
-	    	.1
-	);
+	       1
+	       );
 
 	var wedge_flat = wedge_loader.load('<%= asset_path 'ascii/Wedge_Flat.ply' %>', function( geometry ){
 	    
@@ -523,12 +546,10 @@ function wedgeSculpture(x,z) {
 
 	   	geometry.applyMatrix(m);
 
-	    // console.log(geometry.boundingSphere.radius);
-
 	    var yFactor = geometry.boundingSphere.radius;
 	   	
 	    for (var i = 0; i < num; i++){
-	    	var y = (wedges.length * 1.2) - 14;
+	    	var y = (wedges.length * 2) - 14;
 
 	    	var geo;
 	    	
@@ -542,7 +563,7 @@ function wedgeSculpture(x,z) {
 	    	var wedgeMesh = new Physijs.ConvexMesh(
 	    		geo,
 	    		wedge_material,
-	    		0.5
+	    		20
 	    	);
 
 	    	wedgeMesh.castShadow = true;
@@ -577,10 +598,10 @@ var Sculpture = function(armature,modules,limit) {
 
 Sculpture.prototype.removeModule = function(obj) {
 	this.modules.splice(this.modules.indexOf(obj),1);
-	if (this.modules.length == 0) {
-		moveable_objects.push(this.armature);
-		this.limit = 0;		
-	}
+	// if (this.modules.length == 0) {
+	// 	moveable_objects.push(this.armature);
+	// 	this.limit = 0;		
+	// }
 };
 
 Sculpture.prototype.addModule = function(obj) {
@@ -684,20 +705,20 @@ initEventHandling = (function() {
 	    thing_offset.subVectors( selected_thing.position, mouse_position);
 
 	}
-	else {
-	    intersections = raycaster.intersectObjects( static_surfaces );
-	    if (intersections.length > 0) {
-		for (var i = 0; i < moveable_objects.length; i++) {
-		    _v3 = moveable_objects[i].getLinearVelocity();
-		    if (Math.abs(_v3.y) < 2 ) moveable_objects[i].applyCentralImpulse(new THREE.Vector3(0,50,0));
-		}
-	    }
-	}
+	// else {
+	//     intersections = raycaster.intersectObjects( static_surfaces );
+	//     if (intersections.length > 0) {
+	// 	for (var i = 0; i < moveable_objects.length; i++) {
+	// 	    _v3 = moveable_objects[i].getLinearVelocity();
+	// 	    if (Math.abs(_v3.y) < 2 ) moveable_objects[i].applyCentralImpulse(new THREE.Vector3(0,50,0));
+	// 	}
+	//     }
+	// }
 
     };
 
     handleMouseMove = function( evt ) {
-
+        //console.log(-1);
 	if (selected_thing !== null) {
 
 	    _vector.set(
@@ -730,6 +751,29 @@ initEventHandling = (function() {
 		}
 	    }
 	}
+    else {
+        _vector.set(
+        ( evt.clientX / window.innerWidth ) * 2 - 1,
+            -( evt.clientY / window.innerHeight ) * 2 + 1,
+        1);
+
+        raycaster.setFromCamera(_vector, camera);
+        
+        intersection = raycaster.intersectObjects(moveable_objects);
+
+        if ( intersection[0] != undefined) {
+
+            var vl = intersection[0].object.getLinearVelocity().clone();
+            var va = intersection[0].object.getAngularVelocity().clone();
+            
+            va.multiplyScalar(-1).add(new THREE.Vector3(Math.random(), 2 * Math.random(), 0));
+            vl.multiplyScalar(-1).add(new THREE.Vector3(5 * Math.random(), 5 * Math.random()));
+            intersection[0].object.setLinearVelocity(vl);
+            intersection[0].object.setAngularVelocity(va);
+            
+        }
+
+    }
     };
 
     handleMouseUp = function( evt ) {
