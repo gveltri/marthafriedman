@@ -258,5 +258,5 @@ header ul li:hover > ul
 
 /* force no underline */
 a.menu-styles {
-    text-decoration: none; !important
+    text-decoration: none;
 }
