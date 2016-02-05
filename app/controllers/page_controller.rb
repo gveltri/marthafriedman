@@ -5,6 +5,7 @@ class PageController < ApplicationController
   end
 
   def about
+    @about = Information.last.about
   end
 
   def cv
