@@ -18,7 +18,7 @@
 	      <li style="padding-top:10px" ><%= link_to("3D Gallery", threed_path, class: "menu-styles") %></li>
 	      <li><a class="menu-styles" href="/work">Image Gallery</a></li>
 	      <li><a class="menu-styles" href="/about">About</a></li>
-
+	      <li><%= link_to "CV" Information.last.url %></li>
 	      <% if admin_signed_in? %>
 		      <li><%= link_to "work dashboard", works_path, class: "menu-styles" %></li>
 		      <li><%= link_to "information dashboard", information_index_path %></li>
