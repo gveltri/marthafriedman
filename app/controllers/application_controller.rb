@@ -6,7 +6,11 @@ class ApplicationController < ActionController::Base
   before_filter :set_cv
 
   def set_cv
-    @cv = Information.last.document.url
+    if (Information.size > 0)
+      @cv = Information.last.document.url
+    else
+      @cv = '/'
+    end
   end
   
 end
