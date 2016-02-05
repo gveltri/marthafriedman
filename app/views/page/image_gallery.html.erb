@@ -2,13 +2,13 @@
   <div class="cover-container">
     <div class="image-gallery">
       <% @works.each do |work|  %>
-      <div><%= image_tag work.image.url(:medium) %>
+      <div><%= image_tag work.image.url(:medium), :alt => "#{work.name}, #{work.year} by Martha Friedman" %>
 	<p><i><%= work.name %></i> <%= work.year %></p></div>
       <% end %>
     </div>
     <div class="image-gallery-nav">
       <% @works.each do |work|  %>
-      <div><%= image_tag work.image.url(:thumb) %></div>
+      <div><%= image_tag work.image.url(:thumb), alt: "Thumbnail of #{work.name}, #{work.year} by Martha Friedman" %></div>
       <% end %>
     </div>
   </div>

@@ -1,11 +1,11 @@
 Rails.application.routes.draw do
-
-  resources :information
+  
   authenticated :admin do 
     resources :works do
       put :sort, on: :collection
     end
     get '/work_order', to:'works#work_order', as: 'work_order'
+    resources :information
   end
   
   devise_for :admins, controllers: { sessions: "admin/sessions", registrations: "admin/registrations" }

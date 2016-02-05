@@ -255,3 +255,8 @@ header ul li:hover > ul
     background-color: #f9f9f9;
     height: 40px;
 }
+
+/* force no underline */
+a.menu-styles {
+    text-decoration: none; !important
+}

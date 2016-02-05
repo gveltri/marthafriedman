@@ -1,0 +1,29 @@
+<div class="site-wrapper-inner">
+  <div class="cover-container">
+    <div class="inner">
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Version:</strong>
+  <%= @information.version %>
+</p>
+
+<p>
+  <strong>About Text:</strong>
+  <%= @information.about[0..20] %>
+</p>
+
+<p>
+  <strong>CV Download:</strong>
+  <%= link_to 'Click for Download', @information.document.url %>
+</p>
+
+
+<%= link_to 'Edit', edit_information_path(@information) %> |
+<%= link_to 'Back', information_index_path %>
+
+
+    </div>
+  </div>
+</div>
