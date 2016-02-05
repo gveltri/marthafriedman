@@ -21,7 +21,7 @@
 	      <li><%= link_to "CV",Information.last.document.url, class: 'menu-styles' %></li>
 	      <% if admin_signed_in? %>
 		      <li><%= link_to "work dashboard", works_path, class: "menu-styles" %></li>
-		      <li><%= link_to "information dashboard", information_index_path, class: "menu-styles" %></li>
+		      
 		      <li><%= link_to "edit profile", edit_admin_registration_path, class: "menu-styles" %></li>
 		      <li><%= link_to "sign out", destroy_admin_session_path, method: :delete, class: "menu-styles" %></li>
 	      <% end %>
