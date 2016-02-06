@@ -5,7 +5,7 @@ class PageController < ApplicationController
   end
 
   def about
-    if (Information.size > 0)
+    if (Information.all.size > 0)
       @about = Information.last.about
     else
       @about = "No description has been registered."
