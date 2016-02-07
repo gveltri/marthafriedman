@@ -9,6 +9,7 @@ class PageController < ApplicationController
       @about = Information.last.about
     else
       @about = "No description has been registered."
+    end
   end
 
   def cv
