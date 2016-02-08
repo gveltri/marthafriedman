@@ -13,9 +13,8 @@
     <div id="container">
       <header>
 	<ul>
-	  <li><a class="title menu-styles" href="#">MARTHA FRIEDMAN</a>
+	  <li><%= link_to("MARTHA FRIEDMAN", threed_path, class: "title menu-styles") %>
 	    <ul>
-	      <li style="padding-top:10px" ><%= link_to("3D Gallery", threed_path, class: "menu-styles") %></li>
 	      <li><a class="menu-styles" href="/work">Image Gallery</a></li>
 	      <li><a class="menu-styles" href="/about">About</a></li>
 	      <li><%= link_to "CV", @cv %></li>
