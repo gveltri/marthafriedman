@@ -76,7 +76,7 @@ header {
 header ul li a.title {
     font-size:1.8em;
     color:rgb(40,40,40);
-    letter-spacing:0.5em;
+    letter-spacing:0.6em;
     font-weight: 700;
 }
 
@@ -88,10 +88,6 @@ footer {
     max-height:20px;
     text-align:center;
     font-size:1em;
-    color:rgba(0,0,0,0.75);
-}
-
-footer a {
     color:rgb(255,255,255);
     letter-spacing:0.2em;
     text-decoration:none;
@@ -104,6 +100,10 @@ footer a:hover {
 
 #specialfooter {
     padding:5px 2em 0px 2em;
+}
+
+.text-fields {
+    padding: 0 20%;
 }
 
 
@@ -278,4 +278,10 @@ header ul li:hover > ul
 /* force no underline */
 a.menu-styles {
     text-decoration: none;
+}
+
+a.bold {
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
 }
