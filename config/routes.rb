@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   
   root 'home#index'
 
+  
+  get '/press', to: 'page#press'
   get '/3dgallery', to: 'home#index', as: 'threed'
   get '/work', to: 'page#image_gallery'
   get '/about', to: 'page#about'

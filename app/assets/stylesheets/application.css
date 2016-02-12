@@ -172,6 +172,15 @@ footer a:hover {
 
 }
 
+@media (min-width: 1200px) {
+    .masthead,
+    .mastfoot,
+    .cover-container {
+	width: 1000px;
+    }
+
+}
+
 @media (min-width: 769px) {
     div.image-gallery img {
 	max-height: 400px;

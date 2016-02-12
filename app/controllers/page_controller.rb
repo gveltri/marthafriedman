@@ -15,4 +15,13 @@ class PageController < ApplicationController
   def cv
   end
 
+  def press
+    if (Information.all.size > 0)
+      @press = Information.last.press
+    else
+      @press = "No press information has been registered."
+    end
+
+  end
+
 end
