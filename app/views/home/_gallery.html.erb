@@ -1,6 +1,8 @@
 <script>
     Physijs.scripts.worker = '<%= asset_path 'physijs_worker.js' %>';
-    Physijs.scripts.ammo = '<%= asset_path 'ammo.js' %>';
+//Physijs.scripts.ammo = '<%= asset_path 'ammo.js' %>';
+Physijs.scripts.ammo = 'https://raw.githubusercontent.com/kripken/ammo.js/master/builds/ammo.js';
+
 
 
 var initScene, render, renderer, scene, camera, initEventHandling;
