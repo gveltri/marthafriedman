@@ -26,5 +26,8 @@ module BetaFriedman
     config.assets.paths << "#{Rails.root}/app/assets/shaders"
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+
+    config.assets.precompile += %w( physijs_worker.js ammo.js  )
+    
   end
 end

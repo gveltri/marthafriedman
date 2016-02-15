@@ -11,5 +11,5 @@ Rails.application.config.assets.version = '1.0'
 # Rails.application.config.assets.precompile += %w( search.js )
 
 
-Rails.application.config.assets.precompile += %w( physijs_worker.js )
-Rails.application.config.assets.precompile += %w( ammo.js )
+Rails.application.config.assets.precompile += %w( physijs_worker.js ammo.js )
+
