@@ -117,9 +117,14 @@ initScene = function() {
      
     oliveSculpture(-10,-55);
     hairballSculpture(-65, 20);
-    wedgeSculpture(-60,-55);
+    
+    // New way to make a sculpture
+    var wedgeAssets = ['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>'];
+    console.log(wedgeAssets);
+    loadPlyAssets(wedgeAssets, wedgeSculptureCopy);
+    // wedgeSculpture(-60,-55);
     eggSculpture(-70,-10);
-    TongueSculpture(20,10);
+    // TongueSculpture(20,10);
     //eggSculpture(-60,-30);
 
     sculptures.forEach(function(sculpture) {
@@ -343,7 +348,7 @@ function oliveSculpture(x,z) {
                       0x69613A, 0x595532, 0xA4962E, 
                       0x605C49];
 
-        console.log(geometry);
+        // console.log(geometry);
 
 	    for (var i = 0; i < num; i++) {
 
@@ -363,9 +368,9 @@ function oliveSculpture(x,z) {
     		    5
     		);
 
-            if (i == 0){
-                console.log(geometry);
-            }
+            // if (i == 0){
+            //     console.log(geometry);
+            // }
     		var pimento = new THREE.Mesh(
     		    new THREE.CylinderGeometry(1.5,1.5,1.5,5),
                 pimento_material
@@ -478,8 +483,6 @@ function eggSculpture(x,z) {
 }
 
 //circle centered on x,z
-//maybe this is a good place to test out "intersect sphere" thing
-
 function TongueSculpture(x,z) {
     var eggs = [];
     var armature = new Physijs.BoxMesh(
@@ -578,6 +581,119 @@ function TongueSculpture(x,z) {
             moveable_objects.push(eggMesh);
         }
     });
+    }
+}
+
+function wedgeSculptureCopy(x, z) {
+    var geometries = this;
+    // console.log(x);
+    // if we want to use this x and z then we'll need to save ply geometries globally
+    if (typeof x === 'undefined') { x = -60; }
+    if (typeof z === 'undefined') { z = -55; }
+
+    var wedges = [];
+
+    // In the future, custom armature geometry could be geometries[0]
+    var armature_mat = new THREE.MeshPhongMaterial({ color: 0x664935 });
+
+    var armature = new Physijs.BoxMesh(    
+    new THREE.BoxGeometry( 20, .5, 20 ),
+       armature_mat,
+       1,
+        1
+    );
+
+    armature.position.set(x,-14.5, z);
+    armature.castShadow = true;
+    armature.receiveShadow= true;
+
+    scene.add( armature );
+
+    armature.setAngularFactor( armature_factor );
+    armature.setLinearFactor( armature_factor );
+
+    var intersect_cylinder_one = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.25,0.25,40.8),
+    armature_mat
+    );
+
+    intersect_cylinder_one.position.set(x + .75 ,3 , z - .75);
+    intersect_cylinder_one.castShadow = true;
+    intersect_cylinder_one.receiveShadow = true;
+
+    var intersect_cylinder_two = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.25,0.25,40.8),
+    armature_mat
+    );
+
+    intersect_cylinder_two.position.set(x - .75 ,3 ,z + .75);
+    intersect_cylinder_two.castShadow = true;
+    intersect_cylinder_two.receiveShadow = true;
+
+    scene.add(intersect_cylinder_one);
+    scene.add(intersect_cylinder_two);
+
+    // flatWedgeCreator will add flat wedges to the wedges array in the appropriate positions
+    // The structure of the wedge stack is hard coded to match the existing sculpture
+    // if it needs to be dynamic we can revisit
+    flatWedgeCreator(geometries, 47);
+    
+    new Sculpture( armature, wedges );
+
+    function flatWedgeCreator(geometries, num) {
+
+        // var wedge_loader = new THREE.PLYLoader();
+
+        var wedge_material = new Physijs.createMaterial (
+            // we need to work on these materials etc... I guess we know that though
+            new THREE.MeshLambertMaterial({ color: 0xDDDDDD }),
+            0.1,
+           1
+           );
+
+        var geometry_0 = geometries[0];
+        var geometry_1 = geometries[1];
+
+        
+        var m = new THREE.Matrix4();
+        var geo_left = geometry_1;//geometry_0.clone();
+        m.makeRotationY( Math.PI );        
+        geometry_0.applyMatrix(m);
+
+        var yFactor = geometry_0.boundingSphere.radius;
+        
+        for (var i = 0; i < num; i++){
+            var y = (wedges.length * 2) - 14;
+
+            var geo;
+            
+            if ( i % 2 == 0) {
+                geo = geo_left;
+            }
+            else {
+                geo = geometry_0;
+            }
+
+            var wedgeMesh = new Physijs.ConvexMesh(
+                geo,
+                wedge_material,
+                20
+            );
+
+            wedgeMesh.castShadow = true;
+            wedgeMesh.receiveShadow = true;
+            wedgeMesh.position.set(armature.position.x, y, armature.position.z);
+                
+            wedgeMesh.__dirtyRotation = true;
+                    
+            wedgeMesh.setAngularFactor( new THREE.Vector3(0,0,0) );
+            wedgeMesh.setLinearFactor( module_factor );
+
+            wedges.push(wedgeMesh);
+            moveable_objects.push(wedgeMesh);
+
+            scene.add( wedgeMesh );
+        }
     }
 }
 
@@ -765,6 +881,31 @@ Sculpture.prototype.addIntersectSphere = function() {
 
 }
 
+// Load ply objects asynchronously, calls sculpture function afterwards
+// Takes asset paths as array of strings and callback function as arguments
+// The arguments look like (['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>'], wedgeSculpture())
+// The function returns an array [geometry1, geometry2]
+function loadPlyAssets(assetPathArray, callback){
+    //console.log("loadPlyAssets");
+
+    // array of returned geometries
+    var geometries = [];
+
+    for (var i = 0; i < assetPathArray.length; i++) {
+        var geometry_loader = new THREE.PLYLoader();
+        //geometries.push(geometry_loader.load(assetPathArray[i]), function( geometry ){})));
+        var geo = geometry_loader.load(assetPathArray[i], function( geometry ){
+            geometries.push(geometry);
+
+            if (geometries.length == assetPathArray.length){
+                console.log(geometries);
+                callback.call(geometries);
+            }
+        });
+    }
+}
+
+
 //user input
 initEventHandling = (function() {
     var handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown, handleResize;
@@ -826,61 +967,61 @@ initEventHandling = (function() {
 
     handleMouseMove = function( evt ) {
         //console.log(-1);
-	if (selected_thing !== null) {
+    	if (selected_thing !== null) {
 
-	    _vector.set(
-		( evt.clientX / window.innerWidth ) * 2 - 1,
-		    -( evt.clientY / window.innerHeight ) * 2 + 1,
-		1);
+    	    _vector.set(
+    		( evt.clientX / window.innerWidth ) * 2 - 1,
+    		    -( evt.clientY / window.innerHeight ) * 2 + 1,
+    		1);
 
-	    raycaster.setFromCamera(_vector, camera);
-	    intersection = raycaster.intersectObjects( intersect_planes );
-	    if ( intersection[0] != undefined) {
-		mouse_position.copy(intersection[0].point);
-	    }
+    	    raycaster.setFromCamera(_vector, camera);
+    	    intersection = raycaster.intersectObjects( intersect_planes );
+    	    if ( intersection[0] != undefined) {
+    		mouse_position.copy(intersection[0].point);
+    	    }
 
-	    //iterates through sculpture objects
-	    for (i = 0; i < sculptures.length; i++) {
-		collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
-		if (collisionResults.length !== 0 && !sculptures[i].isAtLimit()) {
-		    sculpture = sculptures[i];
-		    
-		    //make a light source directly above the sculpture
-		    spot_light.position.set( sculpture.armature.position.x, spot_light.position.y, sculpture.armature.position.z );
-		    spot_light.target = sculpture.armature;
-		    spot_light.intensity = 6;
-		    spot_light_on = true;
-		    
-		    break;
-		}
-		else if ( spot_light_on ) { //if the light source is on
-		    spot_light.intensity = 0;
-		}
-	    }
-	}
-    //jiggle
-    else {
-        _vector.set(
-        ( evt.clientX / window.innerWidth ) * 2 - 1,
-            -( evt.clientY / window.innerHeight ) * 2 + 1,
-        1);
+    	    //iterates through sculpture objects
+    	    for (i = 0; i < sculptures.length; i++) {
+    		collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
+    		if (collisionResults.length !== 0 && !sculptures[i].isAtLimit()) {
+    		    sculpture = sculptures[i];
+    		    
+    		    //make a light source directly above the sculpture
+    		    spot_light.position.set( sculpture.armature.position.x, spot_light.position.y, sculpture.armature.position.z );
+    		    spot_light.target = sculpture.armature;
+    		    spot_light.intensity = 6;
+    		    spot_light_on = true;
+    		    
+    		    break;
+    		}
+    		else if ( spot_light_on ) { //if the light source is on
+    		    spot_light.intensity = 0;
+    		}
+    	    }
+    	}
+        //jiggle
+        // else {
+        //     _vector.set(
+        //     ( evt.clientX / window.innerWidth ) * 2 - 1,
+        //         -( evt.clientY / window.innerHeight ) * 2 + 1,
+        //     1);
 
-        raycaster.setFromCamera(_vector, camera);
-        
-        intersection = raycaster.intersectObjects(moveable_objects);
-
-        if ( intersection[0] != undefined) {
-            var vl = intersection[0].object.getLinearVelocity().clone();
-            var va = intersection[0].object.getAngularVelocity().clone();
+        //     raycaster.setFromCamera(_vector, camera);
             
-            va.multiplyScalar(-1).add(new THREE.Vector3(Math.random(), 2 * Math.random(), 0));
-            vl.multiplyScalar(-1).add(new THREE.Vector3(5 * Math.random(), 5 * Math.random()));
-            intersection[0].object.setLinearVelocity(vl);
-            intersection[0].object.setAngularVelocity(va);
-            
-        }
+        //     intersection = raycaster.intersectObjects(moveable_objects);
 
-    }
+        //     if ( intersection[0] != undefined) {
+        //         var vl = intersection[0].object.getLinearVelocity().clone();
+        //         var va = intersection[0].object.getAngularVelocity().clone();
+                
+        //         va.multiplyScalar(-1).add(new THREE.Vector3(Math.random(), 2 * Math.random(), 0));
+        //         vl.multiplyScalar(-1).add(new THREE.Vector3(5 * Math.random(), 5 * Math.random()));
+        //         intersection[0].object.setLinearVelocity(vl);
+        //         intersection[0].object.setAngularVelocity(va);
+                
+        //     }
+
+        // }
     };
 
     handleMouseUp = function( evt ) {
