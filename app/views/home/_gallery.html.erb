@@ -14,7 +14,7 @@ var mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3,
     module_factor = new THREE.Vector3( 0, 0.5, 0 ), armature_factor = new THREE.Vector3( 0, 0, 0 );
 
 initScene = function() {
-    renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+    renderer = new THREE.WebGLRenderer({ antialias:true }); //alpha: true
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMapEnabled = true;
     renderer.shadowMapSoft = true;
@@ -259,7 +259,7 @@ function hairballSculpture(x,z) {
 	30
     );
 
-    box.position.set(x, -9.4, z);
+    box.position.set(x, -10.6, z);
     box.castShadow = true;
     box.receiveShadow = true;
 
@@ -429,7 +429,7 @@ function eggSculpture(x,z) {
     	9
     );
 
-    armature.position.set(x,-16.1, z);
+    armature.position.set(x,-17, z);
     armature.castShadow = true;
     armature.receiveShadow= true;
 
