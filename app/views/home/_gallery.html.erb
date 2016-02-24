@@ -112,16 +112,15 @@ initScene = function() {
     //space init
 
     // make less heavy
-    Table( 0, -18, -40, 50, 3, 50, '<%= asset_path 'parquet_2.jpg' %>', 8, 8, 8 );
-    Table( -30, -18, 40, 35, 3, 40, '<%= asset_path 'parquet_2.jpg' %>', Math.PI / 3, 8, 8 );
+    Table( 0, -18, -40, 50, 1, 50, '<%= asset_path 'parquet-2.jpg' %>', 8, 8, 8 );
+    Table( -30, -18, 40, 35, 1, 40, '<%= asset_path 'parquet-2.jpg' %>', Math.PI / 3, 8, 8 );
     
-    Table( -50, -19.25, -15, 50, 7, 100, '<%= asset_path 'concrete_1.jpg' %>', 0, 5, 17);
-    Table( -25, -20.25, -15, 100, 4, 99,'<%= asset_path 'grass.jpg' %>', Math.PI / 4, 3, 3);
+    Table( -50, -19.25, -15, 50, 4, 100, '<%= asset_path 'concrete_1.jpg' %>', 0, 5, 17);
+    Table( -25, -20.25, -15, 100, 1, 99,'<%= asset_path 'grass.jpg' %>', Math.PI / 4, 3, 3);
 
 
     var nameplate = Table( -24, -71, -15, 30, 6, 4,'<%= asset_path 'concrete_1.jpg' %>', 7, 3, 3);
 
-    // Table( -90, 10, -25.65, 105, 50, 5,'<%= asset_path 'brickwall.jpg' %>',Math.PI / 4, 1, 1);
 	//sculptures init
      
     oliveSculpture(0,-40);
@@ -132,7 +131,7 @@ initScene = function() {
     var wedgeAssets = ['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>'];
     LoadPlyAssets(wedgeAssets, wedgeSculpture);    // default x: -50 , z: -40
 
-    // TongueSculpture(20, -15);
+    //TongueSculpture(20, -15);
    
     // sculptures.forEach(function(sculpture) {
 	   // sculpture.addIntersectSphere();
