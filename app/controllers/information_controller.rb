@@ -25,9 +25,13 @@ class InformationController < ApplicationController
   # POST /information.json
   def create
     @information = Information.new(information_params)
-
     respond_to do |format|
       if @information.save
+        if params["information"]["press_documents"] != nil 
+          pd = PressDocument.new(:pdf => params["information"]["press_documents"]["pdf"], :information_id => @information.id)
+          pd.save
+          binding.pry
+        end
         format.html { redirect_to @information, notice: 'Information was successfully created.' }
         format.json { render :show, status: :created, location: @information }
       else
@@ -69,6 +73,6 @@ class InformationController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def information_params
-      params.require(:information).permit(:about, :version, :document, :press)
+      params.require(:information).permit(:about, :version, :document, :press, :press_documents, :pdf, :press_document)
     end
 end

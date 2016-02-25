@@ -21,6 +21,14 @@
 
 
 <p>
+	<strong>PDF Uploads:</strong><br>
+	<% @information.press_documents.each_with_index do |press_document, idx| %>
+		<%= link_to "document #{idx}", press_document %><br>
+	<% end %>
+</p>
+
+
+<p>
   <strong>CV Download:</strong>
   <%= link_to 'Click for Download', @information.document.url %>
 </p>

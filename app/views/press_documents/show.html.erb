@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Pdf:</strong>
+  <%= @press_document.pdf %>
+</p>
+
+<p>
+  <strong>Information:</strong>
+  <%= @press_document.information %>
+</p>
+
+<%= link_to 'Edit', edit_press_document_path(@press_document) %> |
+<%= link_to 'Back', press_documents_path %>

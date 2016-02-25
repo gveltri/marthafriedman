@@ -32,6 +32,14 @@
 	    <%= f.label :document %><br>
 	    <%= f.file_field :document %>
     </div>
+    <br>
+    <div class="field">
+	    <%= f.fields_for :press_documents, @information.press_documents || @information.build_press_document do |c| %>
+		    <%= c.label :pdf %><br>
+		    <%= c.file_field :pdf %>
+	    <% end %>
+    </div>
+    <br>
 
   
   <div class="actions">
