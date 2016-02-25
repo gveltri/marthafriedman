@@ -116,7 +116,7 @@ initScene = function() {
     Table( -30, -18, 40, 35, 3, 40, '<%= asset_path 'parquet_2.jpg' %>', Math.PI / 3, 8, 8 );
     
     Table( -50, -19.25, -15, 50, 7, 100, '<%= asset_path 'concrete_1.jpg' %>', 0, 5, 17);
-    Table( -25, -20.25, -15, 100, 4, 99,'<%= asset_path 'grass.jpg' %>', Math.PI / 4, 3, 3);
+    Table( -25, -20.25, -15, 100, 4, 120,'<%= asset_path 'grass.jpg' %>', Math.PI / 4, 3, 3);
 
 
     var nameplate = Table( -24, -71, -15, 30, 6, 4,'<%= asset_path 'concrete_1.jpg' %>', 7, 3, 3);
@@ -132,7 +132,8 @@ initScene = function() {
     var wedgeAssets = ['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>'];
     LoadPlyAssets(wedgeAssets, wedgeSculpture);    // default x: -50 , z: -40
 
-    // TongueSculpture(20, -15);
+    var tongueAssets = ['<%= asset_path 'ascii/Tongue_up.ply' %>'];
+    LoadPlyAssets(tongueAssets, TongueSculpture); 
    
     // sculptures.forEach(function(sculpture) {
 	   // sculpture.addIntersectSphere();
@@ -503,107 +504,96 @@ function eggSculpture(x,z) {
     }
 }
 
-// //circle centered on x,z
-// function TongueSculpture(x,z) {
-//     var eggs = [];
-//     var armature = new Physijs.BoxMesh(
-//     new THREE.BoxGeometry( 5, 1, 5 ),
-//     new THREE.MeshPhongMaterial({ color: 0xEEEEEE }),
-//     9
-//     );
+//circle centered on x,z
+function TongueSculpture(x,z) {
 
-//     armature.position.set(x,-14, z);
-//     armature.castShadow = true;
-//     armature.receiveShadow= true;
+    var geometries = this;
+    var geometry = geometries[0];
 
-//     scene.add( armature );
+    // if we want to use this x and z then we'll need to save ply geometries globally
+    if (typeof x === 'undefined') { x = 5; }
+    if (typeof z === 'undefined') { z = 5; }
 
-//     // armature.setAngularFactor( armature_factor );
-//     // armature.setLinearFactor( armature_factor );
+    var tongues = [];
+    var armature = new Physijs.BoxMesh(
+        new THREE.BoxGeometry( 5, 1, 5 ),
+        new THREE.MeshPhongMaterial({ color: 0xEEEEEE }),
+        9
+    );
 
-//     // var intersect_cylinder = new THREE.Mesh(
-//     // new THREE.CylinderGeometry(0.25,0.25,40.8),
-//     // new THREE.MeshLambertMaterial()
-//     // );
+    armature.position.set(x,-17.5 , z);
+    armature.castShadow = true;
+    armature.receiveShadow= true;
 
-//     // intersect_cylinder.position.set(x,3,z);
-//     // intersect_cylinder.castShadow = true;
-//     // intersect_cylinder.receiveShadow = true;
+    scene.add( armature );
 
-//     // scene.add(intersect_cylinder);
+    var num = 9;
 
-//     TongueCreator(9);
-//     new Sculpture( armature, eggs );
+    new Sculpture( armature, tongues );
 
-//     function TongueCreator(num) {
+    var tongueMaterial = new Physijs.createMaterial (
+        new THREE.MeshLambertMaterial({ color: 0xff7fb6 }),
+        0.1,
+        0.7);
+    
+    var m = new THREE.Matrix4();
+    // var m1 = new THREE.Matrix4();
+    // var m2 = new THREE.Matrix4();
 
-//         var tongue_loader = new THREE.PLYLoader();
+    m.scale(new THREE.Vector3(1.5,1.5,1.5));        
+    // m.makeTranslation(0,-8,0);
+    // m.makeRotationX( -Math.PI/4 );
+    // m1.makeRotationZ( Math.PI/4 );
+    // m2.makeRotationY( Math.PI/2 );
 
-//         var tongue_material = new Physijs.createMaterial (
-//         new THREE.MeshLambertMaterial({ color: 0xC98F8E }),
-//         0.1,
-//         0.7
-//     );
-
-//     var tongue = tongue_loader.load('<%= asset_path 'ascii/Tongue.ply' %>', function( geometry ){
+    // m.multiply(m1).multiply(m2);
+    geometry.applyMatrix(m);
         
-//         var m = new THREE.Matrix4();
-//         var m1 = new THREE.Matrix4();
-//         var m2 = new THREE.Matrix4();
+    var r = 15;
 
-//         // m.scale(new THREE.Vector3(2,2,2));        
-//         // m.makeTranslation(0,-8,0);
-//         // m.makeRotationX( -Math.PI/4 );
-//         // m1.makeRotationZ( Math.PI/4 );
-//         // m2.makeRotationY( Math.PI/2 );
+    for (var i = 0; i < num; i++){
+        var y =  - i * 7 + 40;  
 
-//         // m.multiply(m1).multiply(m2);
-//         // geometry.applyMatrix(m);
+        var a = (2 * Math.PI / num) * i;
+        console.log(a);
         
+        var rot = new THREE.Matrix4();
+        rot.makeRotationY(a);
+        geometry.applyMatrix(rot);
 
-//         for (var i = 0; i < num; i++){
-
-//             // var y = -8 + (eggs.length*10);
-//             var y = -13.5;
-//             var r = 15;
-//             var a = (2 * Math.PI / num) * i;
-            
-//             var rot = new THREE.Matrix4();
-//             rot.makeRotationY(a);
-//             geometry.applyMatrix(rot);
-
-//             var eggMesh = new Physijs.ConvexMesh(
-//                 geometry,
-//                 tongue_material,
-//                 7
-//             );
+        var tongueMesh = new Physijs.ConvexMesh(
+            geometry,
+            tongueMaterial,
+            7
+        );
 
 
-//             eggMesh.castShadow = true;
-//             eggMesh.receiveShadow = true;
+        tongueMesh.castShadow = true;
+        tongueMesh.receiveShadow = true;
 
-//             //x = cx + r * cos(a)`
-//             //y = cy + r * sin(a)
+        //x = cx + r * cos(a)`
+        //y = cy + r * sin(a)
 
-//             eggMesh.position.set(armature.position.x + r * Math.cos(a) , y, armature.position.z + r * Math.sin(a));
-        
-//             scene.add( eggMesh );
-        
-//             eggMesh.__dirtyRotation = true;
-//             // eggMesh.rotation.x = a * 180 / MATH.PI;
-//             //eggMesh.rotation.y = a * (180 / Math.PI);
-//             // eggMesh.rotation.z += a;
-//         //     if (i%2==0) eggMesh.rotation.z = Math.PI/2;
-        
-//             eggMesh.setAngularFactor( module_factor );
-//             eggMesh.setLinearFactor( module_factor );
+        tongueMesh.position.set(armature.position.x + r * Math.cos(a) , y , armature.position.z + r * Math.sin(a));
 
-//             eggs.push(eggMesh);
-//             moveable_objects.push(eggMesh);
-//         }
-//     });
-//     }
-// }
+        tongueMesh.rotation.y = -a;
+    
+        scene.add( tongueMesh );
+    
+        tongueMesh.__dirtyRotation = true;
+        // eggMesh.rotation.x = a * 180 / MATH.PI;
+        //eggMesh.rotation.y = a * (180 / Math.PI);
+        // eggMesh.rotation.z += a;
+    //     if (i%2==0) eggMesh.rotation.z = Math.PI/2;
+    
+        tongueMesh.setAngularFactor( module_factor );
+        tongueMesh.setLinearFactor( module_factor );
+
+        tongues.push(tongueMesh);
+        moveable_objects.push(tongueMesh);
+    }
+
+}
 
 function wedgeSculpture(x, z) {
     var geometries = this;
