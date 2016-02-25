@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160212154818) do
+ActiveRecord::Schema.define(version: 20160224021530) do
 
   create_table "admins", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
@@ -42,6 +42,18 @@ ActiveRecord::Schema.define(version: 20160212154818) do
     t.datetime "document_updated_at"
     t.text     "press"
   end
+
+  create_table "press_documents", force: :cascade do |t|
+    t.string   "pdf_file_name"
+    t.string   "pdf_content_type"
+    t.integer  "pdf_file_size"
+    t.datetime "pdf_updated_at"
+    t.integer  "information_id"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
+
+  add_index "press_documents", ["information_id"], name: "index_press_documents_on_information_id"
 
   create_table "works", force: :cascade do |t|
     t.string   "name"

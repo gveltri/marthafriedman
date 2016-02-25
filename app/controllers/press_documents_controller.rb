@@ -1,0 +1,2 @@
+class PressDocumentsController < ApplicationController
+end
