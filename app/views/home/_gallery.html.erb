@@ -132,7 +132,7 @@ initScene = function() {
     var wedgeAssets = ['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>'];
     LoadPlyAssets(wedgeAssets, wedgeSculpture);    // default x: -50 , z: -40
 
-    var tongueAssets = ['<%= asset_path 'ascii/Tongue_up.ply' %>'];
+    var tongueAssets = ['<%= asset_path 'ascii/Tongue_up2.ply' %>'];
     LoadPlyAssets(tongueAssets, TongueSculpture); 
    
     // sculptures.forEach(function(sculpture) {
@@ -537,22 +537,22 @@ function TongueSculpture(x,z) {
         0.7);
     
     var m = new THREE.Matrix4();
-    // var m1 = new THREE.Matrix4();
+    var m1 = new THREE.Matrix4();
     // var m2 = new THREE.Matrix4();
 
     m.scale(new THREE.Vector3(1.5,1.5,1.5));        
     // m.makeTranslation(0,-8,0);
     // m.makeRotationX( -Math.PI/4 );
-    // m1.makeRotationZ( Math.PI/4 );
+    m1.makeRotationX( Math.PI/2 );
     // m2.makeRotationY( Math.PI/2 );
 
-    // m.multiply(m1).multiply(m2);
+    m.multiply(m1);
     geometry.applyMatrix(m);
         
     var r = 15;
 
     for (var i = 0; i < num; i++){
-        var y =  - i * 7 + 40;  
+        var y =  i * 6 + 5;  
 
         var a = (2 * Math.PI / num) * i;
         console.log(a);
