@@ -4,7 +4,7 @@ class Work < ActiveRecord::Base
   validates_presence_of :image, :name, :year, :message => "missing, fill in ya shit dummy."
   
   has_attached_file :image, styles: lambda { |a|
-    a.instance.is_image? ? { medium: "1000x1000>", thumb: "300x300>", tiny_thumb: "50x50>" } :
+    a.instance.is_image? ? { medium: "1800x1000>", thumb: "300x300>", tiny_thumb: "50x50>" } :
       { :medium => { :geometry => "640x480>", :format => 'mp4' },
         :thumb => { :geometry => "300x300>", :format => 'jpg', :time => 2},
         :tiny_thumb => {:geometry => "50x50>", :format => 'jpg', :time => 2}}},
