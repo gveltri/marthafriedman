@@ -1,3 +1,7 @@
+<!-- For the Future
+1) Load PLY objects as binary
+2) Bring soft body action from Ammo through Physijs and THREE
+-->
 <script>
     Physijs.scripts.worker = '<%= asset_path 'physijs_worker.js' %>';
     Physijs.scripts.ammo = '<%= asset_path 'ammo.js' %>';
@@ -509,27 +513,27 @@ function TongueSculpture(x,z) {
 
     var geometries = this;
     var geometry = geometries[0];
+    // geometry.computeBoundingBox();
+    // geometry.computeBoundingSphere();
 
     // if we want to use this x and z then we'll need to save ply geometries globally
     if (typeof x === 'undefined') { x = 5; }
     if (typeof z === 'undefined') { z = 5; }
 
-    var tongues = [];
-    var armature = new Physijs.BoxMesh(
-        new THREE.BoxGeometry( 5, 1, 5 ),
-        new THREE.MeshPhongMaterial({ color: 0xEEEEEE }),
-        9
-    );
+    // var tongues = [];
+    // var armature = new Physijs.BoxMesh(
+    //     new THREE.BoxGeometry( 5, 1, 5 ),
+    //     new THREE.MeshPhongMaterial({ color: 0xEEEEEE }),
+    //     9
+    // );
 
-    armature.position.set(x,-17.5 , z);
-    armature.castShadow = true;
-    armature.receiveShadow= true;
+    // armature.position.set(x,-17.5 , z);
+    // armature.castShadow = true;
+    // armature.receiveShadow= true;
 
-    scene.add( armature );
+    // scene.add( armature );
 
     var num = 9;
-
-    new Sculpture( armature, tongues );
 
     var tongueMaterial = new Physijs.createMaterial (
         new THREE.MeshLambertMaterial({ color: 0xff7fb6 }),
@@ -551,34 +555,66 @@ function TongueSculpture(x,z) {
         
     var r = 15;
 
+    var arm_geo = new THREE.CylinderGeometry( .3, .3, 1.5, 5 );
+    // var interSphere = new THREE.SphereGeometry( 5, 5, 5);
+    
     for (var i = 0; i < num; i++){
+        var tongues = [];
+
+        var rebar = new THREE.Mesh(
+            arm_geo,
+            new THREE.MeshPhongMaterial({ color: 0x664935 })
+        );
+
+        rebar.geometry.computeBoundingBox();
+        rebar.geometry.computeBoundingSphere();
+
+        rebar.castShadow = true;
+        rebar.receiveShadow= true;
+
+        var tongueSculpture = new Sculpture( rebar, tongues);
+
         var y =  i * 6 + 5;  
 
+        var rotX = new THREE.Matrix4();
+        rotX.makeRotationX(-Math.PI/2);
+
+        rebar.geometry.applyMatrix(rotX);
+
         var a = (2 * Math.PI / num) * i;
-        console.log(a);
-        
-        var rot = new THREE.Matrix4();
-        rot.makeRotationY(a);
-        geometry.applyMatrix(rot);
+
+        var rotY = new THREE.Matrix4();
+        rotY.makeRotationY(a);
+        geometry.applyMatrix(rotY);
+        rebar.geometry.applyMatrix(rotY);
+
 
         var tongueMesh = new Physijs.ConvexMesh(
             geometry,
             tongueMaterial,
             7
         );
-
-
+        tongueMesh.geometry.computeBoundingBox();
+        tongueMesh.geometry.computeBoundingSphere();
         tongueMesh.castShadow = true;
         tongueMesh.receiveShadow = true;
 
-        //x = cx + r * cos(a)`
+        //x = cx + r * cos(a)
         //y = cy + r * sin(a)
+        var xC = x + r * Math.cos(a);
+        var zC = z + r * Math.sin(a);
 
-        tongueMesh.position.set(armature.position.x + r * Math.cos(a) , y , armature.position.z + r * Math.sin(a));
+        rebar.position.set(xC , -17, zC);
+        tongueMesh.position.set(xC, y, zC);
 
         tongueMesh.rotation.y = -a;
+        rebar.rotation.y = -a;
     
+        // console.log(rebar);
+        // console.log(tongueSculpture);
+
         scene.add( tongueMesh );
+        scene.add( rebar );
     
         tongueMesh.__dirtyRotation = true;
         // eggMesh.rotation.x = a * 180 / MATH.PI;
@@ -589,8 +625,9 @@ function TongueSculpture(x,z) {
         tongueMesh.setAngularFactor( module_factor );
         tongueMesh.setLinearFactor( module_factor );
 
-        tongues.push(tongueMesh);
+        // tongues.push(tongueMesh);
         moveable_objects.push(tongueMesh);
+        tongueSculpture.addModule(tongueMesh);
     }
 
 }
@@ -686,7 +723,7 @@ function wedgeSculpture(x, z) {
     
     var wedge_stack = new Sculpture( armature, wedges, arrangement.length );
     
-    geometry_flat.computeBoundingBox;
+    geometry_flat.computeBoundingBox();
 
     var r = .6;//(geometry_flat.boundingBox.max.y - geometry_flat.boundingBox.min.y) / 2;
     
@@ -697,6 +734,8 @@ function wedgeSculpture(x, z) {
             wedge_material,
             30
         );
+
+        wedgeMesh.setCcdMotionThreshold(1);
         // var wedgeMesh = new Physijs.ConvexMesh(
         //     new THREE.BoxGeometry(3,1,7),// wedge_models[arrangement[i]],
         //     wedge_material,
@@ -918,26 +957,31 @@ initEventHandling = (function() {
 
     	    intersection = raycaster.intersectObjects( intersect_planes );
     	    if ( intersection[0] != undefined) {
-    		mouse_position.copy(intersection[0].point);
+    		  mouse_position.copy(intersection[0].point);
     	    }
 
     	    //iterates through sculpture objects
     	    for (i = 0; i < sculptures.length; i++) {
-    		collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
-    		if (collisionResults.length !== 0 && !sculptures[i].isAtLimit()) {
-    		    sculpture = sculptures[i];
-    		    
-    		    //make a light source directly above the sculpture
-    		    spot_light.position.set( sculpture.armature.position.x, spot_light.position.y, sculpture.armature.position.z );
-    		    spot_light.target = sculpture.armature;
-    		    spot_light.intensity = 6;
-    		    spot_light_on = true;
-    		    
-    		    break;
-    		}
-    		else if ( spot_light_on ) { //if the light source is on
-    		    spot_light.intensity = 0;
-    		}
+    		    collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
+    		    if (collisionResults.length !== 0 && !sculptures[i].isAtLimit()) {
+                    // shouldn't need this
+                    // if (collisionResults[0].object == selected_thing) {
+                    //     continue;
+                    // }
+
+        		    sculpture = sculptures[i];
+        		    
+        		    //make a light source directly above the sculpture
+        		    spot_light.position.set( sculpture.armature.position.x, spot_light.position.y, sculpture.armature.position.z );
+        		    spot_light.target = sculpture.armature;
+        		    spot_light.intensity = 6;
+        		    spot_light_on = true;
+        		    
+        		    break;
+    		    }
+        		else if ( spot_light_on ) { //if the light source is on
+        		    spot_light.intensity = 0;
+        		}
     	    }
     	}
         //jiggle
