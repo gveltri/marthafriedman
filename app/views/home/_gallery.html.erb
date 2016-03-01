@@ -133,7 +133,7 @@ initScene = function() {
     eggSculpture(-50,-5);
 
     // New way to make a sculpture
-    var wedgeAssets = ['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>'];
+    var wedgeAssets = ['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>', '<%= asset_path 'ascii/LongWedge.ply' %>'];
     LoadPlyAssets(wedgeAssets, wedgeSculpture);    // default x: -50 , z: -40
 
     var tongueAssets = ['<%= asset_path 'ascii/Tongue_up2.ply' %>'];
@@ -334,7 +334,7 @@ function oliveSculpture(x,z) {
     scene.add(intersect_cylinder);
 
     OliveCreator(13);
-    new Sculpture( armature, olives);
+    var oliveTotem = new Sculpture( armature, olives);
     
     function OliveCreator(num) {
 
@@ -418,7 +418,8 @@ function oliveSculpture(x,z) {
     		oliveMesh.setAngularFactor( module_factor );
     		oliveMesh.setLinearFactor( module_factor );
 
-    		olives.push(oliveMesh);
+    		//olives.push(oliveMesh);
+            oliveTotem.addModule(oliveMesh);
     		moveable_objects.push(oliveMesh);
 	    }
 	});
@@ -574,8 +575,6 @@ function TongueSculpture(x,z) {
 
         var tongueSculpture = new Sculpture( rebar, tongues);
 
-        var y =  i * 6 + 5;  
-
         var rotX = new THREE.Matrix4();
         rotX.makeRotationX(-Math.PI/2);
 
@@ -605,39 +604,34 @@ function TongueSculpture(x,z) {
         var zC = z + r * Math.sin(a);
 
         rebar.position.set(xC , -17, zC);
-        tongueMesh.position.set(xC, y, zC);
 
         tongueMesh.rotation.y = -a;
         rebar.rotation.y = -a;
-    
-        // console.log(rebar);
-        // console.log(tongueSculpture);
 
         scene.add( tongueMesh );
         scene.add( rebar );
     
         tongueMesh.__dirtyRotation = true;
-        // eggMesh.rotation.x = a * 180 / MATH.PI;
-        //eggMesh.rotation.y = a * (180 / Math.PI);
-        // eggMesh.rotation.z += a;
-    //     if (i%2==0) eggMesh.rotation.z = Math.PI/2;
     
         tongueMesh.setAngularFactor( module_factor );
         tongueMesh.setLinearFactor( module_factor );
 
-        // tongues.push(tongueMesh);
         moveable_objects.push(tongueMesh);
+
         tongueSculpture.addModule(tongueMesh);
+
+        var y =  i * 6 + 5;  
+        tongueMesh.position.y = y;
     }
 
 }
 
 function wedgeSculpture(x, z) {
     var geometries = this;
-
+    console.log(geometries);
     // if we want to use this x and z then we'll need to save ply geometries globally
-    if (typeof x === 'undefined') { x = -50; }
-    if (typeof z === 'undefined') { z = -40; }
+    if (typeof x === 'undefined') { x = -60; }
+    if (typeof z === 'undefined') { z = -50; }
 
     var wedges = [];
 
@@ -692,11 +686,19 @@ function wedgeSculpture(x, z) {
         1
     );
 
+    var long_wedge_mat = new Physijs.createMaterial (
+        new THREE.MeshLambertMaterial({ color: 0xFF5934 }),
+        1,
+        1
+    );
+
     var geometry_flat = geometries[0];
     var geometry_hammer = geometries[1];
 
     
     var m = new THREE.Matrix4();
+    var m2 = new THREE.Matrix4();
+    var m3 = new THREE.Matrix4();
     var geo_flat_left = geometry_flat.clone();
     m.makeRotationY( Math.PI );        
     geometry_flat.applyMatrix(m);
@@ -706,47 +708,76 @@ function wedgeSculpture(x, z) {
     m.makeRotationY( Math.PI );        
     geometry_hammer.applyMatrix(m);
 
+    var geo_longWedge = geometries[2];
+    // m3.makeTranslation(-5, 0, -5);  
+    m2.makeRotationX(-Math.PI/2);
+    // geo_longWedge.applyMatrix(m);  
+    geo_longWedge.applyMatrix(m);
+
     //var yFactor = geometry_flat.boundingSphere.radius;
-    var wedge_models = [geometry_flat, geo_flat_left, geometry_hammer, geo_hammer_left];
+    var wedge_models = [geometry_flat, geo_flat_left, geometry_hammer, geo_hammer_left, geometries[2]];
     
-    var arrangement = [0, 1, 0, 1,
-                        2, 1, 0, 3,
-                        0, 1, 0, 1,
-                        2, 1, 0, 1,
-                        2, 1, 0, 1, 
-                        0, 1, 0,
-                        1, 0, 1, 2,
-                        1, 0, 3, 2,
-                        1, 0, 1, 0,
-                        1, 2, 1, 2,
-                        3, 0, 1, 0];
+    var arrangement = [3, 3, 3, 3,
+                        3, 0, 0, 0,
+                        0, 0, 0, 3,
+                        3, 3, 3, 3,
+                        3, 0, 0, 0, 
+                        0, 0, 0,
+                        3, 3, 3, 4,
+                        3, 3, 3, 3,
+                        0, 0, 0, 0,
+                        3, 3, 3, 3,
+                        0, 0, 0, 0];
     
-    var wedge_stack = new Sculpture( armature, wedges, arrangement.length );
+    var wedge_stack = new Sculpture( armature, wedges, arrangement.length + 1);
     
     geometry_flat.computeBoundingBox();
 
     var r = .6;//(geometry_flat.boundingBox.max.y - geometry_flat.boundingBox.min.y) / 2;
+
+    //Sculpture starts with one rectangular module
+    var blockMesh = new Physijs.BoxMesh(
+        new THREE.BoxGeometry(4, 1.25, 2),
+        wedge_material,
+        30
+    );
+
+    blockMesh.rotation.y = Math.PI / 4;
     
-    for (var i = 0; i < arrangement.length; i++){ //arrangement.length
+    blockMesh.castShadow = true;
+    blockMesh.receiveShadow = true;
+
+    scene.add( blockMesh );
+
+    _v3 = new THREE.Vector3(0,0,0);
+    
+    blockMesh.setAngularFactor( _v3 ); 
+    blockMesh.setAngularVelocity(_v3);
+
+    blockMesh.setLinearFactor( module_factor );
+    blockMesh.setLinearVelocity(_v3);
+
+    moveable_objects.push( blockMesh );
+    wedge_stack.addModule(blockMesh);
+
+
+    for (var i = 0; i < arrangement.length; i++){
+
+        var wMat;
+        if (arrangement[i] == 4) {
+            wMat = long_wedge_mat;
+        }
+        else wMat = wedge_material;
 
         var wedgeMesh = new Physijs.ConvexMesh(
             wedge_models[arrangement[i]],
-            wedge_material,
+            wMat,
             30
         );
 
         wedgeMesh.setCcdMotionThreshold(1);
-        // var wedgeMesh = new Physijs.ConvexMesh(
-        //     new THREE.BoxGeometry(3,1,7),// wedge_models[arrangement[i]],
-        //     wedge_material,
-        //     30
-        // );
 
         var y = (wedges.length * r) - 6;
-
-        // wedgeMesh.geometry.computeBoundingSphere();
-
-        //wedgeMesh.setDamping(0, .9);
 
         wedgeMesh.castShadow = true;
         wedgeMesh.receiveShadow = true;
@@ -756,7 +787,7 @@ function wedgeSculpture(x, z) {
 
         scene.add( wedgeMesh );
 
-        _v3 = new THREE.Vector3(0,0,0);
+        // _v3 = new THREE.Vector3(0,0,0);
         
         wedgeMesh.setAngularFactor( _v3 ); 
         wedgeMesh.setAngularVelocity(_v3);
