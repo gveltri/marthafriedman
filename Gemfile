@@ -80,3 +80,6 @@ gem 'aws-sdk'
 gem 'dotenv-rails', :groups => [:development, :test]
 
 
+# video uploads
+
+gem 'paperclip-av-transcoder'

@@ -2,7 +2,6 @@
     Physijs.scripts.worker = '<%= asset_path 'physijs_worker.js' %>';
     Physijs.scripts.ammo = 'https://raw.githubusercontent.com/gveltri/marthafriedman/galleryChanges/app/assets/javascripts/ammo.js';
 
-
 var initScene, render, renderer, scene, camera, initEventHandling;
 
 var dir_light, dir_light2, am_light, spot_light, point_light;
@@ -1056,6 +1055,9 @@ render = function() {
     requestAnimationFrame( render );
 };
 
-initScene();
+
+$(function() {
+	initScene();
+});
 </script>
     
