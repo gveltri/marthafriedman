@@ -1,3 +1,9 @@
+
+<div class="site-wrapper-inner">
+  <div class="cover-container">
+	  <div class="inner">
+
+
 <p id="notice"><%= notice %></p>
 
 <h1>Listing Press Documents</h1>
@@ -16,9 +22,9 @@
       <tr>
         <td><%= press_document.pdf %></td>
         <td><%= press_document.information %></td>
-        <td><%= link_to 'Show', press_document %></td>
-        <td><%= link_to 'Edit', edit_press_document_path(press_document) %></td>
-        <td><%= link_to 'Destroy', press_document, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Show', [press_document.information, press_document] %></td>
+        <td><%= link_to 'Edit', edit_information_press_document_path(press_document.information, press_document) %></td>
+        <td><%= link_to 'Destroy', [press_document.information, press_document], method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -26,4 +32,8 @@
 
 <br>
 
-<%= link_to 'New Press document', new_press_document_path %>
+<%= link_to 'New Press document', new_information_press_document_path %>
+
+	  </div>
+  </div>
+</div>

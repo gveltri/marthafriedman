@@ -1,3 +1,7 @@
+<div class="site-wrapper-inner">
+  <div class="cover-container">
+	  <div class="inner">
+		  
 <p id="notice"><%= notice %></p>
 
 <p>
@@ -10,5 +14,10 @@
   <%= @press_document.information %>
 </p>
 
-<%= link_to 'Edit', edit_press_document_path(@press_document) %> |
-<%= link_to 'Back', press_documents_path %>
+<%= link_to 'Edit', edit_information_press_document_path(@press_document.information,@press_document) %> |
+<%= link_to 'Back', information_press_documents_path %>
+
+
+    </div>
+  </div>
+</div>

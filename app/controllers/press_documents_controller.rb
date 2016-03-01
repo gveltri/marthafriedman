@@ -14,7 +14,8 @@ class PressDocumentsController < ApplicationController
 
   # GET /press_documents/new
   def new
-    @press_document = PressDocument.new
+    @information = Information.find(params[:information_id])
+    @press_document = @information.press_documents.new
   end
 
   # GET /press_documents/1/edit
@@ -28,7 +29,7 @@ class PressDocumentsController < ApplicationController
 
     respond_to do |format|
       if @press_document.save
-        format.html { redirect_to @press_document, notice: 'Press document was successfully created.' }
+        format.html { redirect_to [@press_document.information,@press_document], notice: 'Press document was successfully created.' }
         format.json { render :show, status: :created, location: @press_document }
       else
         format.html { render :new }
@@ -56,7 +57,7 @@ class PressDocumentsController < ApplicationController
   def destroy
     @press_document.destroy
     respond_to do |format|
-      format.html { redirect_to press_documents_url, notice: 'Press document was successfully destroyed.' }
+      format.html { redirect_to information_press_documents_url, notice: 'Press document was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

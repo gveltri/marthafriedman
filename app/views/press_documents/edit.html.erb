@@ -1,6 +1,15 @@
+<div class="site-wrapper-inner">
+  <div class="cover-container">
+	  <div class="inner">
+
+
 <h1>Editing Press Document</h1>
 
 <%= render 'form' %>
 
-<%= link_to 'Show', @press_document %> |
-<%= link_to 'Back', press_documents_path %>
+<%= link_to 'Show', [@press_document.information, @press_document] %> |
+<%= link_to 'Back', information_press_documents_path %>
+
+    </div>
+  </div>
+</div>
