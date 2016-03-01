@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160225014626) do
+ActiveRecord::Schema.define(version: 20160301013517) do
 
   create_table "admins", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
@@ -51,6 +51,7 @@ ActiveRecord::Schema.define(version: 20160225014626) do
     t.integer  "information_id"
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
+    t.string   "name"
   end
 
   add_index "press_documents", ["information_id"], name: "index_press_documents_on_information_id"

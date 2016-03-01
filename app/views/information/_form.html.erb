@@ -36,7 +36,9 @@
     <div class="field">
 	    <%= f.fields_for :press_documents do |c| %>
 		    <%= c.label :pdf %><br>
-		    <%= c.file_field :pdf %>
+		    <%= c.file_field :pdf %><br>
+		    <%= c.text_field :name %>
+
 	    <% end %>
     </div>
     <br>

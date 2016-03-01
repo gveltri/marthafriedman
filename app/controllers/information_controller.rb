@@ -69,6 +69,6 @@ class InformationController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def information_params
-      params.require(:information).permit(:about, :version, :document, :press, :press_documents, :pdf, press_documents_attributes: [:pdf])
+      params.require(:information).permit(:about, :version, :document, :press, :press_documents, :pdf, press_documents_attributes: [:pdf, :name])
     end
 end

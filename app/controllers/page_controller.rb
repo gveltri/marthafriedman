@@ -17,7 +17,9 @@ class PageController < ApplicationController
 
   def press
     if (Information.all.size > 0)
-      @press = Information.last.press
+      @information = Information.last
+      @press = @information.press
+      @press_documents = @information.press_documents
     else
       @press = "No press information has been registered."
     end
