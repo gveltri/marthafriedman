@@ -34,7 +34,7 @@ initScene = function() {
 
     // Initialize Physijs Scene
     scene = new Physijs.Scene();
-    scene.setGravity( new THREE.Vector3(0, -40, 0) );
+    scene.setGravity( new THREE.Vector3(0, -90, 0) );
 
     // Click-and-drag functionality
     scene.addEventListener( 'update', function() {
@@ -116,23 +116,17 @@ initScene = function() {
     //space init
 
     // make less heavy
-    Table( 0, -18, -40, 50, 3, 50, '<%= asset_path 'parquet_2.jpg' %>', 8, 8, 8 );
-    Table( -30, -18, 40, 35, 3, 40, '<%= asset_path 'parquet_2.jpg' %>', Math.PI / 3, 8, 8 );
-    
-    Table( -50, -19.25, -15, 50, 7, 100, '<%= asset_path 'concrete_1.jpg' %>', 0, 5, 17);
-    Table( -25, -20.25, -15, 100, 4, 120,'<%= asset_path 'grass.jpg' %>', Math.PI / 4, 3, 3);
+    Table( 0, -18, -40, 50, 3, 50, '<%= asset_path 'parquet_2.jpg' %>', Math.PI / 2, 8, 8 );    
+    Table( -50, -17.25, -15, 50, 3, 100, '<%= asset_path 'concrete_1.jpg' %>', 0, 5, 17);
+    Table( -25, -19.25, -15, 100, 2, 100,'<%= asset_path 'grass.jpg' %>', Math.PI / 2, 3, 3);
 
-
-    var nameplate = Table( -24, -71, -15, 30, 6, 4,'<%= asset_path 'concrete_1.jpg' %>', 7, 3, 3);
-
-    // Table( -90, 10, -25.65, 105, 50, 5,'<%= asset_path 'brickwall.jpg' %>',Math.PI / 4, 1, 1);
 	//sculptures init
      
     oliveSculpture(0,-40);
     hairballSculpture(-50, 20);
     eggSculpture(-50,-5);
 
-    // New way to make a sculpture
+    // New way to make a sculptures
     var wedgeAssets = ['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>', '<%= asset_path 'ascii/LongWedge.ply' %>'];
     LoadPlyAssets(wedgeAssets, wedgeSculpture);    // default x: -50 , z: -40
 
@@ -313,7 +307,7 @@ function oliveSculpture(x,z) {
 
     armature.position.set(x,-13.75, z);
     //to match parquet floor
-    armature.rotation.y = 8;
+    armature.rotation.y = Math.PI/2;
 
     armature.castShadow = true;
     armature.receiveShadow= true;
@@ -359,7 +353,7 @@ function oliveSculpture(x,z) {
 	    geometry.computeBoundingBox();
 
 	    var radius = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
-	    var armature_y = -7.6;
+	    var armature_y = -12;
 
         var olive_colors = [0x9F9812, 0x6D632A, 0x5A603E, 
                       0x626220, 0x5E5E3C, 0x738754, 
@@ -518,8 +512,8 @@ function TongueSculpture(x,z) {
     // geometry.computeBoundingSphere();
 
     // if we want to use this x and z then we'll need to save ply geometries globally
-    if (typeof x === 'undefined') { x = 5; }
-    if (typeof z === 'undefined') { z = 5; }
+    if (typeof x === 'undefined') { x = 2; }
+    if (typeof z === 'undefined') { z = 10; }
 
     // var tongues = [];
     // var armature = new Physijs.BoxMesh(
@@ -705,21 +699,54 @@ function wedgeSculpture(x, z) {
 
 
     var mX = new THREE.Matrix4();
-    mX.makeRotationX(Math.PI/4);
+    // var mY = new THREE.Matrix4();
+    // mY.makeRotationX(Math.PI/4);
     var mY = new THREE.Matrix4();
-    mY.makeRotationX(Math.PI/4);
-    var mZ = new THREE.Matrix4();
-    mZ.makeRotationX(Math.PI/4);
+    mY.makeRotationY(Math.PI/1.1);
+    mX.makeRotationX(Math.PI/2);
 
-    mX.multiply(mY);
-    mX.multiply(mZ);
+    mY.multiply(mX);
+    // mX.multiply(mZ);
+    var longWedge_one = geometries[2];
+    longWedge_one.applyMatrix(mY);
+    // var longWedge_one = new THREE.Geometry();
     
-    var geo_longWedge = geometries[2].clone();
+    // var faces = geometries[2].faces.concat(geometries[3].faces);
+    // var vertices = geometries[2].vertices.concat(geometries[3].vertices);
     
-    geo_longWedge.applyMatrix(mX);
+    // longWedge_one.vertices = vertices;
+    // longWedge_one.faces = faces;
+
+    // for (var i = 0; i < geometries[2].vertices.length; i++){
+    //     longWedge_one.vertices.push(geometries[2].vertices[i]);
+    // } 
+    // for (var i = 0; i < geometries[2].faces.length; i++){
+    //     longWedge_one.faces.push(geometries[2].faces[i]);
+    // } 
+    // for (var i = 0; i < geometries[3].vertices.length; i++){
+    //     longWedge_one.vertices.push(geometries[3].vertices[i]);
+    // }     
+
+
+
+    // for (var i = 0; i < geometries[3].faces.length; i++){
+    //     longWedge_one.faces.push(geometries[3].faces[i]);
+    // } 
+
+    longWedge_one.computeBoundingSphere();
+    // var verts = [];
+    // verts = longWedge_one.vertices.concat(geometries[3].vertices);
+    // longWedge_one.vertices = verts;
+    // for (var i = 0; i < geometries[2].vertices.length; i++){
+    //     // longWedge_one.__dirtyVertices = true;
+    //     longWedge_one.vertices.push(geometries[3].vertices[i]);
+    // }            
+    // longWedge_one.verticesNeedUpdate = true;
+    
+    // geo_longWedge.applyMatrix(mX);
 
     //var yFactor = geometry_flat.boundingSphere.radius;
-    var wedge_models = [geometry_flat, geo_flat_left, geometry_hammer, geo_hammer_left, geo_longWedge];
+    var wedge_models = [geometry_flat, geo_flat_left, geometry_hammer, geo_hammer_left, longWedge_one];
     
     var arrangement = [3, 3, 3, 3,
                         3, 0, 0, 0,
@@ -770,16 +797,28 @@ function wedgeSculpture(x, z) {
         var wMat;
         if (arrangement[i] == 4) {
             wMat = long_wedge_mat;
+            var wedgeMesh = new Physijs.ConvexMesh(
+                wedge_models[arrangement[i]],
+                wMat,
+                30
+            );
         }
-        else wMat = wedge_material;
+        else { 
+            wMat = wedge_material; 
+            var wedgeMesh = new Physijs.ConvexMesh(
+                wedge_models[arrangement[i]],
+                wMat,
+                30
+            );
+        }
 
-        var wedgeMesh = new Physijs.ConvexMesh(
-            wedge_models[arrangement[i]],
-            wMat,
-            30
-        );
+        // var wedgeMesh = new Physijs.ConvexMesh(
+        //     wedge_models[arrangement[i]],
+        //     wMat,
+        //     30
+        // );
 
-        wedgeMesh.setCcdMotionThreshold(1);
+        // wedgeMesh.setCcdMotionThreshold(1);
 
         var y = (wedges.length * r) - 6;
 
