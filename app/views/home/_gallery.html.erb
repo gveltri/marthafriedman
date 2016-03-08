@@ -127,10 +127,10 @@ initScene = function() {
     eggSculpture(-50,-5);
 
     // New way to make a sculptures
-    var wedgeAssets = ['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>', '<%= asset_path 'ascii/LongWedge.ply' %>'];
+    var wedgeAssets = ['<%= asset_path 'binary/Wedge_Flat.ply' %>', '<%= asset_path 'binary/Wedge_Hammerhead.ply' %>', '<%= asset_path 'binary/LongWedge.ply' %>'];
     LoadPlyAssets(wedgeAssets, wedgeSculpture);    // default x: -50 , z: -40
 
-    var tongueAssets = ['<%= asset_path 'ascii/Tongue_up2.ply' %>'];
+    var tongueAssets = ['<%= asset_path 'binary/Tongue_up2.ply' %>'];
     LoadPlyAssets(tongueAssets, TongueSculpture); 
    
     // sculptures.forEach(function(sculpture) {
@@ -340,7 +340,7 @@ function oliveSculpture(x,z) {
 	//     0.5
 	// );
 
-	var olive = olive_loader.load('<%= asset_path 'ascii/Olive_nopimento.ply' %>', function( geometry ){
+	var olive = olive_loader.load('<%= asset_path 'binary/Olive_nopimento.ply' %>', function( geometry ){
 
 	    var m = new THREE.Matrix4();
 	    var m1 = new THREE.Matrix4();
@@ -462,7 +462,7 @@ function eggSculpture(x,z) {
 	    0.7
 	);
 
-	var egg = egg_loader.load('<%= asset_path 'ascii/Egg.ply' %>', function( geometry ){
+	var egg = egg_loader.load('<%= asset_path 'binary/Egg.ply' %>', function( geometry ){
 	    
 	    var m = new THREE.Matrix4();
 	    var m1 = new THREE.Matrix4();
