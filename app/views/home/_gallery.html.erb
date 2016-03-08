@@ -263,7 +263,7 @@ function hairballSculpture(x,z) {
     box.receiveShadow = true;
 
     scene.add( box );
-    // moveable_objects.push(box);
+    moveable_objects.push(box);
 
     box.setAngularFactor( armature_factor );
     box.setLinearFactor( armature_factor );
@@ -334,20 +334,14 @@ function oliveSculpture(x,z) {
 
 	var olive_loader = new THREE.PLYLoader();
 
-	// var olive_material = new Physijs.createMaterial (
-	//     new THREE.MeshPhongMaterial({ color: 0x00FFFF, ambient: 0x904716}),
-	//     0.5,
-	//     0.5
-	// );
-
 	var olive = olive_loader.load('<%= asset_path 'binary/Olive_nopimento.ply' %>', function( geometry ){
 
 	    var m = new THREE.Matrix4();
 	    var m1 = new THREE.Matrix4();
 
         // to match parquet floor
-	    m.makeRotationX( 8 );//Math.PI/2 );
-	    m1.makeRotationZ( 8 );//Math.PI/2 );
+	    m.makeRotationX( Math.PI/2 );
+	    m1.makeRotationZ( Math.PI/2 );
 	    m.multiply( m1 );
 	    geometry.applyMatrix(m);
 	    geometry.computeBoundingBox();
@@ -367,8 +361,6 @@ function oliveSculpture(x,z) {
               0xCD444B, 0xEA6C60, 0xD5765A, 
               0xE2685D];
 
-        // console.log(geometry);
-
 	    for (var i = 0; i < num; i++) {
 
     		var y = armature_y + (olives.length * (radius));
@@ -385,9 +377,6 @@ function oliveSculpture(x,z) {
     		    5
     		);
 
-            // if (i == 0){
-            //     console.log(geometry);
-            // }
             var pimento_material = new THREE.MeshPhongMaterial({color: pimento_colors[i]});
     		
             var pimento = new THREE.Mesh(
@@ -463,7 +452,6 @@ function eggSculpture(x,z) {
 	);
 
 	var egg = egg_loader.load('<%= asset_path 'binary/Egg.ply' %>', function( geometry ){
-	    
 	    var m = new THREE.Matrix4();
 	    var m1 = new THREE.Matrix4();
 	    
@@ -935,13 +923,15 @@ Sculpture.prototype.addIntersectSphere = function() {
 // Takes asset paths as array of strings and callback function as arguments
 // The arguments look like (['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>'], wedgeSculpture)
 // The function returns an array [geometry1, geometry2], accessed in callback function with keyword this
+// Geometry array is returned with geometries sorted by # of verts in ascending order
 function LoadPlyAssets( assetPathArray, callback ){
     //console.log("loadPlyAssets");
 
     // array of returned geometries
     var geometries = [];//new Array(assetPathArray.length);
+    var length = assetPathArray.length;
 
-    for (var i = 0; i < assetPathArray.length; i++) {
+    for (var i = 0; i < length; i++) {
         var geometry_loader = new THREE.PLYLoader();
 
         var geo = geometry_loader.load( assetPathArray[i], function( geometry ){
@@ -949,8 +939,9 @@ function LoadPlyAssets( assetPathArray, callback ){
             
             geometries.push( geometry );
 
-            if ( geometries.length == assetPathArray.length ){
-                //console.log(geometries);
+            if ( geometries.length == length ){
+                //ensures geometries array will be returned in a predictable order
+                geometries.sort(function(a, b){return a.vertices.length - b.vertices.length});
                 callback.call( geometries );
             }
         });
@@ -1005,15 +996,6 @@ initEventHandling = (function() {
 	    thing_offset.subVectors( selected_thing.position, mouse_position);
 
 	}
-	// else {
-	//     intersections = raycaster.intersectObjects( static_surfaces );
-	//     if (intersections.length > 0) {
-	// 	for (var i = 0; i < moveable_objects.length; i++) {
-	// 	    _v3 = moveable_objects[i].getLinearVelocity();
-	// 	    if (Math.abs(_v3.y) < 2 ) moveable_objects[i].applyCentralImpulse(new THREE.Vector3(0,50,0));
-	// 	}
-	//     }
-	// }
 
     };
 
