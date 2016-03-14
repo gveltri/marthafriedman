@@ -254,6 +254,14 @@ div.image-gallery-nav img {
 
 }
 
+@media (max-height: 1250px) {
+    div.image-gallery img {
+	max-height: 800px;
+    }
+
+}
+
+
 div.site-wrapper-inner {
     padding-top: 100px;
     vertical-align: top;
