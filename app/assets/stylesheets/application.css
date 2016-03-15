@@ -254,11 +254,10 @@ div.image-gallery-nav img {
 
 }
 
-@media (max-height: 1250px) {
+@media (min-height: 1250px) {
     div.image-gallery img {
 	max-height: 800px;
     }
-
 }
 
 
