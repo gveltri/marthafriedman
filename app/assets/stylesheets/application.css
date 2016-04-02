@@ -108,6 +108,49 @@ footer a:hover {
 
 
 /* image gallery styles */
+.image-gallery .slick-track {
+    height: 500px;
+}
+
+.image-gallery-nav .slick-track {
+    height: 120px;
+}
+
+.slick-slide {
+    height: 100%;
+    text-align: center;
+}
+
+.slick-slide::before {
+    content: '';
+    display: inline-block;
+    height: 95%;
+    vertical-align: middle;
+}
+
+.slick-slide div.image-and-text {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.image-gallery-nav .slick-slide img {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.slick-slide {
+    -webkit-filter: grayscale(0.75);
+    -webkit-filter: grayscale(75%);
+    filter: gray;
+    filter: grayscale(75%);
+}
+
+.slick-current {
+    -webkit-filter: grayscale(0);
+    -webkit-filter: grayscale(0);
+    filter: none;
+    filter: grayscale(0);
+}
 
 .site-wrapper-inner {
     display: table-cell;
@@ -116,25 +159,19 @@ footer a:hover {
 .cover-container {
     margin-right: auto;
     margin-left: auto;
-    width: 100%;
     width: 800px;
     height: 500px;
 }
 
-.inner {
-    padding: 30px 20px 20px;
-}
-
-div.image-gallery video {
-    display: block;
-    max-height: 400px;
-    max-width: 100%;
+div.image-gallery img {
+    max-height: 480px;
+    max-width: 500px;
     margin-left: auto;
     margin-right: auto;
 }
 
-
 div.image-gallery p {
+    vertical-align: bottom;
     width: 100%;
     margin-left: auto;
     margin-right: auto;
@@ -142,26 +179,70 @@ div.image-gallery p {
     font-size: 11px;
     color: #888;
     margin-top: 2px;
+    margin-bottom: 0px;
 }
 
 div.image-gallery-nav img {
-    display: block;
-    max-height: 75px;
-    max-width: 100%;
+    max-width: 90%;
+    max-height: 100%;
     margin-left: auto;
     margin-right: auto;
 }
 
+/* resize for bigger monitors  */
 
-/* prevent divs from overlapping */
-@media (max-height: 500px) {
-    .inner {
-	padding-top: 60px;
+/* horizontal adjusting */
+@media (min-width: 1024px) {
+    .masthead,
+    .mastfoot,
+    .cover-container {
+	width: 800px;
     }
-    .image-gallery {
-	padding-top: 60px;
+    div.image-gallery img {
+	max-width: 700px;
+    }
+
+}
+@media (min-width: 1200px) {
+    .masthead,
+    .mastfoot,
+    .cover-container {
+	width: 1000px;
+    }
+    div.image-gallery img {
+	max-width: 900px;
+    }
+
+    
+}
+@media (min-width: 1800px) {
+    .masthead,
+    .mastfoot,
+    .cover-container {
+	width: 1600px;
+    }
+    div.image-gallery img {
+	max-width: 1500px;
+    }
+
+}
+
+/* vertical adjusting */
+@media (min-height: 1100px) {
+    .image-gallery .slick-track {
+	height: 700px;
+    }
+    .cover-container {
+	transform: translate(0px, -100px);
+    }
+    div.image-gallery .image-and-text {
+	/* height: 700px; */
+    }
+    div.image-gallery img {
+	max-height: 680px;
     }
 }
+
 
 /* mobile version */
 @media (max-width: 768px) {
@@ -182,90 +263,18 @@ div.image-gallery-nav img {
 	width: 100%;
     }
 
-    div.image-gallery img {
+    div.image-gallery .image-and-text {
 	max-height: 500px;
-	max-width: 80%;
+	max-width: 90%;
 	margin-left: auto;
 	margin-right: auto;
     }
 
-}
-
-/* resize for bigger monitors  */
-@media (min-width: 1024px) {
-    .masthead,
-    .mastfoot,
-    .cover-container {
-	width: 700px;
-    }
-
-}
-
-@media (min-width: 1200px) {
-    .masthead,
-    .mastfoot,
-    .cover-container {
-	width: 1000px;
-    }
-
-}
-
-@media (min-width: 1800px) {
-    .masthead,
-    .mastfoot,
-    .cover-container {
-	width: 1600px;
-    }
-
-}
-
-
-@media (min-width: 769px) {
     div.image-gallery img {
 	max-width: 100%;
-	margin-left: auto;
-	margin-right: auto;
     }
 
 }
-
-@media (max-height: 1100px) {
-    div.image-gallery img {
-	max-height: 600px;
-    }
-
-    div.site-wrapper-inner {
-	padding-top: 100px;
-	vertical-align: middle;
-    }
-
-
-}
-
-@media (max-height: 900px) {
-    div.image-gallery img {
-	max-height: 400px;
-    }
-
-    div.site-wrapper-inner {
-	padding-top: 100px;
-	vertical-align: middle;
-    }
-
-}
-
-@media (min-height: 1250px) {
-    div.image-gallery img {
-	max-height: 800px;
-    }
-}
-
-
-div.site-wrapper-inner {
-    padding-top: 100px;
-    vertical-align: top;
-}
-
 
 
 *:focus {outline:0;}
@@ -334,4 +343,18 @@ a.bold {
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.2em;
+}
+
+/* editing pages */
+
+div.listing {
+    height: 300px;
+    overflow-y: scroll;
+}
+
+
+@media (min-height: 800px) {
+    div.listing {
+	height: 600px;
+    }
 }

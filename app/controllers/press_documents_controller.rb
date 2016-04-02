@@ -70,6 +70,6 @@ class PressDocumentsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def press_document_params
-      params.require(:press_document).permit(:pdf, :information_id)
+      params.require(:press_document).permit(:pdf, :information_id, :name)
     end
 end

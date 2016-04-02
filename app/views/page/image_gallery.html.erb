@@ -3,13 +3,14 @@
     <div class="image-gallery">
       <% @works.each do |work|  %>
 	      <div>
+		      <div class="image-and-text">
 		      <% if !(work.is_video?) %>
-		      <%= image_tag work.image.url(:medium), :alt => "#{work.name}, #{work.year} by Martha Friedman" %>
+			      <%= image_tag work.image.url(:medium), :alt => "#{work.name}, #{work.year} by Martha Friedman" %>
 		      <% else %>
-		      <%= video_tag work.image.url(:medium), :controls => true %>
+			      <%= video_tag work.image.url(:medium), :controls => true %>
 		      <% end %>
-	<p><i><%= work.name %></i> <%= work.year %></p></div>
-	<% end %>
+		      <p><i><%= work.name %></i> <%= work.year %></p></div></div>
+      <% end %>
     </div>
     <div class="image-gallery-nav">
       <% @works.each do |work|  %>
@@ -42,8 +43,9 @@ $(document).ready(function(){
 		slidesToScroll: 1,
 		asNavFor: '.image-gallery',
 		centerMode: true,
-focusOnSelect: true,
-arrows: false
+		focusOnSelect: true,
+		arrows: false
 	});
 });
+
 </script>
