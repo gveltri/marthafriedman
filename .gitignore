@@ -25,4 +25,4 @@
 *.env
 
 # Ignore system files
-/public/system
+/public/system/*
