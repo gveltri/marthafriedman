@@ -24,28 +24,82 @@
 
 <script>
 $(document).ready(function(){
-	$('.image-gallery').slick({
-		dots: false,
-		infinite: true,
-		speed: 400,
-		slidesToShow: 1,
-		slidesToScroll: 1,
-		asNavFor: '.image-gallery-nav',
-		arrows: true		
-	});
+    $('.image-gallery').slick({
+	dots: false,
+	infinite: true,
+	speed: 400,
+	slidesToShow: 1,
+	slidesToScroll: 1,
+	asNavFor: '.image-gallery-nav',
+	arrows: true		
+    });
 });
 $(document).ready(function(){
-	$('.image-gallery-nav').slick({
-		dots: false,
-		infinite: true,
-		speed: 400,
-		slidesToShow: 10,
-		slidesToScroll: 1,
-		asNavFor: '.image-gallery',
-		centerMode: true,
-		focusOnSelect: true,
-		arrows: false
-	});
+    $('.image-gallery-nav').slick({
+	dots: false,
+	infinite: true,
+	speed: 400,
+	slidesToShow: 10,
+	slidesToScroll: 1,
+	asNavFor: '.image-gallery',
+	centerMode: true,
+	focusOnSelect: true,
+	arrows: false
+    });
 });
+
+$('div.image-gallery').on("init", function() {
+    placeArrows();
+});
+
+$('div.image-gallery img').load(function() {
+    placeArrows();
+});
+
+$(window).resize(function() {
+    placeArrows();
+});
+
+$('.image-gallery').on('afterChange', function() {
+    placeArrows();
+});
+
+
+
+function placeArrows() {
+    var padding = 5;
+    
+    var prev_button = $('button.slick-prev'),
+	pbutton_width = prev_button.width(),
+	pbutton_height = prev_button.height();
+
+    var next_button = $('button.slick-next'),
+	nbutton_height = next_button.height();
+	
+    var button_offset = nbutton_height / 2;
+
+    var image = $('div.image-gallery div.slick-current img'),
+	image_width = image.width(),
+	image_height = image.height(),
+	image_x1 = image.position().left,
+	image_x2 = image_x1 + image_width,
+	image_y = image.position().top + (image_height/1.5);
+
+
+    prev_button.attr("position", "absolute");
+    prev_button.detach().prependTo(image.parent());
+    prev_button.css({
+	left: image_x1 - pbutton_width - padding,
+	top: image_y - button_offset
+    });
+    
+    next_button.attr("position", "absolute");
+    next_button.detach().appendTo(image.parent());
+    next_button.css({
+	left: image_x2 + padding,
+	top: image_y - button_offset
+    });
+    
+}
 
 </script>
