@@ -26,3 +26,6 @@
 
 # Ignore system files
 /public/system/*
+
+# Ignore macosx bullshit
+.DS_Store
