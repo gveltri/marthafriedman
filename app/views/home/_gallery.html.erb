@@ -33,7 +33,7 @@ initScene = function() {
 
     // Initialize Physijs Scene
     scene = new Physijs.Scene();
-    scene.setGravity( new THREE.Vector3(0, -40, 0) );
+    scene.setGravity( new THREE.Vector3(0, -120, 0) );
 
     // Click-and-drag functionality
     scene.addEventListener( 'update', function() {
@@ -103,35 +103,36 @@ initScene = function() {
 
     //spot light for sculptures
     spot_light = new THREE.SpotLight( 0xFFFFFF, 0, 70, Math.PI/10, 65, 1 );
-    //spot_light.angle = Math.PI/10;
     spot_light.position.set( 0, 30, 0 );
-    //spot_light.intensity = 0;
+    spot_light.angle = Math.PI/10;
+    spot_light.intensity = 0;
     spot_light.castShadow = true;
-    spot_light.shadowBias = -.00001
+    spot_light.shadowBias = -.0001
     spot_light.shadowMapWidth = spot_light.shadowMapHeight = 2048;
     scene.add(spot_light);
+
     
 
     //space init
 
     // make less heavy
-    Table( 0, -18, -40, 50, 1, 50, '<%= asset_path 'parquet-2.jpg' %>', 8, 8, 8 );
-    Table( -30, -18, 40, 35, 1, 40, '<%= asset_path 'parquet-2.jpg' %>', Math.PI / 3, 8, 8 );
-    
-    Table( -50, -19.25, -15, 50, 7, 100, '<%= asset_path 'concrete_1.jpg' %>', 0, 5, 17);
-    Table( -25, -20.25, -15, 100, 4, 120,'<%= asset_path 'grass.jpg' %>', Math.PI / 4, 3, 3);
+    Table( 0, -18, -40, 50, 3, 50, '<%= asset_path 'parquet_2.jpg' %>', Math.PI / 2, 8, 8 );    
+    Table( -50, -17.25, -15, 50, 3, 100, '<%= asset_path 'concrete_1.jpg' %>', 0, 5, 17);
+    Table( -25, -19.25, -15, 100, 2, 100,'<%= asset_path 'grass.jpg' %>', Math.PI / 2, 3, 3);
 
 	//sculptures init
      
-    oliveSculpture(0,-40);
+    var oliveAssets = ['<%= asset_path 'binary/Olive_nopimento.ply' %>'];
+    LoadPlyAssets(oliveAssets, oliveSculpture);
+
     hairballSculpture(-50, 20);
     eggSculpture(-50,-5);
 
-    // New way to make a sculpture
-    var wedgeAssets = ['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>', '<%= asset_path 'ascii/LongWedge.ply' %>'];
+    // New way to make a sculptures
+    var wedgeAssets = ['<%= asset_path 'binary/WedgeDroop.ply' %>', '<%= asset_path 'binary/Wedge_Flat.ply' %>', '<%= asset_path 'binary/Wedge_Hammerhead.ply' %>'];
     LoadPlyAssets(wedgeAssets, wedgeSculpture);    // default x: -50 , z: -40
 
-    var tongueAssets = ['<%= asset_path 'ascii/Tongue_up2.ply' %>'];
+    var tongueAssets = ['<%= asset_path 'binary/Tongue_up2.ply' %>'];
     LoadPlyAssets(tongueAssets, TongueSculpture); 
    
     // sculptures.forEach(function(sculpture) {
@@ -183,18 +184,19 @@ function Table( x,y,z, x_size, y_size, z_size, texture_path, rotation, repeat_x,
     repeat_z = typeof repeat_z !== 'undefined' ? repeat_z : 5;
 
     var table_texture = new THREE.ImageUtils.loadTexture( texture_path );
+
     table_texture.wrapS = table_texture.wrapT = THREE.RepeatWrapping;
     table_texture.repeat.set( repeat_x, repeat_z );
 
     var table_material = new Physijs.createMaterial(
-	new THREE.MeshPhongMaterial({ map: table_texture, ambient: 0xFFFFFF }),
-	0.8,
-	0.1);
+	   new THREE.MeshPhongMaterial({ map: table_texture, ambient: 0xFFFFFF }),
+	   0.9,
+	   0.9);
 
     var table = new Physijs.BoxMesh(
 	new THREE.BoxGeometry( x_size, y_size, z_size ),
 	table_material,
-	0
+	10
     );
 
     table.receiveShadow = true;
@@ -202,6 +204,11 @@ function Table( x,y,z, x_size, y_size, z_size, texture_path, rotation, repeat_x,
     table.rotation.y = rotation;
 
     scene.add( table );
+
+
+    table.setAngularFactor(armature_factor);
+    table.setLinearFactor(armature_factor);
+    
     static_surfaces.push(table);
 
     //return table for ad hoc fun
@@ -209,41 +216,41 @@ function Table( x,y,z, x_size, y_size, z_size, texture_path, rotation, repeat_x,
 };
 
 
-function Wall(x,y,z,x_size,y_size,texture_path,rotation,visible) {
+// function Wall(x,y,z,x_size,y_size,texture_path,rotation,visible) {
 
-    rotation = typeof rotation !== 'undefined' ? rotation : (-Math.PI / 4);
-    visible = typeof visible !== 'undefined' ? visible : true;
+//     rotation = typeof rotation !== 'undefined' ? rotation : (-Math.PI / 4);
+//     visible = typeof visible !== 'undefined' ? visible : true;
 
-    var wall_texture = new THREE.ImageUtils.loadTexture( texture_path );
-    wall_texture.wrapS = wall_texture.wrapT = THREE.RepeatWrapping;
-    wall_texture.repeat.set(3,3);
+//     var wall_texture = new THREE.ImageUtils.loadTexture( texture_path );
+//     wall_texture.wrapS = wall_texture.wrapT = THREE.RepeatWrapping;
+//     wall_texture.repeat.set(3,3);
 
-    var wall_material = new Physijs.createMaterial(
-	new THREE.MeshPhongMaterial({ map: wall_texture, ambient: 0xFFFFFF }),
-	0.8,
-	0.9);
+//     var wall_material = new Physijs.createMaterial(
+// 	new THREE.MeshPhongMaterial({ map: wall_texture, ambient: 0xFFFFFF }),
+// 	0.8,
+// 	0.9);
 
-    if (!visible) wall_material = new Physijs.createMaterial(
-	new THREE.MeshPhongMaterial({opacity: 0, transparent: true  }),
-	0.8,
-	0.9
-    );
+//     if (!visible) wall_material = new Physijs.createMaterial(
+// 	new THREE.MeshPhongMaterial({opacity: 0, transparent: true  }),
+// 	0.8,
+// 	0.9
+//     );
 
-    var wall = new Physijs.BoxMesh(
-	new THREE.BoxGeometry(x_size,1,y_size),
-	wall_material,
-	1
-    );
+//     var wall = new Physijs.BoxMesh(
+// 	new THREE.BoxGeometry(x_size,1,y_size),
+// 	wall_material,
+// 	1
+//     );
 
-    wall.receiveShadow = true;
-    wall.castShadow = true;
-    wall.position.set(x,y,z);
-    wall.rotation.z = Math.PI / 2;
-    wall.rotation.y = rotation;
+//     wall.receiveShadow = true;
+//     wall.castShadow = true;
+//     wall.position.set(x,y,z);
+//     wall.rotation.z = Math.PI / 2;
+//     wall.rotation.y = rotation;
 
-    scene.add( wall );
-    static_surfaces.push(wall);
-};
+//     scene.add( wall );
+//     static_surfaces.push(wall);
+// };
 
 //Hairball Constructor
 function hairballSculpture(x,z) {
@@ -264,7 +271,7 @@ function hairballSculpture(x,z) {
     box.receiveShadow = true;
 
     scene.add( box );
-    // moveable_objects.push(box);
+    moveable_objects.push(box);
 
     box.setAngularFactor( armature_factor );
     box.setLinearFactor( armature_factor );
@@ -297,18 +304,24 @@ function hairballSculpture(x,z) {
 }
 //end hairball constructor
 
-function oliveSculpture(x,z) {
-    var olives = [];
+function oliveSculpture(x, z) {
+    var geometries = this;
+    var geometry = geometries[0];
+
+    if (typeof x === 'undefined') { x = 0; }
+    if (typeof z === 'undefined') { z = -40; }
+
     
     var armature = new Physijs.BoxMesh(
-	new THREE.BoxGeometry( 5, 5, 5 ),
+	new THREE.BoxGeometry( 4, 2.5, 3 ),
 	new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
 	9
     );
 
-    armature.position.set(x,-13.75, z);
+    armature.position.set(x,-15.5, z);
+    //console.log(armature.position);
     //to match parquet floor
-    armature.rotation.y = 8;
+    armature.rotation.y = Math.PI/2;
 
     armature.castShadow = true;
     armature.receiveShadow= true;
@@ -319,8 +332,8 @@ function oliveSculpture(x,z) {
     armature.setLinearFactor( armature_factor );
 
     var intersect_cylinder = new THREE.Mesh(
-	new THREE.CylinderGeometry(0.3,0.3,45.8),
-	new THREE.MeshLambertMaterial()
+	   new THREE.CylinderGeometry(0.3,0.3,45.8),
+	   new THREE.MeshLambertMaterial()
     );
 
     intersect_cylinder.position.set(x, 5,z);
@@ -328,97 +341,91 @@ function oliveSculpture(x,z) {
     intersect_cylinder.receiveShadow = true;
     scene.add(intersect_cylinder);
 
-    OliveCreator(13);
+    var num = 13;
+
+    var olives = [];
     var oliveTotem = new Sculpture( armature, olives);
-    
-    function OliveCreator(num) {
 
-	var olive_loader = new THREE.PLYLoader();
+    var m = new THREE.Matrix4();
+    var m1 = new THREE.Matrix4();
 
-	// var olive_material = new Physijs.createMaterial (
-	//     new THREE.MeshPhongMaterial({ color: 0x00FFFF, ambient: 0x904716}),
-	//     0.5,
-	//     0.5
-	// );
+    // to match parquet floor
+    m.makeRotationX( Math.PI/2 );
+    m1.makeRotationZ( Math.PI/2 );
+    m.multiply( m1 );
+    geometry.applyMatrix(m);
+    geometry.computeBoundingBox();
 
-	var olive = olive_loader.load('<%= asset_path 'ascii/Olive_nopimento.ply' %>', function( geometry ){
+    var radius = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
+    var armature_y = -12;
 
-	    var m = new THREE.Matrix4();
-	    var m1 = new THREE.Matrix4();
+    var olive_colors = [0x9F9812, 0x6D632A, 0x5A603E, 
+                0x626220, 0x5E5E3C, 0x738754, 
+                0x595A4C, 0x878032, 0x949C3E, 
+                0x69613A, 0x595532, 0xA4962E, 
+                0x605C49, 0x605C49];
 
-        // to match parquet floor
-	    m.makeRotationX( 8 );//Math.PI/2 );
-	    m1.makeRotationZ( 8 );//Math.PI/2 );
-	    m.multiply( m1 );
-	    geometry.applyMatrix(m);
-	    geometry.computeBoundingBox();
+    var pimento_colors = [0xBF341F, 0xB53720, 0xC92035, 
+                0xEA976F, 0xB2583E, 0xCD443A, 
+                0xCC5125, 0xC2462A, 0xBB4C53, 
+                0xCD444B, 0xEA6C60, 0xD5765A, 
+                0xE2685D, 0xC92035];
 
-	    var radius = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
-	    var armature_y = -7.6;
+    // plus one for extra olive
+    for (var i = 0; i < num + 1; i++) {
 
-        var olive_colors = [0x9F9812, 0x6D632A, 0x5A603E, 
-                      0x626220, 0x5E5E3C, 0x738754, 
-                      0x595A4C, 0x878032, 0x949C3E, 
-                      0x69613A, 0x595532, 0xA4962E, 
-                      0x605C49];
+		// var y = armature_y + (olives.length * (radius));
 
-        var pimento_colors = [0xBF341F, 0xB53720, 0xC92035, 
-              0xEA976F, 0xB2583E, 0xCD443A, 
-              0xCC5125, 0xC2462A, 0xBB4C53, 
-              0xCD444B, 0xEA6C60, 0xD5765A, 
-              0xE2685D];
+        var olive_material = new Physijs.createMaterial (
+            new THREE.MeshPhongMaterial({ color: olive_colors[i] }),
+            0.5
+        );
 
-        // console.log(geometry);
+		var oliveMesh = new Physijs.CylinderMesh(
+		    geometry,
+		    olive_material,
+		    5
+		);
 
-	    for (var i = 0; i < num; i++) {
+        var pimento_material = new THREE.MeshPhongMaterial({color: pimento_colors[i]});
+		
+        var pimento = new THREE.Mesh(
+		    new THREE.CylinderGeometry(1.5,1.5,1.5,5),
+            pimento_material
+		);
 
-    		var y = armature_y + (olives.length * (radius));
+		pimento.position.x = .25;
+		pimento.position.z = 3;
+		
+		oliveMesh.add(pimento);
 
-            var olive_material = new Physijs.createMaterial (
-                new THREE.MeshPhongMaterial({ color: olive_colors[i], ambient: 0x904716}),
-                0.5,
-                0.5
-            );
+        pimento.castShadow = true;
+        pimento.receiveShadow = true;
 
-    		var oliveMesh = new Physijs.CylinderMesh(
-    		    geometry,
-    		    olive_material,
-    		    5
-    		);
+		oliveMesh.castShadow = true;
+		oliveMesh.receiveShadow = true;
 
-            // if (i == 0){
-            //     console.log(geometry);
-            // }
-            var pimento_material = new THREE.MeshPhongMaterial({color: pimento_colors[i]});
-    		
-            var pimento = new THREE.Mesh(
-    		    new THREE.CylinderGeometry(1.5,1.5,1.5,5),
-                pimento_material
-    		);
+		oliveMesh.scale.set(0.6,0.55,0.6);
 
-    		pimento.position.x = .25;
-    		pimento.position.z = 3;
-    		
+		scene.add( oliveMesh );
 
-    		oliveMesh.add(pimento);
+        moveable_objects.push(oliveMesh);
+        
+        if (i == num ){
+            oliveMesh.position.set(x + 1.25, 74, z - 1.5);
+            oliveMesh.__dirtyPosition = true;
+            oliveMesh.__dirtyRotation = true;
 
-    		oliveMesh.castShadow = true;
-    		oliveMesh.receiveShadow = true;
+        //     console.log("hi");
+        //     console.log(oliveMesh.position);
+ 
+            continue;
+        }   
 
-    		oliveMesh.position.set(armature.position.x, y, armature.position.z);
-    		oliveMesh.scale.set(0.6,0.55,0.6);
+        oliveTotem.addModule(oliveMesh);
+        //console.log(oliveMesh.position);
 
-    		scene.add( oliveMesh );
-
-    		oliveMesh.setAngularFactor( module_factor );
-    		oliveMesh.setLinearFactor( module_factor );
-
-    		//olives.push(oliveMesh);
-            oliveTotem.addModule(oliveMesh);
-    		moveable_objects.push(oliveMesh);
-	    }
-	});
-    }
+        }
 }
 
 function eggSculpture(x,z) {
@@ -451,7 +458,7 @@ function eggSculpture(x,z) {
     scene.add(intersect_cylinder);
 
     EggCreator(5);
-    new Sculpture( armature, eggs );
+    var eggSculpture = new Sculpture( armature, eggs );
 
     function EggCreator(num) {
 
@@ -463,8 +470,7 @@ function eggSculpture(x,z) {
 	    0.7
 	);
 
-	var egg = egg_loader.load('<%= asset_path 'ascii/Egg.ply' %>', function( geometry ){
-	    
+	var egg = egg_loader.load('<%= asset_path 'binary/Egg.ply' %>', function( geometry ){
 	    var m = new THREE.Matrix4();
 	    var m1 = new THREE.Matrix4();
 	    
@@ -486,18 +492,23 @@ function eggSculpture(x,z) {
 
 	    	eggMesh.castShadow = true;
 	    	eggMesh.receiveShadow = true;
-		eggMesh.position.set(armature.position.x, y, armature.position.z);
+		    eggMesh.position.set(armature.position.x, y, armature.position.z);
 		
 	    	scene.add( eggMesh );
 		
-		eggMesh.__dirtyRotation = true;
-		eggMesh.rotation.x = Math.PI/2;
-	    	if (i%2==0) eggMesh.rotation.z = Math.PI/2;
-		
-	    	eggMesh.setAngularFactor( module_factor );
-	    	eggMesh.setLinearFactor( module_factor );
+		    eggMesh.rotation.x = Math.PI/2;
+	    	
+            if ( i % 2 == 0 ) {
+                eggMesh.rotation.z = Math.PI/2;
+            }
 
-	    	eggs.push(eggMesh);
+            eggMesh.__dirtyRotation = true;
+		
+	    	// eggMesh.setLinearFactor( module_factor );
+
+	    	// eggs.push(eggMesh);
+            eggSculpture.addModule(eggMesh);
+
 	    	moveable_objects.push(eggMesh);
 	    }
 	});
@@ -513,21 +524,8 @@ function TongueSculpture(x,z) {
     // geometry.computeBoundingSphere();
 
     // if we want to use this x and z then we'll need to save ply geometries globally
-    if (typeof x === 'undefined') { x = 5; }
-    if (typeof z === 'undefined') { z = 5; }
-
-    // var tongues = [];
-    // var armature = new Physijs.BoxMesh(
-    //     new THREE.BoxGeometry( 5, 1, 5 ),
-    //     new THREE.MeshPhongMaterial({ color: 0xEEEEEE }),
-    //     9
-    // );
-
-    // armature.position.set(x,-17.5 , z);
-    // armature.castShadow = true;
-    // armature.receiveShadow= true;
-
-    // scene.add( armature );
+    if (typeof x === 'undefined') { x = 2; }
+    if (typeof z === 'undefined') { z = 10; }
 
     var num = 9;
 
@@ -551,7 +549,7 @@ function TongueSculpture(x,z) {
         
     var r = 15;
 
-    var arm_geo = new THREE.CylinderGeometry( .3, .3, 1.5, 5 );
+    var arm_geo = new THREE.CylinderGeometry( .3, .3, 3, 5 );
     // var interSphere = new THREE.SphereGeometry( 5, 5, 5);
     
     for (var i = 0; i < num; i++){
@@ -568,12 +566,12 @@ function TongueSculpture(x,z) {
         rebar.castShadow = true;
         rebar.receiveShadow= true;
 
-        var tongueSculpture = new Sculpture( rebar, tongues);
+        var tongueSculpture = new Sculpture( rebar, tongues, 1);
 
-        var rotX = new THREE.Matrix4();
-        rotX.makeRotationX(-Math.PI/2);
+        // var rotX = new THREE.Matrix4();
+        // rotX.makeRotationX(-Math.PI/2);
 
-        rebar.geometry.applyMatrix(rotX);
+        // rebar.geometry.applyMatrix(rotX);
 
         var a = (2 * Math.PI / num) * i;
 
@@ -601,7 +599,7 @@ function TongueSculpture(x,z) {
         rebar.position.set(xC , -17, zC);
 
         tongueMesh.rotation.y = -a;
-        rebar.rotation.y = -a;
+        rebar.rotation.y = -a;  
 
         scene.add( tongueMesh );
         scene.add( rebar );
@@ -623,10 +621,10 @@ function TongueSculpture(x,z) {
 
 function wedgeSculpture(x, z) {
     var geometries = this;
-    console.log(geometries);
+    //console.log(geometries);
     // if we want to use this x and z then we'll need to save ply geometries globally
-    if (typeof x === 'undefined') { x = -60; }
-    if (typeof z === 'undefined') { z = -50; }
+    if (typeof x === 'undefined') { x = -50; }
+    if (typeof z === 'undefined') { z = -40; }
 
     var wedges = [];
 
@@ -634,23 +632,21 @@ function wedgeSculpture(x, z) {
     var armature_mat = new THREE.MeshPhongMaterial({ color: 0x664935 });
 
     var armature = new Physijs.BoxMesh(    
-    new THREE.BoxGeometry( 24, 1, 24 ),
+    new THREE.BoxGeometry( 26, 1, 26 ),
         armature_mat,
-        .9,
-        .9
+        9
     );
 
-    armature.position.set(x, -16, z);
+    armature.position.set(x, -15.4, z);
     
     armature.castShadow = true;
     armature.receiveShadow= true;
 
     scene.add( armature );
+    
 
     armature.setAngularFactor( armature_factor );
     armature.setLinearFactor( armature_factor );
-
-
 
     var intersect_cylinder_one = new THREE.Mesh(
         new THREE.CylinderGeometry(0.25,0.25,65),
@@ -662,8 +658,8 @@ function wedgeSculpture(x, z) {
     intersect_cylinder_one.receiveShadow = true;
 
     var intersect_cylinder_two = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.25,0.25,65),
-    armature_mat
+        new THREE.CylinderGeometry(0.25,0.25,65),
+        armature_mat
     );
 
     intersect_cylinder_two.position.set(x - .75 ,3 ,z + .75);
@@ -681,119 +677,112 @@ function wedgeSculpture(x, z) {
         1
     );
 
-    var long_wedge_mat = new Physijs.createMaterial (
+    var wedgeDroop_mat = new Physijs.createMaterial (
         new THREE.MeshLambertMaterial({ color: 0xFF5934 }),
         1,
         1
     );
 
-    var geometry_flat = geometries[0];
-    var geometry_hammer = geometries[1];
+    var geometry_flat = geometries[1];
+    var geometry_hammer = geometries[2];
 
-    
     var m = new THREE.Matrix4();
-    var m2 = new THREE.Matrix4();
-    var m3 = new THREE.Matrix4();
+    // var m3 = new THREE.Matrix4();
+    
     var geo_flat_left = geometry_flat.clone();
     m.makeRotationY( Math.PI );        
     geometry_flat.applyMatrix(m);
 
-    // var m = new THREE.Matrix4();
     var geo_hammer_left = geometry_hammer.clone();
     m.makeRotationY( Math.PI );        
     geometry_hammer.applyMatrix(m);
 
-    var geo_longWedge = geometries[2];
-    // m3.makeTranslation(-5, 0, -5);  
-    m2.makeRotationX(-Math.PI/2);
-    // geo_longWedge.applyMatrix(m);  
-    geo_longWedge.applyMatrix(m);
+
+    //var mX = new THREE.Matrix4();
+    // var mY = new THREE.Matrix4();
+    // mY.makeRotationX(Math.PI/4);
+    // var mY = new THREE.Matrix4();
+    // mY.makeRotationY(Math.PI/1.1);
+    // mX.makeRotationX(Math.PI/2);
+
+    // mY.multiply(mX);
+    // mX.multiply(mZ);
+    var wedgeDroop = geometries[0];
+    //wedgeDroop.applyMatrix(m);
+
+    //wedgeDroop.computeBoundingSphere();
 
     //var yFactor = geometry_flat.boundingSphere.radius;
-    var wedge_models = [geometry_flat, geo_flat_left, geometry_hammer, geo_hammer_left, geometries[2]];
+    var wedge_models = [geometry_flat, geo_flat_left, geometry_hammer, geo_hammer_left, wedgeDroop];
     
     var arrangement = [3, 3, 3, 3,
                         3, 0, 0, 0,
-                        0, 0, 0, 3,
+                        4, 0, 0, 3,
                         3, 3, 3, 3,
-                        3, 0, 0, 0, 
+                        3, 4, 0, 0, 
                         0, 0, 0,
-                        3, 3, 3, 4,
+                        //3, 3, 3, 4,
+                        3, 3, 3, 3, //
                         3, 3, 3, 3,
                         0, 0, 0, 0,
                         3, 3, 3, 3,
                         0, 0, 0, 0];
     
-    var wedge_stack = new Sculpture( armature, wedges, arrangement.length + 1);
+    var wedge_stack = new Sculpture( armature, wedges );
     
-    geometry_flat.computeBoundingBox();
+    //geometry_flat.computeBoundingSphere();
+    // geo_flat_left.computeBoundingBox();
+
+    // geometry_hammer.computeBoundingBox();
+    // geo_hammer_left.computeBoundingBox();
+    
+    // wedgeDroop.computeBoundingBox();
 
     var r = .6;//(geometry_flat.boundingBox.max.y - geometry_flat.boundingBox.min.y) / 2;
 
-    //Sculpture starts with one rectangular module
-    var blockMesh = new Physijs.BoxMesh(
-        new THREE.BoxGeometry(4, 1.25, 2),
-        wedge_material,
-        30
-    );
-
-    blockMesh.rotation.y = Math.PI / 4;
-    
-    blockMesh.castShadow = true;
-    blockMesh.receiveShadow = true;
-
-    scene.add( blockMesh );
-
     _v3 = new THREE.Vector3(0,0,0);
-    
-    blockMesh.setAngularFactor( _v3 ); 
-    blockMesh.setAngularVelocity(_v3);
-
-    blockMesh.setLinearFactor( module_factor );
-    blockMesh.setLinearVelocity(_v3);
-
-    moveable_objects.push( blockMesh );
-    wedge_stack.addModule(blockMesh);
-
 
     for (var i = 0; i < arrangement.length; i++){
 
         var wMat;
         if (arrangement[i] == 4) {
-            wMat = long_wedge_mat;
+            wMat = wedgeDroop_mat;
+            var wedgeMesh = new Physijs.ConvexMesh(
+                wedge_models[arrangement[i]],
+                wMat,
+                30
+            );
         }
-        else wMat = wedge_material;
+        else { 
+            wMat = wedge_material; 
+            var wedgeMesh = new Physijs.ConvexMesh(
+                wedge_models[arrangement[i]],
+                wMat,
+                30
+            );
+        }
 
-        var wedgeMesh = new Physijs.ConvexMesh(
-            wedge_models[arrangement[i]],
-            wMat,
-            30
-        );
-
-        wedgeMesh.setCcdMotionThreshold(1);
-
-        var y = (wedges.length * r) - 6;
 
         wedgeMesh.castShadow = true;
         wedgeMesh.receiveShadow = true;
-        // wedgeMesh.position.set(armature.position.x, y, armature.position.z);
-
-        // wedgeMesh.__dirtyRotation = true;
 
         scene.add( wedgeMesh );
 
-        // _v3 = new THREE.Vector3(0,0,0);
-        
+        //wahhh
+        wedgeMesh.setCcdMotionThreshold(.075);
+        wedgeMesh.setCcdSweptSphereRadius(.15);
+
         wedgeMesh.setAngularFactor( _v3 ); 
         wedgeMesh.setAngularVelocity(_v3);
-// previously had been: new THREE.Vector3( 0 , 0 , 0);
+
         wedgeMesh.setLinearFactor( module_factor );
         wedgeMesh.setLinearVelocity(_v3);
 
+        wedgeMesh.setDamping( 1 , 0 );
 
-        // wedges.push( wedgeMesh );
-        moveable_objects.push( wedgeMesh );
         wedge_stack.addModule(wedgeMesh);
+        moveable_objects.push( wedgeMesh );
+
 
 
     }
@@ -804,7 +793,8 @@ function wedgeSculpture(x, z) {
 var Sculpture = function( armature, modules, limit ) {
     this.armature = armature;
     this.modules = modules;
-    this.limit = limit || 50;
+    // for all intents and purposes limit default is infinite
+    this.limit = limit || 1000;
     //this.intersect_sphere;
 
     // add scupture object to array of sculptures
@@ -813,6 +803,8 @@ var Sculpture = function( armature, modules, limit ) {
 
 Sculpture.prototype.removeModule = function( obj ) {
 	this.modules.splice( this.modules.indexOf(obj), 1 );
+    // obj.setAngularFactor(new THREE.Vector3[1,1,1]);
+    // obj.setLinearFactor(new THREE.Vector3[1,1,1]);
 	// if (this.modules.length == 0) {
 	// 	moveable_objects.push(this.armature);
 	// 	this.limit = 0;		
@@ -827,7 +819,7 @@ Sculpture.prototype.addModule = function( obj ) {
         var r = (obj.geometry.boundingBox.max.y - obj.geometry.boundingBox.min.y) / 2;
         
         if (this.modules.length == 0) {
-    	    snap_y = -6
+    	    snap_y = -14
     		+ this.armature.geometry.boundingBox.max.y
     		+ r;
     	}
@@ -887,13 +879,15 @@ Sculpture.prototype.addIntersectSphere = function() {
 // Takes asset paths as array of strings and callback function as arguments
 // The arguments look like (['<%= asset_path 'ascii/Wedge_Flat.ply' %>', '<%= asset_path 'ascii/Wedge_Hammerhead.ply' %>'], wedgeSculpture)
 // The function returns an array [geometry1, geometry2], accessed in callback function with keyword this
+// Geometry array is returned with geometries sorted by # of verts in ascending order
 function LoadPlyAssets( assetPathArray, callback ){
     //console.log("loadPlyAssets");
 
     // array of returned geometries
     var geometries = [];//new Array(assetPathArray.length);
+    var length = assetPathArray.length;
 
-    for (var i = 0; i < assetPathArray.length; i++) {
+    for (var i = 0; i < length; i++) {
         var geometry_loader = new THREE.PLYLoader();
 
         var geo = geometry_loader.load( assetPathArray[i], function( geometry ){
@@ -901,8 +895,9 @@ function LoadPlyAssets( assetPathArray, callback ){
             
             geometries.push( geometry );
 
-            if ( geometries.length == assetPathArray.length ){
-                //console.log(geometries);
+            if ( geometries.length == length ){
+                //ensures geometries array will be returned in a predictable order
+                geometries.sort(function(a, b){return a.vertices.length - b.vertices.length});
                 callback.call( geometries );
             }
         });
@@ -957,15 +952,6 @@ initEventHandling = (function() {
 	    thing_offset.subVectors( selected_thing.position, mouse_position);
 
 	}
-	// else {
-	//     intersections = raycaster.intersectObjects( static_surfaces );
-	//     if (intersections.length > 0) {
-	// 	for (var i = 0; i < moveable_objects.length; i++) {
-	// 	    _v3 = moveable_objects[i].getLinearVelocity();
-	// 	    if (Math.abs(_v3.y) < 2 ) moveable_objects[i].applyCentralImpulse(new THREE.Vector3(0,50,0));
-	// 	}
-	//     }
-	// }
 
     };
 
@@ -1006,7 +992,14 @@ initEventHandling = (function() {
         		    break;
     		    }
         		else if ( spot_light_on ) { //if the light source is on
-        		    spot_light.intensity = 0;
+        		    // spot_light.intensity = 0;
+                 if (spot_light.intensity > 0) {
+                        spot_light.intensity -= .04;
+                 }
+                else {
+                        spot_light.intensity = 0;
+                        spot_light_on = false;
+                 }
         		}
     	    }
     	}
@@ -1082,10 +1075,21 @@ initEventHandling = (function() {
 		sculpture.addModule( selected_thing );
 
 		//turn off spotlight
-		spot_light.intensity = 0;
+        spot_light.intensity = 0;
+
 
 
 	    }
+        else if ( spot_light_on ) { //if the light source is on
+            // spot_light.intensity = 0;
+            if (spot_light.intensity > 0) {
+                    spot_light.intensity -= .04;
+            }
+        else {
+                spot_light.intensity = 0;
+                spot_light_on = false;
+            }
+        }
 	    //end snapping
 
 	    selected_thing = null;

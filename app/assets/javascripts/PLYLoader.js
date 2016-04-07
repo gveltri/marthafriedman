@@ -178,6 +178,12 @@ THREE.PLYLoader.prototype = {
 
 				break;
 
+			case "obj_info":
+
+				// console.log("gotcha");
+
+				break;
+
 
 			default:
 
