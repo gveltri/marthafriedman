@@ -748,7 +748,7 @@ function wedgeSculpture(x, z) {
         var wMat;
         if (arrangement[i] == 4) {
             wMat = wedgeDroop_mat;
-            var wedgeMesh = new Physijs.ConvexMesh(
+            var wedgeMesh = new Physijs.ConcaveMesh(
                 wedge_models[arrangement[i]],
                 wMat,
                 30
