@@ -413,10 +413,12 @@ function oliveSculpture(x, z) {
         moveable_objects.push(oliveMesh);
         
         if (i == num ){
-            oliveMesh.position.set(x + 1.25, 74, z - 1.5);
+            oliveMesh.position.set(x + 1.25, 73, z - 1.5);
             oliveMesh.__dirtyPosition = true;
             oliveMesh.__dirtyRotation = true;
 
+            oliveMesh.setCcdMotionThreshold(.075);
+            oliveMesh.setCcdSweptSphereRadius(.15);
         //     console.log("hi");
         //     console.log(oliveMesh.position);
  
@@ -531,7 +533,7 @@ function TongueSculpture(x,z) {
     var num = 9;
 
     var tongueMaterial = new Physijs.createMaterial (
-        new THREE.MeshLambertMaterial({ color: 0xff7fb6 }),
+        new THREE.MeshLambertMaterial({ color: 0xff729a, shininess: 45/*0xff7fb6*/ }),
         0.1,
         0.7);
     
@@ -679,7 +681,7 @@ function wedgeSculpture(x, z) {
     );
 
     var wedgeDroop_mat = new Physijs.createMaterial (
-        new THREE.MeshLambertMaterial({ color: 0xFF5934 }),
+        new THREE.MeshLambertMaterial({ color: 0xF96E47 /*0xFF5934*/ }),
         1,
         1
     );
@@ -761,6 +763,10 @@ function wedgeSculpture(x, z) {
                 wMat,
                 30
             );
+
+            //wahhh
+            wedgeMesh.setCcdMotionThreshold(.075);
+            wedgeMesh.setCcdSweptSphereRadius(.15);
         }
 
 
@@ -768,10 +774,6 @@ function wedgeSculpture(x, z) {
         wedgeMesh.receiveShadow = true;
 
         scene.add( wedgeMesh );
-
-        //wahhh
-        wedgeMesh.setCcdMotionThreshold(.075);
-        wedgeMesh.setCcdSweptSphereRadius(.15);
 
         wedgeMesh.setAngularFactor( _v3 ); 
         wedgeMesh.setAngularVelocity(_v3);
