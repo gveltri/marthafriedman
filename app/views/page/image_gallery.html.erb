@@ -1,105 +1,105 @@
-<div class="site-wrapper-inner">
-  <div class="cover-container">
+    <div class="site-wrapper-inner">
+    <div class="cover-container">
     <div class="image-gallery">
-      <% @works.each do |work|  %>
-	      <div>
-		      <div class="image-and-text">
-		      <% if !(work.is_video?) %>
-			      <%= image_tag work.image.url(:medium), :alt => "#{work.name}, #{work.year} by Martha Friedman" %>
-		      <% else %>
-			      <%= video_tag work.image.url(:medium), :controls => true %>
-		      <% end %>
-		      <p><i><%= work.name %></i> <%= work.year %></p></div></div>
-      <% end %>
+    <% @works.each do |work|  %>
+    <div>
+    <div class="image-and-text">
+    <% if !(work.is_video?) %>
+    <%= image_tag work.image.url(:medium), :alt => "#{work.name}, #{work.year} by Martha Friedman" %>
+    <% else %>
+    <%= video_tag work.image.url(:medium), :controls => true %>
+    <% end %>
+    <p><i><%= work.name %></i> <%= work.year %></p></div></div>
+    <% end %>
     </div>
     <div class="image-gallery-nav">
-      <% @works.each do |work|  %>
-      <div>
-	<%= image_tag work.image.url(:thumb), alt: "Thumbnail of #{work.name}, #{work.year} by Martha Friedman" %>
-      </div>
-      <% end %>
+    <% @works.each do |work|  %>
+    <div>
+    <%= image_tag work.image.url(:thumb), alt: "Thumbnail of #{work.name}, #{work.year} by Martha Friedman" %>
     </div>
-  </div>
-</div>
+    <% end %>
+    </div>
+    </div>
+    </div>
 
-<script>
-$(document).ready(function(){
-    $('.image-gallery').slick({
-	dots: false,
-	infinite: true,
-	speed: 400,
-	slidesToShow: 1,
-	slidesToScroll: 1,
-	asNavFor: '.image-gallery-nav',
-	arrows: true		
+    <script>
+    $(document).ready(function(){
+        $('.image-gallery').slick({
+            dots: false,
+            infinite: true,
+            speed: 400,
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            asNavFor: '.image-gallery-nav',
+            arrows: true
+        });
     });
-});
 $(document).ready(function(){
     $('.image-gallery-nav').slick({
-	dots: false,
-	infinite: true,
-	speed: 400,
-	slidesToShow: 11,
-	slidesToScroll: 1,
-	asNavFor: '.image-gallery',
-	centerMode: true,
-	focusOnSelect: true,
-	arrows: false
+        dots: false,
+        infinite: true,
+        speed: 400,
+        slidesToShow: 11,
+        slidesToScroll: 1,
+        asNavFor: '.image-gallery',
+        centerMode: true,
+        focusOnSelect: true,
+        arrows: false
     });
 });
 
-$('div.image-gallery').on("init", function() {
-    placeArrows();
-});
+// $('div.image-gallery').on("init", function() {
+//     placeArrows();
+// });
 
-$('div.image-gallery img').load(function() {
-    placeArrows();
-});
+// $('div.image-gallery img').load(function() {
+//     placeArrows();
+// });
 
-$(window).resize(function() {
-    placeArrows();
-});
+// $(window).resize(function() {
+//     placeArrows();
+// });
 
-$('.image-gallery').on('afterChange', function() {
-    placeArrows();
-});
+// $('.image-gallery').on('afterChange', function() {
+//     placeArrows();
+// });
 
 
 
 function placeArrows() {
     var padding = 5;
-    
+
     var prev_button = $('button.slick-prev'),
-	pbutton_width = prev_button.width(),
-	pbutton_height = prev_button.height();
+        pbutton_width = prev_button.width(),
+        pbutton_height = prev_button.height();
 
     var next_button = $('button.slick-next'),
-	nbutton_height = next_button.height();
-	
+	      nbutton_height = next_button.height();
+
     var button_offset = nbutton_height / 2;
 
     var image = $('div.image-gallery div.slick-current img'),
-	image_width = image.width(),
-	image_height = image.height(),
-	image_x1 = image.position().left,
-	image_x2 = image_x1 + image_width,
-	image_y = image.position().top + (image_height/1.5);
+        image_width = image.width(),
+        image_height = image.height(),
+        image_x1 = image.position().left,
+        image_x2 = image_x1 + image_width,
+        image_y = image.position().top + (image_height/1.5);
 
 
     prev_button.attr("position", "absolute");
     prev_button.detach().prependTo(image.parent());
     prev_button.css({
-	left: image_x1 - pbutton_width - padding,
-	top: image_y - button_offset
+        left: image_x1 - pbutton_width - padding,
+        top: image_y - button_offset
     });
-    
+
     next_button.attr("position", "absolute");
     next_button.detach().appendTo(image.parent());
     next_button.css({
-	left: image_x2 + padding,
-	top: image_y - button_offset
+        left: image_x2 + padding,
+        top: image_y - button_offset
     });
-    
+
 }
 
 </script>
