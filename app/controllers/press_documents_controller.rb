@@ -4,7 +4,8 @@ class PressDocumentsController < ApplicationController
   # GET /press_documents
   # GET /press_documents.json
   def index
-    @press_documents = PressDocument.all
+    information = Information.find(params[:information_id])
+    @press_documents = information.press_documents
   end
 
   # GET /press_documents/1

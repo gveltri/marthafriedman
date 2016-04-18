@@ -4,36 +4,36 @@
 	  <div class="inner">
 
 
-<p id="notice"><%= notice %></p>
+      <p id="notice"><%= notice %></p>
 
-<h1>Listing Press Documents</h1>
-<div class='table-responsive listing'>
-<table class='table'>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Download</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
+      <h1>Listing Press Documents</h1>
+      <div class='table-responsive listing'>
+        <table class='table'>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Download</th>
+              <th colspan="3"></th>
+            </tr>
+          </thead>
 
-  <tbody>
-    <% @press_documents.each do |press_document| %>
-      <tr>
-        <td><%= press_document.name %></td>
-        <td><%= link_to 'download', press_document.pdf.url %></td>
-        <td><%= link_to 'Show', [press_document.information, press_document] %></td>
-        <td><%= link_to 'Edit', edit_information_press_document_path(press_document.information, press_document) %></td>
-        <td><%= link_to 'Destroy', [press_document.information, press_document], method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-</div>
+          <tbody>
+            <% @press_documents.each do |press_document| %>
+            <tr>
+              <td><%= press_document.name %></td>
+              <td><%= link_to 'download', press_document.pdf.url %></td>
+              <td><%= link_to 'Show', [press_document.information, press_document] %></td>
+              <td><%= link_to 'Edit', edit_information_press_document_path(press_document.information, press_document) %></td>
+              <td><%= link_to 'Destroy', [press_document.information, press_document], method: :delete, data: { confirm: 'Are you sure?' } %></td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
 
-<br>
+      <br>
 
-<%= link_to 'New Press document', new_information_press_document_path %>
+      <%= link_to 'New Press document', new_information_press_document_path %>
 
 	  </div>
   </div>

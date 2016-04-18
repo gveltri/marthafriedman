@@ -1,6 +1,6 @@
 class InformationController < ApplicationController
   before_action :set_information, only: [:show, :edit, :update, :destroy]
-    
+
   # GET /information
   # GET /information.json
   def index
