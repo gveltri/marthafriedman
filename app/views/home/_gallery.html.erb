@@ -60,12 +60,12 @@ initScene = function() {
     );
     camera.position.set(90,30,90);
     camera.lookAt(scene.position);
-    cameraTarget = scene.position.clone();
+    // cameraTarget = scene.position.clone();
 
 
     //ambient light
-    // am_light = new THREE.AmbientLight( 0xFFFFFF );
-    // scene.add( am_light );
+    am_light = new THREE.AmbientLight( 0x040404 );
+    scene.add( am_light );
 
     //point light
     // point_light = new THREE.PointLight( 0xFFFFFF, 0.5, 100 );
@@ -351,7 +351,7 @@ function oliveSculpture(x, z) {
 
     var intersect_cylinder = new THREE.Mesh(
 	   new THREE.CylinderGeometry(0.3,0.3,45.8),
-	   new THREE.MeshLambertMaterial()
+	   new THREE.MeshPhongMaterial({ color: 0x664935 })
     );
 
     intersect_cylinder.position.set(x, 5,z);
@@ -464,7 +464,7 @@ function eggSculpture(x,z) {
     
     var armature = new Physijs.BoxMesh(
     	new THREE.BoxGeometry( 5, 1, 5 ),
-    	new THREE.MeshPhongMaterial({ color: 0xEEEEEE }),
+    	new THREE.MeshPhongMaterial({ color: 0x664935 }),
     	9
     );
 
@@ -478,8 +478,8 @@ function eggSculpture(x,z) {
     armature.setLinearFactor( armature_factor );
 
     var intersect_cylinder = new THREE.Mesh(
-    	new THREE.CylinderGeometry(0.25,0.25,40.8),
-    	new THREE.MeshLambertMaterial()
+    	new THREE.CylinderGeometry(0.25,0.25,60),
+    	new THREE.MeshPhongMaterial({ color: 0x664935 })
     );
 
     intersect_cylinder.position.set(x,3,z);
@@ -496,7 +496,7 @@ function eggSculpture(x,z) {
     	var egg_loader = new THREE.PLYLoader();
 
     	var egg_material = new Physijs.createMaterial (
-	    new THREE.MeshLambertMaterial({ color: 0x98CDFA }),
+	    new THREE.MeshLambertMaterial({ color: 0xeadfe5 }),
 	    0.1,
 	    0.7
 	);
@@ -715,7 +715,7 @@ function wedgeSculpture(x, z) {
     );
 
     var wedgeDroop_mat = new Physijs.createMaterial (
-        new THREE.MeshLambertMaterial({ color: 0xF96E47 /*0xFF5934*/ }),
+        new THREE.MeshLambertMaterial({ color: 0xff7b00, ambient: 0xFFFFFF /*0xFF5934*/ }),
         1,
         1
     );
@@ -1077,8 +1077,8 @@ for (i = 0; i < sculptures.length; i++) {
         renderer.domElement.style.cursor = "pointer";
 
         // if (selected_thing == null) {
-            cameraTarget = sculpture.armature.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
-            camera.lookAt(cameraTarget);
+            // cameraTarget = sculpture.armature.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+            // camera.lookAt(cameraTarget);
         // }
 
         //make a light source directly above the sculpture
@@ -1131,8 +1131,8 @@ handleKeyDown =  function( evt ){
                 // camera.lookAt(cameraTarget);
 render = function() {
     if (renderer.domElement.style.cursor == "default"){
-        cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-(factor)));
-        camera.lookAt(cameraTarget);
+        // cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-(factor)));
+        // camera.lookAt(cameraTarget);
         if (spot_light.intensity > 0) {
             spot_light.intensity -= .1;
         }
