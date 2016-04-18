@@ -17,6 +17,8 @@ var moveable_objects = [], selected_thing = null, static_surfaces=[],
 var mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3,
     module_factor = new THREE.Vector3( 0, 0.5, 0 ), armature_factor = new THREE.Vector3( 0, 0, 0 );
 
+var cameraTarget = new THREE.Vector3; var factor = .0067;
+
 initScene = function() {
     renderer = new THREE.WebGLRenderer({ antialias:true }); //alpha: true
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -56,11 +58,13 @@ initScene = function() {
     	    1,
     	1000
     );
-    camera.position.set(120,50,80);
+    camera.position.set(120,50,120);
     camera.lookAt(scene.position);
+    cameraTarget = scene.position.clone();
 
-    // ambient light
-    am_light = new THREE.AmbientLight( 0xF0F0F0 );
+
+    //ambient light
+    am_light = new THREE.AmbientLight( 0xFFFFFF );
     scene.add( am_light );
 
     //point light
@@ -68,8 +72,11 @@ initScene = function() {
     point_light.position.set( -15, 20, -30 );
     scene.add( point_light );
 
+    var pointhelper = new THREE.PointLightHelper(point_light, 1);
+    scene.add(pointhelper);
+
     // directional lights
-    dir_light = new THREE.DirectionalLight( 0x404040 );
+    dir_light = new THREE.DirectionalLight( 0x404040, 5 );
     dir_light.position.set( 20, 30, -5 );
     dir_light.target.position.copy( scene.position );
     dir_light.castShadow = true;
@@ -84,6 +91,9 @@ initScene = function() {
     dir_light.shadowDarkness = .3;
 
     scene.add( dir_light );
+
+    var dirhelper = new THREE.DirectionalLightHelper(dir_light, 25);
+    scene.add(dirhelper);
 
     dir_light2 = new THREE.DirectionalLight( 0x404040);
     dir_light2.position.set( 5, 30, 20 );
@@ -101,6 +111,9 @@ initScene = function() {
     dir_light2.intensity = 0.3;
 
     scene.add( dir_light2 );
+
+    var dirhelper2 = new THREE.DirectionalLightHelper(dir_light2, 25);
+    scene.add(dirhelper);
 
     //spot light for sculptures
     spot_light = new THREE.SpotLight( 0xFFFFFF, 0, 70, Math.PI/10, 65, 1 );
@@ -135,10 +148,6 @@ initScene = function() {
 
     var tongueAssets = ['<%= asset_path 'binary/Tongue_up2.ply' %>'];
     LoadPlyAssets(tongueAssets, TongueSculpture); 
-   
-    // sculptures.forEach(function(sculpture) {
-	   // sculpture.addIntersectSphere();
-    // });
 
     //intersection planes
     intersectionPlanes();
@@ -615,9 +624,12 @@ function TongueSculpture(x,z) {
         moveable_objects.push(tongueMesh);
 
         tongueSculpture.addModule(tongueMesh);
+        //console.log(sculptures);
 
         var y =  i * 6 + 5;  
         tongueMesh.position.y = y;
+
+        // sculptures.push(tongueSculpture);
     }
 
 }
@@ -750,7 +762,7 @@ function wedgeSculpture(x, z) {
         var wMat;
         if (arrangement[i] == 4) {
             wMat = wedgeDroop_mat;
-            var wedgeMesh = new Physijs.ConcaveMesh(
+            var wedgeMesh = new Physijs.ConvexMesh(
                 wedge_models[arrangement[i]],
                 wMat,
                 30
@@ -907,7 +919,6 @@ function LoadPlyAssets( assetPathArray, callback ){
     }
 }
 
-
 //user input
 initEventHandling = (function() {
     var handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown, handleResize;
@@ -925,7 +936,7 @@ initEventHandling = (function() {
 
     handleMouseDown = function( evt ) {
 
-
+    camera.updateProjectionMatrix();
 	_vector.set((evt.clientX / window.innerWidth) * 2 - 1,
 		    -(evt.clientY / window.innerHeight ) * 2 + 1,
 		    1);
@@ -958,96 +969,117 @@ initEventHandling = (function() {
 
     };
 
-    handleMouseMove = function( evt ) {
-        //console.log(-1);
-        _vector.set(
-        ( evt.clientX / window.innerWidth ) * 2 - 1,
-        -( evt.clientY / window.innerHeight ) * 2 + 1,
-        1);
-
-        raycaster.setFromCamera(_vector, camera);
-
-    	if (selected_thing !== null) {
+    // handleMouseMove = function( evt ) {
+    //     //console.log(-1);
+    //     _vector.set(
+    //     ( evt.clientX / window.innerWidth ) * 2 - 1,
+    //     -( evt.clientY / window.innerHeight ) * 2 + 1,
+    //     1);
+    //     camera.updateProjectionMatrix();
+    //     raycaster.setFromCamera(_vector, camera);
 
 
-    	    intersection = raycaster.intersectObjects( intersect_planes );
-    	    if ( intersection[0] != undefined) {
-    		  mouse_position.copy(intersection[0].point);
-    	    }
+    // 	if (selected_thing !== null) {
 
-    	    //iterates through sculpture objects
-    	    for (i = 0; i < sculptures.length; i++) {
-    		    collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
-    		    if (collisionResults.length !== 0 && !sculptures[i].isAtLimit()) {
-                    // shouldn't need this
-                    // if (collisionResults[0].object == selected_thing) {
-                    //     continue;
-                    // }
 
-        		    sculpture = sculptures[i];
+    // 	    intersection = raycaster.intersectObjects( intersect_planes );
+    // 	    if ( intersection[0] != undefined) {
+    // 		  mouse_position.copy(intersection[0].point);
+    // 	    }
+
+    // 	    //iterates through sculpture objects
+    // 	    for (i = 0; i < sculptures.length; i++) {
+    //             if (sculptures[i].isAtLimit()) continue;
+    // 		    collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
+    // 		    if (collisionResults.length !== 0) {
+    //                 // shouldn't need this
+    //                 // if (collisionResults[0].object == selected_thing) {
+    //                 //     continue;
+    //                 // }
+
+    //     		    sculpture = sculptures[i];
         		    
-        		    //make a light source directly above the sculpture
-        		    spot_light.position.set( sculpture.armature.position.x, spot_light.position.y, sculpture.armature.position.z );
-        		    spot_light.target = sculpture.armature;
-        		    spot_light.intensity = 6;
-        		    spot_light_on = true;
-        		    
-        		    break;
-    		    }
-        		else if ( spot_light_on ) { //if the light source is on
-        		    // spot_light.intensity = 0;
-                 if (spot_light.intensity > 0) {
-                        spot_light.intensity -= .04;
-                 }
-                else {
-                        spot_light.intensity = 0;
-                        spot_light_on = false;
-                 }
-        		}
-    	    }
-    	}
-        //jiggle
-        // else {
-        //     _vector.set(
-        //     ( evt.clientX / window.innerWidth ) * 2 - 1,
-        //         -( evt.clientY / window.innerHeight ) * 2 + 1,
-        //     1);
+    //     		    //make a light source directly above the sculpture
+    //     		    spot_light.position.set( sculpture.armature.position.x, spot_light.position.y, sculpture.armature.position.z );
+    //     		    spot_light.target = sculpture.armature;
+    //     		    spot_light.intensity = 6; 
+    //     		    spot_light_on = true;
 
-        //     raycaster.setFromCamera(_vector, camera);
+    //                 // cameraTarget = collisionResults[0].point.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+    //                 //sculpture.armature.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+    //                 // camera.lookAt(cameraTarget);
+
+    //     		    break;
+    // 		    }// spot_light_on || !cameraTarget.equals(scene.position)
+    //     		else if ( spot_light_on) { //if the light source is on
+
+    //              if (spot_light.intensity > 0) {
+    //                     spot_light.intensity -= .04;
+    //              }
+    //             else if (spot_light_on) {
+    //                     spot_light.intensity = 0;
+    //                     spot_light_on = false;
+
+    //              }
+
+    //              // cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+    //              // camera.lookAt(cameraTarget);
+
+
+    //     		}
+    // 	    }
+    // 	}
+    //     //jiggle
+    //     // else {
+    //     //     _vector.set(
+    //     //     ( evt.clientX / window.innerWidth ) * 2 - 1,
+    //     //         -( evt.clientY / window.innerHeight ) * 2 + 1,
+    //     //     1);
+
+    //     //     raycaster.setFromCamera(_vector, camera);
             
-        //     intersection = raycaster.intersectObjects(moveable_objects);
+    //     //     intersection = raycaster.intersectObjects(moveable_objects);
 
-        //     if ( intersection[0] != undefined) {
-        //         var vl = intersection[0].object.getLinearVelocity().clone();
-        //         var va = intersection[0].object.getAngularVelocity().clone();
+    //     //     if ( intersection[0] != undefined) {
+    //     //         var vl = intersection[0].object.getLinearVelocity().clone();
+    //     //         var va = intersection[0].object.getAngularVelocity().clone();
                 
-        //         va.multiplyScalar(-1).add(new THREE.Vector3(Math.random(), 2 * Math.random(), 0));
-        //         vl.multiplyScalar(-1).add(new THREE.Vector3(5 * Math.random(), 5 * Math.random()));
-        //         intersection[0].object.setLinearVelocity(vl);
-        //         intersection[0].object.setAngularVelocity(va);
+    //     //         va.multiplyScalar(-1).add(new THREE.Vector3(Math.random(), 2 * Math.random(), 0));
+    //     //         vl.multiplyScalar(-1).add(new THREE.Vector3(5 * Math.random(), 5 * Math.random()));
+    //     //         intersection[0].object.setLinearVelocity(vl);
+    //     //         intersection[0].object.setAngularVelocity(va);
                 
-        //     }
+    //     //     }
 
-        // }
-        // pointer
-        else {
-            // _vector.set(
-            //     ( evt.clientX / window.innerWidth ) * 2 - 1,
-            //     -( evt.clientY / window.innerHeight ) * 2 + 1,
-            //     1 );
+    //     // }
+    //     // pointer
+    //     else {
+    //         // _vector.set(
+    //         //     ( evt.clientX / window.innerWidth ) * 2 - 1,
+    //         //     -( evt.clientY / window.innerHeight ) * 2 + 1,
+    //         //     1 );
 
-            // raycaster.setFromCamera(_vector, camera);
+    //         // raycaster.setFromCamera(_vector, camera);
             
-            intersection = raycaster.intersectObjects(moveable_objects);
+    //         intersection = raycaster.intersectObjects(moveable_objects);
 
-            if ( intersection[0] != undefined) {
-                renderer.domElement.style.cursor = "pointer";
-            }
-            else renderer.domElement.style.cursor = "default";
+    //         if ( intersection[0] != undefined) {
+    //             renderer.domElement.style.cursor = "pointer";
+    //             // console.log(intersection[0]);
+    //             cameraTarget = intersection[0].point.clone()
+    //             cameraTarget.z = -14;
+    //             cameraTarget.multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+    //             camera.lookAt(cameraTarget);
+    //         }
+    //         else {
+    //             renderer.domElement.style.cursor = "default";
+    //             // cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+    //             // camera.lookAt(cameraTarget);
+    //         }
 
 
-        }
-    };
+    //     }
+    // };
 
     handleMouseUp = function( evt ) {
 
@@ -1066,39 +1098,130 @@ initEventHandling = (function() {
 
 	    //iterates through sculpture objects
 	    for (i = 0; i < sculptures.length; i++) {
-		collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
-		if (collisionResults.length !== 0) {
-		    sculpture = sculptures[i];
-		    break;
-		}
-	    }
-
-	    if ( collisionResults.length !== 0) {
-
-		sculpture.addModule( selected_thing );
-
-		//turn off spotlight
-        spot_light.intensity = 0;
+            if(sculptures[i].isAtLimit()) continue;
+            collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
+    		if (collisionResults.length !== 0) {
+    		    sculpture = sculptures[i];
 
 
+                sculpture.addModule( selected_thing );
 
-	    }
-        else if ( spot_light_on ) { //if the light source is on
-            // spot_light.intensity = 0;
-            if (spot_light.intensity > 0) {
-                    spot_light.intensity -= .04;
-            }
-        else {
+              //turn off spotlight
                 spot_light.intensity = 0;
                 spot_light_on = false;
-            }
-        }
+    		    break;
+    		}
+	    }
+
+        // else if ( spot_light_on ) { //if the light source is on
+        //     // spot_light.intensity = 0;
+        //     // cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+        //     // camera.lookAt(cameraTarget);
+            
+        //     if (spot_light.intensity > 0) {
+        //             spot_light.intensity -= .04;
+        //             if (spot_light.intensity > 5){
+        //                 sculpture.addModule( selected_thing );
+
+        //                 //turn off spotlight
+        //                 spot_light.intensity = 0;
+        //                 spot_light_on = false;
+        //             }
+        //     }
+
+        //     else {
+        //         spot_light.intensity = 0;
+        //         spot_light_on = false;
+        //     }
+        // }
+        renderer.domElement.style.cursor = "default"
 	    //end snapping
 
 	    selected_thing = null;
 	}
     };
+        handleMouseMove = function( evt ) {
+        //console.log(-1);
+        _vector.set(
+        ( evt.clientX / window.innerWidth ) * 2 - 1,
+        -( evt.clientY / window.innerHeight ) * 2 + 1,
+        1);
+        camera.updateProjectionMatrix();
+        raycaster.setFromCamera(_vector, camera);
 
+
+        // if (selected_thing !== null) {
+
+
+        //     intersection = raycaster.intersectObjects( intersect_planes );
+        //     if ( intersection[0] != undefined) {
+        //    mouse_position.copy(intersection[0].point);
+        //     }
+        intersection = raycaster.intersectObjects( intersect_planes );                    
+        
+        if  ( intersection[0] != undefined) {
+            if (selected_thing !== null) {
+                mouse_position.copy(intersection[0].point);
+                // renderer.domElement.style.cursor = "none";
+            }
+            // cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+            // camera.lookAt(cameraTarget);
+        }
+
+        //iterates through sculpture objects
+        for (i = 0; i < sculptures.length; i++) {
+            
+
+            // if (sculptures[i].isAtLimit()) continue;
+            
+            collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
+            
+            if (collisionResults.length !== 0) {
+                sculpture = sculptures[i];
+                
+                if (selected_thing !== null & sculpture.isAtLimit()) { continue; }
+
+                renderer.domElement.style.cursor = "pointer";
+                // console.log(intersection[0]);
+                cameraTarget = sculpture.armature.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+                camera.lookAt(cameraTarget);
+                    // shouldn't need this
+                    // if (collisionResults[0].object == selected_thing) {
+                    //     continue;
+                    // }
+
+                    
+                //make a light source directly above the sculpture
+                spot_light.position.set( sculpture.armature.position.x, spot_light.position.y, sculpture.armature.position.z );
+                spot_light.target = sculpture.armature;
+                spot_light.intensity = 6; 
+                spot_light_on = true;
+
+                // cameraTarget = collisionResults[0].point.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+                //sculpture.armature.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+                // camera.lookAt(cameraTarget);
+
+                break;
+            }// spot_light_on || !cameraTarget.equals(scene.position)
+            else {
+                renderer.domElement.style.cursor = "default";
+            //     if ( spot_light_on) { //if the light source is on
+
+            //     if (spot_light.intensity > 0) {
+            //         spot_light.intensity -= .04;
+            //     }
+            //     else if (spot_light_on) {
+            //             spot_light.intensity = 0;
+            //             spot_light_on = false;
+
+            //     }
+            // }
+        }
+
+                 // cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+                 // camera.lookAt(cameraTarget);
+        }
+    };
     //rotate camera
     handleKeyDown =  function( evt ){
 
@@ -1131,7 +1254,20 @@ initEventHandling = (function() {
 })();
 
 //render loop
+                // renderer.domElement.style.cursor = "default";
+                // cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+                // camera.lookAt(cameraTarget);
 render = function() {
+    if (renderer.domElement.style.cursor == "default"){
+        cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-(factor)));
+        camera.lookAt(cameraTarget);
+        if (spot_light.intensity > 0) {
+            spot_light.intensity -= .1;
+        }
+        else {
+                spot_light.intensity = 0;
+        }
+    }
     scene.simulate(); // run physics
     renderer.render( scene, camera); // render the scene
     requestAnimationFrame( render );
