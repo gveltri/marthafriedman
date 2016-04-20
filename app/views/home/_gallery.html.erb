@@ -1,15 +1,9 @@
-<!-- For the Future
-1) Load PLY objects as binary
-2) Bring soft body action from Ammo through Physijs and THREE
--->
 <script>
     Physijs.scripts.worker = '<%= asset_path 'physijs_worker.js' %>';
     Physijs.scripts.ammo = 'https://raw.githubusercontent.com/gveltri/marthafriedman/galleryChanges/app/assets/javascripts/ammo.js';
 
 var initScene, render, renderer, scene, camera, initEventHandling;
-
 var fill, backlight, am_light, spot_light, point_light;
-
 var moveable_objects = [], selected_thing = null, static_surfaces=[],
     intersect_planes = [], sculptures=[];
 
