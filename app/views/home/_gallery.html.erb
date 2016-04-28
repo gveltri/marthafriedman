@@ -1,7 +1,55 @@
-<!-- For the Future
-1) Load PLY objects as binary
-2) Bring soft body action from Ammo through Physijs and THREE
--->
+<script id="vertexShader" type="x-shader/x-fragment">
+// vertex shader
+
+varying vec3 vNormal;
+varying vec3 vWorldPosition;
+
+void main() {
+
+    // adding some displacement based on the vertex position
+    vec3 offset = vec3(
+        sin(position.x * 10.0 + time) * 15.0,
+        sin(position.y * 10.0 + time + 31.512) * 15.0,
+        sin(position.z * 10.0 + time + 112.512) * 15.0
+    );
+
+    vec3 pos = position + offset;
+
+    // just add some noise to the normal
+    vNormal = normalMatrix * vec3(normal + normalize(offset) * 0.2);
+
+    vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
+
+    // store the world position as varying for lighting
+    vWorldPosition = worldPosition.xyz;
+
+    gl_Position = projectionMatrix * viewMatrix * worldPosition;
+
+}
+</script>
+
+<script id="fragmentShader" type="x-shader/x-fragment">
+// fragment shader
+
+varying vec3 vNormal;
+varying vec3 vWorldPosition;
+
+uniform vec3 lightPosition;
+
+uniform vec3 directionalLightPosition[MAX_DIRECTIONAL_LIGHTS];
+uniform vec3 directionalLightColor[MAX_DIRECTIONAL_LIGHTS];
+
+void main(void) {
+
+    vec3 lightDirection = normalize(directionalLightPosition[0] - vWorldPosition);
+
+    float c = 0.35 + max(0.0, dot(vNormal, lightDirection)) * 0.4;
+
+    gl_FragColor = vec4(c, c, c, 1.0);
+}
+
+]</script>
+
 <script>
     Physijs.scripts.worker = '<%= asset_path 'physijs_worker.js' %>';
     Physijs.scripts.ammo = '<%= asset_path 'ammo.js' %>';
@@ -22,11 +70,13 @@ var cameraTarget = new THREE.Vector3; var factor = .0067;
 initScene = function() {
     renderer = new THREE.WebGLRenderer({ antialias : true }); //alpha: true
     renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.shadowMapEnabled = true;
-    renderer.shadowMapSoft = true;
-    renderer.shadowMapType = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.soft = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.shadowMapAutoUpdate = true;
-    renderer.setClearColor( 0xece7eb, 0 );
+    // renderer.setClearColor( 0xece7eb, 0 );
+    renderer.setClearColor( 0xffffff, 1);
+
 
     document.getElementById('container').appendChild(renderer.domElement);
     //allows keydown to be heard
@@ -62,36 +112,25 @@ initScene = function() {
     camera.position.x = camera.position.x * Math.cos(.2) + camera.position.z * Math.sin(.2);
     camera.position.z = camera.position.z * Math.cos(.2) - camera.position.x * Math.sin(.2);
     camera.lookAt(scene.position);
-    // cameraTarget = scene.position.clone();
 
 
     //ambient light
     am_light = new THREE.AmbientLight( 0x040404 );
     scene.add( am_light );
 
-    //point light
-    // point_light = new THREE.PointLight( 0xFFFFFF, 0.5, 100 );
-    // point_light.position.set( -15, 20, -30 );
-    // scene.add( point_light );
-
-    // var pointhelper = new THREE.PointLightHelper(point_light, 1);
-    // scene.add(pointhelper);
-
     // directional lights
     fill = new THREE.DirectionalLight( 0x202020, 10 );
     fill.position.set( 40, 45, 70 );
     fill.target.position.copy( scene.position );
     fill.castShadow = true;
-    fill.shadowCameraLeft = -100;
-    fill.shadowCameraTop = -100;
-    fill.shadowCameraRight = 100;
-    fill.shadowCameraBottom = 100;
-    fill.shadowCameraNear = 0;
-    fill.shadowCameraFar = 200;
+    fill.shadow.camera.left = -100;
+    fill.shadow.camera.top = -100;
+    fill.shadow.camera.right = 100;
+    fill.shadow.camera.bottom = 100;
+    fill.shadow.camera.near = 0;
+    fill.shadow.camera.far = 200;
     // fill.shadowCameraVisible = true;
-    // fill.shadowBias = .001
-    fill.shadowMapWidth = fill.shadowMapHeight = 4096;
-    fill.shadowDarkness = .3;
+    // fill.shadowMap.width = fill.shadowMap.height = 4096;
 
     scene.add( fill );
 
@@ -102,64 +141,40 @@ initScene = function() {
     backlight.position.set( -200, 20, -50 );
     backlight.target.position.copy( scene.position );
     backlight.castShadow = true;
-    backlight.shadowCameraLeft = -150;
-    backlight.shadowCameraTop = -150;
-    backlight.shadowCameraRight = 150;
-    backlight.shadowCameraBottom = 150;
-    backlight.shadowCameraNear = 0;
-    backlight.shadowCameraFar = 100;
-    // backlight.shadowBias = .001
+    backlight.shadow.camera.left = -150;
+    backlight.shadow.camera.top = -150;
+    backlight.shadow.camera.right = 150;
+    backlight.shadow.camera.bottom = 150;
+    backlight.shadow.camera.right = 0;
+    backlight.shadow.camera.far = 100;
     // backlight.shadowCameraVisible = true;
-    backlight.shadowMapWidth = backlight.shadowMapHeight = 4096;
-    backlight.shadowDarkness = .3;
+    // backlight.shadowMap.width = backlight.shadowMap.height = 4096;
     backlight.intensity = 8;
 
     scene.add( backlight );
 
-    // var hemLight = new THREE.HemisphereLight(0x4F4040, 0xd4e2f9, .3);
-    // scene.add(hemLight);
+    var hemLight = new THREE.HemisphereLight(0xFFFFFF, 0xd4e2f9, .3);
+    scene.add(hemLight);
 
 
-    spot_light = new THREE.SpotLight( 0xf3f9de, 0, 150, Math.PI/8, 65, .1 );
+    spot_light = new THREE.SpotLight( 0xf3f9de, 0, 150, Math.PI/32, 65, .1 );
     spot_light.position.set( 50, 40, 20);
-    // spot_light.position.set( camera.position );
     spot_light.intensity = 0;
     spot_light.castShadow = true;
-    spot_light.shadowBias = 0;
-    spot_light.shadowMapWidth = spot_light.shadowMapHeight = 4096;
+
+    // spot_light.shadowMap.width = spot_light.shadowMap.height = 4096;
     // spot_light.target = scene;
     // spot_light.shadowCameraVisible = true;
-    spot_light.shadowCameraNear = 1;
-    // spot_light.shadowCameraFar = 300;
-    spot_light.shadowCameraFov = 600;
-        // spot_light.shadowCameraRight = 150;
-    // spot_light.shadowCameraBottom = 150;
+    spot_light.shadow.camera.near = 1;
+    spot_light.shadow.camera.fov = 600;
     scene.add(spot_light);
 
 
-    // console.log(spot_light);
-    // spot_light.shadowCamera.updateProjectionMatrix();
-    // spot_light.shadowCameraRight = 150;
-    // spot_light.shadowCameraBottom = 150;
-
-    // spot_light.target = scene;
-    // spot_light.visible = false;
-    // scene.add(spot_light);
-    // spot_light.intensity = 0;
-
-    // var spothelper = new THREE.SpotLightHelper(spot_light);
-    // scene.add(spothelper);
-    
-
-    //space init
-
-    // make less heavy
     Table( 0, -18, -40, 50, 3, 50, '<%= asset_path 'parquet_2.jpg' %>', Math.PI / 2, 8, 8 );    
     Table( -50, -17.25, -15, 50, 3, 100, '<%= asset_path 'concrete_1.jpg' %>', 0, 5, 17);
     Table( -25, -19.25, -15, 100, 2, 100,'<%= asset_path 'grass.jpg' %>', Math.PI / 2, 3, 3);
 
 	//sculptures init
-     
     var oliveAssets = ['<%= asset_path 'binary/Olive_nopimento.ply' %>'];
     LoadPlyAssets(oliveAssets, oliveSculpture);
 
@@ -223,7 +238,7 @@ function Table( x,y,z, x_size, y_size, z_size, texture_path, rotation, repeat_x,
     table_texture.repeat.set( repeat_x, repeat_z );
 
     var table_material = new Physijs.createMaterial(
-	   new THREE.MeshPhongMaterial({ map: table_texture, ambient: 0xFFFFFF }),
+	   new THREE.MeshPhongMaterial({ map: table_texture }),
 	   0.9,
 	   0.9);
 
@@ -248,43 +263,6 @@ function Table( x,y,z, x_size, y_size, z_size, texture_path, rotation, repeat_x,
     //return table for ad hoc fun
     return table;
 };
-
-
-// function Wall(x,y,z,x_size,y_size,texture_path,rotation,visible) {
-
-//     rotation = typeof rotation !== 'undefined' ? rotation : (-Math.PI / 4);
-//     visible = typeof visible !== 'undefined' ? visible : true;
-
-//     var wall_texture = new THREE.ImageUtils.loadTexture( texture_path );
-//     wall_texture.wrapS = wall_texture.wrapT = THREE.RepeatWrapping;
-//     wall_texture.repeat.set(3,3);
-
-//     var wall_material = new Physijs.createMaterial(
-// 	new THREE.MeshPhongMaterial({ map: wall_texture, ambient: 0xFFFFFF }),
-// 	0.8,
-// 	0.9);
-
-//     if (!visible) wall_material = new Physijs.createMaterial(
-// 	new THREE.MeshPhongMaterial({opacity: 0, transparent: true  }),
-// 	0.8,
-// 	0.9
-//     );
-
-//     var wall = new Physijs.BoxMesh(
-// 	new THREE.BoxGeometry(x_size,1,y_size),
-// 	wall_material,
-// 	1
-//     );
-
-//     wall.receiveShadow = true;
-//     wall.castShadow = true;
-//     wall.position.set(x,y,z);
-//     wall.rotation.z = Math.PI / 2;
-//     wall.rotation.y = rotation;
-
-//     scene.add( wall );
-//     static_surfaces.push(wall);
-// };
 
 //Hairball Constructor
 function hairballSculpture(x,z) {
@@ -392,25 +370,6 @@ function oliveSculpture(x, z) {
 
     var radius = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
     var armature_y = -12;
-
-    var uniforms = THREE.UniformsUtils.merge(
-        [THREE.UniformsLib['lights'],
-        {
-          diffuse: {type: 'c', value: new THREE.Color(0x0000ff)},
-          steps: {type: 'f', value: 4}
-        }
-        ]
-    )
-    var vertexShader = document.getElementById('vertexShader').text;
-    var fragmentShader = document.getElementById('fragmentShader').text;
-
-    var material = new THREE.ShaderMaterial(
-        {
-          uniforms : uniforms,
-          vertexShader : vertexShader,
-          fragmentShader : fragmentShader,
-          lights: true
-        });
 
     var olive_colors = [0x9F9812, 0x6D632A, 0x5A603E, 
                 0x626220, 0x5E5E3C, 0x738754, 
@@ -532,13 +491,38 @@ function eggSculpture(x,z) {
     	var egg_loader = new THREE.PLYLoader();
 
     	var egg_material = new Physijs.createMaterial (
-	    new THREE.MeshLambertMaterial({ color: 0xf8f9e7, ambient: 0xFFFFFF}),
+	    new THREE.MeshLambertMaterial({ color: 0xf8f9e7 }),
 	    0.1,
 	    0.7
-	);
+	    );
+
+        var uniforms = THREE.UniformsUtils.merge([
+            THREE.UniformsLib['lights'],
+            {
+              diffuse: {type: 'c', value: new THREE.Color(0x0000ff)},
+
+              texture: { type: "t", value: null }
+              }
+        ]);
+        
+        uniforms.texture.value = THREE.ImageUtils.loadTexture( '<%= asset_path 'toon_test.jpg' %>');
+        
+        var vertexShader = document.getElementById('vertexShader').text;
+        var fragmentShader = document.getElementById('fragmentShader').text;
+
+
+        var material = new THREE.ShaderMaterial(
+        {
+          uniforms : uniforms,
+          vertexShader : vertexShader,
+          fragmentShader : fragmentShader,
+          lights: true
+        });
+
 
 	var egg = egg_loader.load('<%= asset_path 'binary/Egg.ply' %>', function( geometry ){
         computeFlipNormals(geometry);
+        // assignUVs(geometry);
 
 	    var m = new THREE.Matrix4();
 	    var m1 = new THREE.Matrix4();
@@ -599,7 +583,7 @@ function TongueSculpture(x,z) {
     var num = 9;
 
     var tongueMaterial = new Physijs.createMaterial (
-        new THREE.MeshLambertMaterial({ color: 0xff729a, shininess: 45/*0xff7fb6*/ }),
+        new THREE.MeshLambertMaterial({ color: 0xff729a }),
         0.1,
         0.7);
     
@@ -751,7 +735,7 @@ function wedgeSculpture(x, z) {
     );
 
     var wedgeDroop_mat = new Physijs.createMaterial (
-        new THREE.MeshLambertMaterial({ color: 0xff7b00, ambient: 0xFFFFFF /*0xFF5934*/ }),
+        new THREE.MeshLambertMaterial({ color: 0xff7b00 }),
         1,
         1
     );
@@ -1134,7 +1118,7 @@ for (i = 0; i < sculptures.length; i++) {
         // spot_light.distance = y + 5;
         // spot_light.position.set( sculpture.armature.position.x, y, sculpture.armature.position.z );
         spot_light.target = sculpture.armature;
-        spot_light.intensity = 2;
+        spot_light.intensity = 1.6;
 
         // spot_light.shadow.shadowCamera.updateProjectionMatrix();
         spot_light_on = true;
@@ -1200,36 +1184,36 @@ render = function() {
 };
 
 // http://stackoverflow.com/questions/20774648/three-js-generate-uv-coordinate
-// assignUVs = function( geometry ){
+assignUVs = function( geometry ){
 
-//     geometry.computeBoundingBox();
+    geometry.computeBoundingBox();
 
-//     var max     = geometry.boundingBox.max;
-//     var min     = geometry.boundingBox.min;
+    var max     = geometry.boundingBox.max;
+    var min     = geometry.boundingBox.min;
 
-//     var offset  = new THREE.Vector2(0 - min.x, 0 - min.y);
-//     var range   = new THREE.Vector2(max.x - min.x, max.y - min.y);
+    var offset  = new THREE.Vector2(0 - min.x, 0 - min.y);
+    var range   = new THREE.Vector2(max.x - min.x, max.y - min.y);
 
-//     geometry.faceVertexUvs[0] = [];
-//     var faces = geometry.faces;
+    geometry.faceVertexUvs[0] = [];
+    var faces = geometry.faces;
 
-//     for (i = 0; i < geometry.faces.length ; i++) {
+    for (i = 0; i < geometry.faces.length ; i++) {
 
-//       var v1 = geometry.vertices[faces[i].a];
-//       var v2 = geometry.vertices[faces[i].b];
-//       var v3 = geometry.vertices[faces[i].c];
+      var v1 = geometry.vertices[faces[i].a];
+      var v2 = geometry.vertices[faces[i].b];
+      var v3 = geometry.vertices[faces[i].c];
 
-//       geometry.faceVertexUvs[0].push([
-//         new THREE.Vector2( ( v1.x + offset.x ) / range.x , ( v1.y + offset.y ) / range.y ),
-//         new THREE.Vector2( ( v2.x + offset.x ) / range.x , ( v2.y + offset.y ) / range.y ),
-//         new THREE.Vector2( ( v3.x + offset.x ) / range.x , ( v3.y + offset.y ) / range.y )
-//       ]);
+      geometry.faceVertexUvs[0].push([
+        new THREE.Vector2( ( v1.x + offset.x ) / range.x , ( v1.y + offset.y ) / range.y ),
+        new THREE.Vector2( ( v2.x + offset.x ) / range.x , ( v2.y + offset.y ) / range.y ),
+        new THREE.Vector2( ( v3.x + offset.x ) / range.x , ( v3.y + offset.y ) / range.y )
+      ]);
 
-//     }
+    }
 
-//     geometry.uvsNeedUpdate = true;
+    geometry.uvsNeedUpdate = true;
 
-// }
+}
 
 // some gooooood shit right here
 //http://stackoverflow.com/questions/11032145/three-js-custom-objloader-geometry-lighting
