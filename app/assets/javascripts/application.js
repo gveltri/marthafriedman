@@ -13,7 +13,7 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
-//= require three.min
+//= require three
 //= require physi
 //= require PLYLoader
 //= require slick
