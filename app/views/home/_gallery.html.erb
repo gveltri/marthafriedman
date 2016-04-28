@@ -1222,7 +1222,7 @@ computeFlipNormals = function(geometry){
     // mesh.flipSided = true;
     // mesh.doubleSided = true;
 
-    /* Flip normals*/               
+    /* Flip normals*/
     for(var i = 0; i<geometry.faces.length; i++) {
         geometry.faces[i].normal.x = -1* geometry.faces[i].normal.x;
         geometry.faces[i].normal.y = -1* geometry.faces[i].normal.y;
@@ -1232,4 +1232,4 @@ computeFlipNormals = function(geometry){
 
 initScene();
 </script>
-    
+
