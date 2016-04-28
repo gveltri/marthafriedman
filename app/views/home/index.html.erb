@@ -1,2 +1,42 @@
 <%= render 'gallery' %>
+
+<script id="vertexShader">
+varying vec3 vPos;
+varying vec3 vNormal;
+
+void main() {
+  vPos = (modelMatrix * vec4(position, 1.0 )).xyz;
+  vNormal = normalMatrix * normal;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+}
+</script>
+
+<script id="fragmentShader">
+uniform vec3 diffuse;
+uniform float steps;
+
+varying vec3 vPos;
+varying vec3 vNormal;
+
+uniform vec3 directionalLightColor[MAX_DIR_LIGHTS];
+uniform vec3 directionalLightPosition[MAX_DIR_LIGHTS];
+uniform float directionalLightDistance[MAX_DIR_LIGHTS];
+
+void main() {
+  vec3 n = normalize(vNormal);
+
+  float intensity = 0.0;
+
+  vec3 col = vec3(0.0);
+
+  for(int l = 0; l < MAX_DIR_LIGHTS; l++) {
+    vec3 lightDirection = normalize(vPos - directionalLightPosition[l]);
+    col += clamp(dot(-lightDirection, n), 0.0, 1.0) * directionalLightColor[l];
+  }
+
+  intensity = ceil(clamp(col.r + col.g + col.b, 0.0, 1.0) * steps)/steps;
+  gl_FragColor = vec4(diffuse, 1.0) + vec4(intensity);
+}
+</script>
+
 <footer><div id="specialfooter"><a href="http://workandtext.com">work</a> <a href="http://input-experience.com/">experience</a></div></footer>

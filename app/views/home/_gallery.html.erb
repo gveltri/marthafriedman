@@ -20,7 +20,7 @@ var mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3,
 var cameraTarget = new THREE.Vector3; var factor = .0067;
 
 initScene = function() {
-    renderer = new THREE.WebGLRenderer({ antialias:true }); //alpha: true
+    renderer = new THREE.WebGLRenderer({ antialias : true }); //alpha: true
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMapEnabled = true;
     renderer.shadowMapSoft = true;
@@ -89,7 +89,7 @@ initScene = function() {
     fill.shadowCameraNear = 0;
     fill.shadowCameraFar = 200;
     // fill.shadowCameraVisible = true;
-    fill.shadowBias = .001
+    // fill.shadowBias = .001
     fill.shadowMapWidth = fill.shadowMapHeight = 4096;
     fill.shadowDarkness = .3;
 
@@ -108,7 +108,7 @@ initScene = function() {
     backlight.shadowCameraBottom = 150;
     backlight.shadowCameraNear = 0;
     backlight.shadowCameraFar = 100;
-    backlight.shadowBias = .001
+    // backlight.shadowBias = .001
     // backlight.shadowCameraVisible = true;
     backlight.shadowMapWidth = backlight.shadowMapHeight = 4096;
     backlight.shadowDarkness = .3;
@@ -393,6 +393,25 @@ function oliveSculpture(x, z) {
     var radius = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
     var armature_y = -12;
 
+    var uniforms = THREE.UniformsUtils.merge(
+        [THREE.UniformsLib['lights'],
+        {
+          diffuse: {type: 'c', value: new THREE.Color(0x0000ff)},
+          steps: {type: 'f', value: 4}
+        }
+        ]
+    )
+    var vertexShader = document.getElementById('vertexShader').text;
+    var fragmentShader = document.getElementById('fragmentShader').text;
+
+    var material = new THREE.ShaderMaterial(
+        {
+          uniforms : uniforms,
+          vertexShader : vertexShader,
+          fragmentShader : fragmentShader,
+          lights: true
+        });
+
     var olive_colors = [0x9F9812, 0x6D632A, 0x5A603E, 
                 0x626220, 0x5E5E3C, 0x738754, 
                 0x595A4C, 0x878032, 0x949C3E, 
@@ -426,6 +445,7 @@ function oliveSculpture(x, z) {
 		    geometry,
 		    // new THREE.CylinderGeometry(3,3,3,10),
             olive_material,
+            // material,
 		    5
 		);
 
