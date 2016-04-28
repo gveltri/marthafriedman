@@ -76,7 +76,7 @@ header {
 header ul li a.title {
     font-size:1.8em;
     color:rgb(40,40,40);
-    letter-spacing:0.5em;
+    letter-spacing:0.6em;
     font-weight: 700;
 }
 
@@ -88,10 +88,6 @@ footer {
     max-height:20px;
     text-align:center;
     font-size:1em;
-    color:rgba(0,0,0,0.75);
-}
-
-footer a {
     color:rgb(255,255,255);
     letter-spacing:0.2em;
     text-decoration:none;
@@ -104,6 +100,10 @@ footer a:hover {
 
 #specialfooter {
     padding:5px 2em 0px 2em;
+}
+
+.text-fields {
+    padding: 0 20%;
 }
 
 
@@ -124,6 +124,34 @@ footer a:hover {
 .inner {
     padding: 30px 20px 20px;
 }
+
+div.image-gallery video {
+    display: block;
+    max-height: 400px;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+div.image-gallery p {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+}
+
+div.image-gallery-nav img {
+    display: block;
+    max-height: 75px;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 
 /* prevent divs from overlapping */
 @media (max-height: 500px) {
@@ -163,7 +191,8 @@ footer a:hover {
 
 }
 
-@media (max-width: 1024px) {
+/* resize for bigger monitors  */
+@media (min-width: 1024px) {
     .masthead,
     .mastfoot,
     .cover-container {
@@ -172,6 +201,25 @@ footer a:hover {
 
 }
 
+@media (min-width: 1200px) {
+    .masthead,
+    .mastfoot,
+    .cover-container {
+	width: 1000px;
+    }
+
+}
+
+@media (min-width: 1800px) {
+    .masthead,
+    .mastfoot,
+    .cover-container {
+	width: 1600px;
+    }
+
+}
+
+
 @media (min-width: 769px) {
     div.image-gallery img {
 	max-height: 400px;
@@ -179,25 +227,10 @@ footer a:hover {
 	margin-left: auto;
 	margin-right: auto;
     }
+
 }
 
-div.image-gallery p {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-    font-size: 11px;
-    color: #888;
-    margin-top: 2px;
-}
 
-div.image-gallery-nav img {
-    display: block;
-    max-height: 75px;
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-}
 
 *:focus {outline:0;}
 
@@ -254,4 +287,15 @@ header ul li:hover > ul
     border: 1px dashed #CCC;
     background-color: #f9f9f9;
     height: 40px;
+}
+
+/* force no underline */
+a.menu-styles {
+    text-decoration: none;
+}
+
+a.bold {
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
 }
