@@ -337,6 +337,7 @@ THREE.PLYLoader.prototype = {
 
 				color = new THREE.Color();
 				color.setRGB( element.red / 255.0, element.green / 255.0, element.blue / 255.0 );
+				console.log(color);
 				geometry.colors.push( color );
 
 			}
