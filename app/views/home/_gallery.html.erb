@@ -325,20 +325,20 @@ function oliveSculpture(x, z) {
     var radius = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
     var armature_y = -12;
 
-    var olive_colors = [0x9F9812, 0x6D632A, 0x5A603E, 
-                0x626220, 0x5E5E3C, 0x738754, 
-                0x595A4C, 0x878032, 0x949C3E, 
-                0x69613A, 0x595532, 0xA4962E, 
+    var olive_colors = [0x9F9812, 0x6D632A, 0x5A603E,
+                0x626220, 0x5E5E3C, 0x738754,
+                0x595A4C, 0x878032, 0x949C3E,
+                0x69613A, 0x595532, 0xA4962E,
                 0x605C49, 0x605C49];
 
-    var pimento_colors = [0xBF341F, 0xB53720, 0xC92035, 
-                0xEA976F, 0xB2583E, 0xCD443A, 
-                0xCC5125, 0xC2462A, 0xBB4C53, 
-                0xCD444B, 0xEA6C60, 0xD5765A, 
+    var pimento_colors = [0xBF341F, 0xB53720, 0xC92035,
+                0xEA976F, 0xB2583E, 0xCD443A,
+                0xCC5125, 0xC2462A, 0xBB4C53,
+                0xCD444B, 0xEA6C60, 0xD5765A,
                 0xE2685D, 0xC92035];
-    
+
     computeFlipNormals(geometry);
-    
+
     // plus one for extra olive
     for (var i = 0; i < num + 1; i++) {
 
@@ -358,7 +358,7 @@ function oliveSculpture(x, z) {
         // oliveMesh.doubleSided = true;
 
         var pimento_material = new THREE.MeshPhongMaterial({color: pimento_colors[i]});
-		
+
         var pimento = new THREE.Mesh(
 		    new THREE.CylinderGeometry(1.5,1.5,1.5,5),
             pimento_material
@@ -366,7 +366,7 @@ function oliveSculpture(x, z) {
 
 		pimento.position.x = .25;
 		pimento.position.z = 3;
-		
+
 		oliveMesh.add(pimento);
 
         pimento.castShadow = true;
@@ -380,7 +380,7 @@ function oliveSculpture(x, z) {
 		scene.add( oliveMesh );
 
         moveable_objects.push(oliveMesh);
-        
+
         if (i == num ){
             oliveMesh.position.set(x + .5, 95, z + .75);
             oliveMesh.__dirtyPosition = true;
@@ -388,9 +388,9 @@ function oliveSculpture(x, z) {
 
             // oliveMesh.setCcdMotionThreshold(.075);
             // oliveMesh.setCcdSweptSphereRadius(.15);
- 
+
             continue;
-        }   
+        }
 
         oliveTotem.addModule(oliveMesh);
 
@@ -399,7 +399,7 @@ function oliveSculpture(x, z) {
 
 function eggSculpture(x,z) {
     var eggs = [];
-    
+
     var armature = new Physijs.BoxMesh(
     	new THREE.BoxGeometry( 5, 1, 5 ),
     	new THREE.MeshPhongMaterial({ color: 0x664935 }),
@@ -445,16 +445,16 @@ function eggSculpture(x,z) {
 
 	    var m = new THREE.Matrix4();
 	    var m1 = new THREE.Matrix4();
-	    
+
 	    m.makeTranslation(0,-8,0);
 	    m1.makeRotationY( Math.PI/2 );
 	    m.multiply(m1).multiplyScalar(0.7);
 	    geometry.applyMatrix(m);
-	    
+
 	    for (var i = 0; i < num; i++){
 	    	var y = 0 + (eggs.length * 12);
 
-		
+
 	    	var eggMesh = new Physijs.ConvexMesh(
 	    		geometry,
 	    		egg_material,
@@ -465,17 +465,17 @@ function eggSculpture(x,z) {
 	    	eggMesh.castShadow = true;
 	    	eggMesh.receiveShadow = true;
 		    eggMesh.position.set(armature.position.x, y, armature.position.z);
-		
+
 	    	scene.add( eggMesh );
-		
+
 		    eggMesh.rotation.x = Math.PI/2;
-	    	
+
             if ( i % 2 == 0 ) {
                 eggMesh.rotation.z = Math.PI/2;
             }
 
             eggMesh.__dirtyRotation = true;
-		
+
 	    	// eggMesh.setLinearFactor( module_factor );
 
 	    	// eggs.push(eggMesh);
@@ -505,12 +505,12 @@ function TongueSculpture(x,z) {
         new THREE.MeshPhongMaterial({ color: 0xff729a }),
         0.1,
         0.7);
-    
+
     var m = new THREE.Matrix4();
     var m1 = new THREE.Matrix4();
     // var m2 = new THREE.Matrix4();
 
-    m.scale(new THREE.Vector3(1.5,1.5,1.5));        
+    m.scale(new THREE.Vector3(1.5,1.5,1.5));
     // m.makeTranslation(0,-8,0);
     // m.makeRotationX( -Math.PI/4 );
     m1.makeRotationX( Math.PI/2 );
@@ -518,13 +518,13 @@ function TongueSculpture(x,z) {
 
     m.multiply(m1);
     geometry.applyMatrix(m);
-        
+
     var r = 15;
 
     var arm_geo = new THREE.CylinderGeometry( .3, .3, 3, 5 );
     // var interSphere = new THREE.SphereGeometry( 5, 5, 5);
     computeFlipNormals(geometry);
-    
+
     for (var i = 0; i < num; i++){
         var tongues = [];
 
@@ -572,13 +572,13 @@ function TongueSculpture(x,z) {
         rebar.position.set(xC , -17, zC);
 
         tongueMesh.rotation.y = -a;
-        rebar.rotation.y = -a;  
+        rebar.rotation.y = -a;
 
         scene.add( tongueMesh );
         scene.add( rebar );
-    
+
         tongueMesh.__dirtyRotation = true;
-    
+
         tongueMesh.setAngularFactor( module_factor );
         tongueMesh.setLinearFactor( module_factor );
 
@@ -587,7 +587,7 @@ function TongueSculpture(x,z) {
         tongueSculpture.addModule(tongueMesh);
         //console.log(sculptures);
 
-        var y =  i * 6 + 5;  
+        var y =  i * 6 + 5;
         tongueMesh.position.y = y;
 
         // sculptures.push(tongueSculpture);
@@ -607,19 +607,19 @@ function wedgeSculpture(x, z) {
     // In the future, custom armature geometry could be geometries[0]
     var armature_mat = new THREE.MeshPhongMaterial({ color: 0x664935 });
 
-    var armature = new Physijs.BoxMesh(    
+    var armature = new Physijs.BoxMesh(
     new THREE.BoxGeometry( 26, 1, 26 ),
         armature_mat,
         9
     );
 
     armature.position.set(x, -15.4, z);
-    
+
     armature.castShadow = true;
     armature.receiveShadow= true;
 
     scene.add( armature );
-    
+
 
     armature.setAngularFactor( armature_factor );
     armature.setLinearFactor( armature_factor );
@@ -668,13 +668,13 @@ function wedgeSculpture(x, z) {
 
     var m = new THREE.Matrix4();
     // var m3 = new THREE.Matrix4();
-    
+
     var geo_flat_left = geometry_flat.clone();
-    m.makeRotationY( Math.PI );        
+    m.makeRotationY( Math.PI );
     geometry_flat.applyMatrix(m);
 
     var geo_hammer_left = geometry_hammer.clone();
-    m.makeRotationY( Math.PI );        
+    m.makeRotationY( Math.PI );
     geometry_hammer.applyMatrix(m);
 
     var wedgeDroop = geometries[0];
@@ -686,19 +686,19 @@ function wedgeSculpture(x, z) {
     // wedgeDroop.computeBoundingSphere();
 
     var wedge_models = [geometry_flat, geo_flat_left, geometry_hammer, geo_hammer_left, wedgeDroop, wDLeft];
-    
+
     var arrangement = [0, 0, 1, 0,
                         0, 1, 1, 3,
                         1, 1, 1, 3,
                         1, 0, 0, 1,
-                        1, 1, 0, 1, 
+                        1, 1, 0, 1,
                         0, 1, 0,
                         3, 3, 3, 1,
                         1, 1, 1, 4,
                         0, 2, 0, 0,
                         0, 2, 5, 1,
                         1, 3, 2, 1,0];
-    
+
     var wedge_stack = new Sculpture( armature, wedges );
 
     var r = .6;//(geometry_flat.boundingBox.max.y - geometry_flat.boundingBox.min.y) / 2;
@@ -726,8 +726,8 @@ function wedgeSculpture(x, z) {
             wedgeMesh.setCcdMotionThreshold(.01);
             wedgeMesh.setCcdSweptSphereRadius(.6);
         }
-        else { 
-            wMat = wedge_material; 
+        else {
+            wMat = wedge_material;
             var wedgeMesh = new Physijs.ConvexMesh(
                 wedge_models[arrangement[i]],
                 wMat,
@@ -748,10 +748,8 @@ function wedgeSculpture(x, z) {
         // wedgeMesh.receiveShadow = true;
 
         // scene.add( wedgeMesh );
-            
 
-        
-        wedgeMesh.setAngularFactor( _v3 ); 
+        wedgeMesh.setAngularFactor( _v3 );
         wedgeMesh.setAngularVelocity(_v3);
 
         wedgeMesh.setLinearFactor( module_factor );
@@ -787,7 +785,7 @@ Sculpture.prototype.removeModule = function( obj ) {
     // obj.setLinearFactor(new THREE.Vector3[1,1,1]);
 	// if (this.modules.length == 0) {
 	// 	moveable_objects.push(this.armature);
-	// 	this.limit = 0;		
+	// 	this.limit = 0;
 	// }
 };
 
@@ -795,15 +793,15 @@ Sculpture.prototype.removeModule = function( obj ) {
 Sculpture.prototype.addModule = function( obj ) {
     var snap_y;
     if (!this.isAtLimit()) {
-    	
+
         var r = (obj.geometry.boundingBox.max.y - obj.geometry.boundingBox.min.y) / 2;
-        
+
         if (this.modules.length == 0) {
     	    snap_y = -7
     		+ this.armature.geometry.boundingBox.max.y
     		+ r;
     	}
-    	
+
         else {
     	    snap_y = this.modules[this.modules.length-1].position.y
     		+ this.modules[this.modules.length-1].geometry.boundingBox.max.y
@@ -824,7 +822,7 @@ Sculpture.prototype.addModule = function( obj ) {
     	_v3 = new THREE.Vector3(0,0,0);
     	obj.setLinearVelocity(_v3);
         obj.setAngularFactor(_v3);
-        
+
         obj.__dirtyPosition = true;
         obj.__dirtyRotation = true;
 
@@ -854,7 +852,7 @@ function LoadPlyAssets( assetPathArray, callback ){
 
         var geo = geometry_loader.load( assetPathArray[i], function( geometry ){
             // Problem: right now can't make sure that the first asset goes in geometries[0]
-            
+
             geometries.push( geometry );
 
             if ( geometries.length == length ){
@@ -968,7 +966,7 @@ _vector.set(
 camera.updateProjectionMatrix();
 raycaster.setFromCamera(_vector, camera);
 
-intersection = raycaster.intersectObjects( intersect_planes );                    
+intersection = raycaster.intersectObjects( intersect_planes );
 
 if  ( intersection[0] != undefined) {
     if (selected_thing !== null) {
@@ -979,16 +977,16 @@ if  ( intersection[0] != undefined) {
 
 //iterates through sculpture objects
 for (i = 0; i < sculptures.length; i++) {
-    
+
     // if (sculptures[i].isAtLimit()) continue;
-    
+
     collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
-    
+
     if (collisionResults.length !== 0) {
         sculpture = sculptures[i];
-        
+
         if (selected_thing !== null && sculpture.isAtLimit()) {
-            
+
             continue;
         }
         // for pink box extra special moveable armature
