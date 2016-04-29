@@ -1,56 +1,3 @@
-<script id="vertexShader" type="x-shader/x-fragment">
-// vertex shader
-
-varying vec3 vNormal;
-varying vec3 vWorldPosition;
-
-void main() {
-
-    // adding some displacement based on the vertex position
-    vec3 offset = vec3(
-        sin(position.x * 10.0 + time) * 15.0,
-        sin(position.y * 10.0 + time + 31.512) * 15.0,
-        sin(position.z * 10.0 + time + 112.512) * 15.0
-    );
-
-    vec3 pos = position + offset;
-
-    // just add some noise to the normal
-    vNormal = normalMatrix * vec3(normal + normalize(offset) * 0.2);
-
-    vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
-
-    // store the world position as varying for lighting
-    vWorldPosition = worldPosition.xyz;
-
-    gl_Position = projectionMatrix * viewMatrix * worldPosition;
-
-}
-</script>
-
-<script id="fragmentShader" type="x-shader/x-fragment">
-// fragment shader
-
-varying vec3 vNormal;
-varying vec3 vWorldPosition;
-
-uniform vec3 lightPosition;
-
-uniform vec3 directionalLightPosition[MAX_DIRECTIONAL_LIGHTS];
-uniform vec3 directionalLightColor[MAX_DIRECTIONAL_LIGHTS];
-
-void main(void) {
-
-    vec3 lightDirection = normalize(directionalLightPosition[0] - vWorldPosition);
-
-    float c = 0.35 + max(0.0, dot(vNormal, lightDirection)) * 0.4;
-
-    gl_FragColor = vec4(c, c, c, 1.0);
-}
-
-]</script>
-
->>>>>>> galleryChanges
 <script>
     Physijs.scripts.worker = '<%= asset_path 'physijs_worker.js' %>';
     Physijs.scripts.ammo = 'https://raw.githubusercontent.com/gveltri/marthafriedman/galleryChanges/app/assets/javascripts/ammo.js';
@@ -69,14 +16,16 @@ var mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3,
 var cameraTarget = new THREE.Vector3; var factor = .0067;
 
 initScene = function() {
-    renderer = new THREE.WebGLRenderer({ antialias : true }); //alpha: true
+    renderer = new THREE.WebGLRenderer({ antialias : false });
+    renderer.setPixelRatio(2);
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.soft = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.SoftShadowMap;
     renderer.shadowMapAutoUpdate = true;
-    // renderer.setClearColor( 0xece7eb, 0 );
-    renderer.setClearColor( 0xffffff, 1);
+
+    //to make eggs stand out better
+    renderer.setClearColor( 0xfdfdfd, 1);
 
 
     document.getElementById('container').appendChild(renderer.domElement);
@@ -107,7 +56,7 @@ initScene = function() {
     	35,
     	window.innerWidth / window.innerHeight,
     	    1,
-    	1000
+    	350
     );
     camera.position.set(120,50,90);
     camera.position.x = camera.position.x * Math.cos(.2) + camera.position.z * Math.sin(.2);
@@ -116,11 +65,11 @@ initScene = function() {
 
 
     //ambient light
-    am_light = new THREE.AmbientLight( 0x040404 );
+    am_light = new THREE.AmbientLight( 0x404040 );
     scene.add( am_light );
 
     // directional lights
-    fill = new THREE.DirectionalLight( 0x202020, 10 );
+    fill = new THREE.DirectionalLight( 0x202020, 2.25 );
     fill.position.set( 40, 45, 70 );
     fill.target.position.copy( scene.position );
     fill.castShadow = true;
@@ -131,7 +80,8 @@ initScene = function() {
     fill.shadow.camera.near = 0;
     fill.shadow.camera.far = 200;
     // fill.shadowCameraVisible = true;
-    // fill.shadowMap.width = fill.shadowMap.height = 4096;
+    fill.shadow.mapSize.x = fill.shadow.mapSize.y = 2048;
+    fill.shadow.bias = -.001;
 
     scene.add( fill );
 
@@ -148,13 +98,14 @@ initScene = function() {
     backlight.shadow.camera.bottom = 150;
     backlight.shadow.camera.right = 0;
     backlight.shadow.camera.far = 100;
+    backlight.shadow.bias = -.001;
     // backlight.shadowCameraVisible = true;
-    // backlight.shadowMap.width = backlight.shadowMap.height = 4096;
+    backlight.shadow.mapSize.x = backlight.shadow.mapSize.y = 2048;
     backlight.intensity = 8;
 
-    scene.add( backlight );
+    // scene.add( backlight );
 
-    var hemLight = new THREE.HemisphereLight(0xFFFFFF, 0xd4e2f9, .3);
+    var hemLight = new THREE.HemisphereLight(0x505054, 0xd4e2f9, .99);
     scene.add(hemLight);
 
 
@@ -162,6 +113,7 @@ initScene = function() {
     spot_light.position.set( 50, 40, 20);
     spot_light.intensity = 0;
     spot_light.castShadow = true;
+    spot_light.shadow.bias = -.001
 
     // spot_light.shadowMap.width = spot_light.shadowMap.height = 4096;
     // spot_light.target = scene;
@@ -284,6 +236,7 @@ function hairballSculpture(x,z) {
     box.receiveShadow = true;
 
     scene.add( box );
+
     moveable_objects.push(box);
 
     box.setAngularFactor( armature_factor );
@@ -384,20 +337,10 @@ function oliveSculpture(x, z) {
                 0xCD444B, 0xEA6C60, 0xD5765A, 
                 0xE2685D, 0xC92035];
     
-    // geometry.computeVertexNormals();
-    // geometry.computeFaceNormals();
-    // assignUVs(geometry);
     computeFlipNormals(geometry);
     
     // plus one for extra olive
     for (var i = 0; i < num + 1; i++) {
-
-		// // var y = armature_y + (olives.length * (radius));
-
-        // var olive_material = new Physijs.createMaterial (
-        //     new THREE.MeshPhongMaterial({ color: olive_colors[i] }),
-        //     0.5
-        // );
 
         var olive_material = new THREE.MeshPhongMaterial({color: olive_colors[i]});
 
@@ -413,7 +356,6 @@ function oliveSculpture(x, z) {
         //http://stackoverflow.com/questions/11032145/three-js-custom-objloader-geometry-lighting
         // oliveMesh.flipSided = true;
         // oliveMesh.doubleSided = true;
-
 
         var pimento_material = new THREE.MeshPhongMaterial({color: pimento_colors[i]});
 		
@@ -440,7 +382,7 @@ function oliveSculpture(x, z) {
         moveable_objects.push(oliveMesh);
         
         if (i == num ){
-            oliveMesh.position.set(x + .5, 95, z + .5);
+            oliveMesh.position.set(x + .5, 95, z + .75);
             oliveMesh.__dirtyPosition = true;
             oliveMesh.__dirtyRotation = true;
 
@@ -492,34 +434,10 @@ function eggSculpture(x,z) {
     	var egg_loader = new THREE.PLYLoader();
 
     	var egg_material = new Physijs.createMaterial (
-	    new THREE.MeshLambertMaterial({ color: 0xf8f9e7 }),
+	    new THREE.MeshPhongMaterial({ color: 0xefefe8, shininess: 10 }),
 	    0.1,
 	    0.7
 	    );
-
-        var uniforms = THREE.UniformsUtils.merge([
-            THREE.UniformsLib['lights'],
-            {
-              diffuse: {type: 'c', value: new THREE.Color(0x0000ff)},
-
-              texture: { type: "t", value: null }
-              }
-        ]);
-        
-        uniforms.texture.value = THREE.ImageUtils.loadTexture( '<%= asset_path 'toon_test.jpg' %>');
-        
-        var vertexShader = document.getElementById('vertexShader').text;
-        var fragmentShader = document.getElementById('fragmentShader').text;
-
-
-        var material = new THREE.ShaderMaterial(
-        {
-          uniforms : uniforms,
-          vertexShader : vertexShader,
-          fragmentShader : fragmentShader,
-          lights: true
-        });
-
 
 	var egg = egg_loader.load('<%= asset_path 'binary/Egg.ply' %>', function( geometry ){
         computeFlipNormals(geometry);
@@ -584,7 +502,7 @@ function TongueSculpture(x,z) {
     var num = 9;
 
     var tongueMaterial = new Physijs.createMaterial (
-        new THREE.MeshLambertMaterial({ color: 0xff729a }),
+        new THREE.MeshPhongMaterial({ color: 0xff729a }),
         0.1,
         0.7);
     
@@ -707,7 +625,7 @@ function wedgeSculpture(x, z) {
     armature.setLinearFactor( armature_factor );
 
     var intersect_cylinder_one = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.25,0.25,55),
+        new THREE.CylinderGeometry(0.25,0.25,53),
         armature_mat
     );
 
@@ -716,7 +634,7 @@ function wedgeSculpture(x, z) {
     intersect_cylinder_one.receiveShadow = true;
 
     var intersect_cylinder_two = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.25,0.25,55),
+        new THREE.CylinderGeometry(0.25,0.25,53),
         armature_mat
     );
 
@@ -730,15 +648,14 @@ function wedgeSculpture(x, z) {
     //num = 47
 
     var wedge_material = new Physijs.createMaterial (
-        new THREE.MeshLambertMaterial({ color: 0xDDDDDD }),
-        1,
-        1
+        new THREE.MeshPhongMaterial({ color: 0x918c8c }),
+        .9,
+        .9
     );
-
     var wedgeDroop_mat = new Physijs.createMaterial (
-        new THREE.MeshLambertMaterial({ color: 0xff7b00 }),
-        1,
-        1
+        new THREE.MeshPhongMaterial({ color: 0xff7b00 }),
+        .9,
+        .9
     );
 
     computeFlipNormals(geometries[0]);
@@ -760,24 +677,14 @@ function wedgeSculpture(x, z) {
     m.makeRotationY( Math.PI );        
     geometry_hammer.applyMatrix(m);
 
-
-    //var mX = new THREE.Matrix4();
-    // var mY = new THREE.Matrix4();
-    // mY.makeRotationX(Math.PI/4);
-    // var mY = new THREE.Matrix4();
-    // mY.makeRotationY(Math.PI/1.1);
-    // mX.makeRotationX(Math.PI/2);
-
-    // mY.multiply(mX);
-    // mX.multiply(mZ);
     var wedgeDroop = geometries[0];
     var wDLeft = geometries[0].clone();
     wDLeft.applyMatrix(m);
+    // computeFlipNormals(wedgeDroop);
     //wedgeDroop.applyMatrix(m);
 
-    //wedgeDroop.computeBoundingSphere();
+    // wedgeDroop.computeBoundingSphere();
 
-    //var yFactor = geometry_flat.boundingSphere.radius;
     var wedge_models = [geometry_flat, geo_flat_left, geometry_hammer, geo_hammer_left, wedgeDroop, wDLeft];
     
     var arrangement = [0, 0, 1, 0,
@@ -786,22 +693,13 @@ function wedgeSculpture(x, z) {
                         1, 0, 0, 1,
                         1, 1, 0, 1, 
                         0, 1, 0,
-                        //3, 3, 3, 4,
-                        3, 3, 3, 1, //
+                        3, 3, 3, 1,
                         1, 1, 1, 4,
                         0, 2, 0, 0,
                         0, 2, 5, 1,
                         1, 3, 2, 1,0];
     
     var wedge_stack = new Sculpture( armature, wedges );
-    
-    //geometry_flat.computeBoundingSphere();
-    // geo_flat_left.computeBoundingBox();
-
-    // geometry_hammer.computeBoundingBox();
-    // geo_hammer_left.computeBoundingBox();
-    
-    // wedgeDroop.computeBoundingBox();
 
     var r = .6;//(geometry_flat.boundingBox.max.y - geometry_flat.boundingBox.min.y) / 2;
 
@@ -812,41 +710,58 @@ function wedgeSculpture(x, z) {
         var wMat;
         if (arrangement[i] > 3) {
             wMat = wedgeDroop_mat;
-            var wedgeMesh = new Physijs.ConcaveMesh(
+            var wedgeMesh = new Physijs.ConvexMesh(
+                // wedge_models[2],
                 wedge_models[arrangement[i]],
                 wMat,
-                30
+                10
             );
+
+
+            wedgeMesh.castShadow = true;
+            wedgeMesh.receiveShadow = true;
+
+            scene.add( wedgeMesh );
+
+            wedgeMesh.setCcdMotionThreshold(.01);
+            wedgeMesh.setCcdSweptSphereRadius(.6);
         }
         else { 
             wMat = wedge_material; 
             var wedgeMesh = new Physijs.ConvexMesh(
                 wedge_models[arrangement[i]],
                 wMat,
-                30
+                10
             );
 
-            //wahhh
+            wedgeMesh.castShadow = true;
+            wedgeMesh.receiveShadow = true;
+
+            scene.add( wedgeMesh );
+
             wedgeMesh.setCcdMotionThreshold(.01);
-            wedgeMesh.setCcdSweptSphereRadius(.25);
+            // wedgeMesh.setCcdSweptSphereRadius(.05);
         }
 
 
-        wedgeMesh.castShadow = true;
-        wedgeMesh.receiveShadow = true;
+        // wedgeMesh.castShadow = true;
+        // wedgeMesh.receiveShadow = true;
 
-        scene.add( wedgeMesh );
+        // scene.add( wedgeMesh );
+            
 
+        
         wedgeMesh.setAngularFactor( _v3 ); 
         wedgeMesh.setAngularVelocity(_v3);
 
         wedgeMesh.setLinearFactor( module_factor );
         wedgeMesh.setLinearVelocity(_v3);
 
-        wedgeMesh.setDamping( 1 , 0 );
+        // wedgeMesh.setDamping( 1 , 0 );
+
+        moveable_objects.push( wedgeMesh );
 
         wedge_stack.addModule(wedgeMesh);
-        moveable_objects.push( wedgeMesh );
 
 
 
@@ -921,24 +836,6 @@ Sculpture.prototype.addModule = function( obj ) {
 Sculpture.prototype.isAtLimit = function() {
     return ( this.modules.length >= this.limit ) ? true : false;
 };
-
-Sculpture.prototype.addIntersectSphere = function() {
-    // this.intersect_sphere = new THREE.Mesh(
-    // 	new THREE.SphereGeometry( 10 ),
-    // 	new THREE.MeshBasicMaterial({ color: 0x0000ff, opacity: 1 , transparent: true })
-    // );
-    
-    // if (modules.length > 0) {
-    // 	this.intersect_sphere.position.copy(this.modules[this.modules.length-1].position);
-    // 	this.intersect_sphere.position.y+=3;
-    // }
-    // else {
-    // 	this.intersect_sphere.position.copy(this.armature.position);
-    // 	this.intersect_sphere.position.y+=3;
-    // }
-    // scene.add(this.intersect_sphere);
-
-}
 
 // Load ply objects asynchronously, calls sculpture function afterwards
 // Takes asset paths as array of strings and callback function as arguments
@@ -1099,14 +996,6 @@ for (i = 0; i < sculptures.length; i++) {
 
         renderer.domElement.style.cursor = "pointer";
 
-        // if (selected_thing == null) {
-            // cameraTarget = sculpture.armature.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
-            // camera.lookAt(cameraTarget);
-        // }
-
-        //make a light source directly above the sculpture
-        //if (spot_light.visible == false) spot_light.visible = true;
-        // console.log(spot_light);
         var y = 0;
 
         if (sculpture.modules.length > 0) { 
@@ -1116,12 +1005,8 @@ for (i = 0; i < sculptures.length; i++) {
 
         y += 10;
 
-        // spot_light.distance = y + 5;
-        // spot_light.position.set( sculpture.armature.position.x, y, sculpture.armature.position.z );
         spot_light.target = sculpture.armature;
-        spot_light.intensity = 1.6;
-
-        // spot_light.shadow.shadowCamera.updateProjectionMatrix();
+        spot_light.intensity = 1.25;
         spot_light_on = true;
         break;
     }
