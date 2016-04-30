@@ -19,7 +19,7 @@ html {
     height:100%;
     width:100%;
     font-family:sans-serif;
-    overflow-y: hidden;
+    /* overflow-y: hidden; */
 }
 
 body {
@@ -32,7 +32,7 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    overflow-y: hidden;
+    /* overflow-y: hidden; */
 }
 
 #container {
