@@ -3,7 +3,7 @@
 		<div class="cover inner">
 			<div class="text-fields">
 				<%= @press.html_safe %>
-				<div>
+				<div style="padding-bottom:30px">
 				<% @press_documents.each do |p_d| %>
 					<%= link_to p_d.name, p_d.pdf.url %><br>
 				<% end %>
