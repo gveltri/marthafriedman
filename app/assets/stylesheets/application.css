@@ -52,6 +52,11 @@ header ul li a:hover {
     background-color: none;
 }
 
+a.title {
+    position: fixed;
+    z-index: 1;
+}
+
 a.title:visited {
     text-decoration: none;
 }
@@ -64,6 +69,7 @@ a.title:active {
 header ul li a {
     color: #000;
 }
+
 
 header {
     position:absolute;
@@ -96,10 +102,22 @@ footer {
 
 footer a:hover {
     color:rgb(255,102,255);
+    text-decoration: none;
 }
+
+footer a {
+    color: #000;
+}
+
+footer a:visited {
+    text-decoration: none;
+}
+
 
 #specialfooter {
     padding:5px 2em 0px 2em;
+    color: #000;
+    display: hidden;
 }
 
 .text-fields {

@@ -1,74 +1,114 @@
+<style>
+body {
+    overflow-y: hidden;
+    background: rgba(255,255,255,1);
+    background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(255,255,255,1)), color-stop(29%, rgba(230,237,250,1)), color-stop(51%, rgba(204,199,214,1)), color-stop(65%, rgba(238,237,240,1)), color-stop(100%, rgba(255,255,255,1)));
+    background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: -o-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff', GradientType=0 );
+}
+
+html {
+    overflow-y: hidden;
+}
+
+
+div#load-in {
+    z-index: 0;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+
+    background: rgba(255,255,255,1);
+    background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(255,255,255,1)), color-stop(29%, rgba(230,237,250,1)), color-stop(51%, rgba(204,199,214,1)), color-stop(65%, rgba(238,237,240,1)), color-stop(100%, rgba(255,255,255,1)));
+    background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: -o-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff', GradientType=0 );
+
+}
+div#container canvas {
+    position: fixed;
+    z-index: -1;
+}
+</style>
+
 <script>
-    Physijs.scripts.worker = '<%= asset_path 'physijs_worker.js' %>';
-    Physijs.scripts.ammo = 'https://raw.githubusercontent.com/gveltri/marthafriedman/galleryChanges/app/assets/javascripts/ammo.js';
+Physijs.scripts.worker = '<%= asset_path 'physijs_worker.js' %>';
+Physijs.scripts.ammo = 'https://raw.githubusercontent.com/gveltri/marthafriedman/galleryChanges/app/assets/javascripts/ammo.js';
 
-var initScene, render, renderer, scene, camera, initEventHandling;
-
+var initScene, render, renderer, scene, camera, initEventHandling, sim_started = false;
 var fill, backlight, am_light, spot_light, spot_light2, point_light;
-
-
 var moveable_objects = [], selected_thing = null, static_surfaces=[],
     intersect_planes = [], sculptures=[];
-
 var mouse_position = new THREE.Vector3, _v3 = new THREE.Vector3,
     module_factor = new THREE.Vector3( 0, 0.5, 0 ), armature_factor = new THREE.Vector3( 0, 0, 0 );
-
 var cameraTarget = new THREE.Vector3; var factor = .0067;
 
 initScene = function() {
-    renderer = new THREE.WebGLRenderer({ antialias : false });
+    renderer = new THREE.WebGLRenderer({ antialias : false,
+                                         alpha: true
+                                       });
     renderer.setPixelRatio(2);
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.soft = true;
     renderer.shadowMap.type = THREE.SoftShadowMap;
     renderer.shadowMapAutoUpdate = true;
-
-    //to make eggs stand out better
-    renderer.setClearColor( 0xfdfdfd, 1);
-
+    renderer.setClearColor( 0xffffff, 0);
 
     document.getElementById('container').appendChild(renderer.domElement);
-    //allows keydown to be heard
-    renderer.domElement.setAttribute("tabindex", 0);
+    var div = document.createElement("div");
+    div.id = 'load-in';
+    document.getElementById('container').appendChild(div);
+
+    renderer.domElement.setAttribute("tabindex", 0); //allows keydown to be heard
 
     renderer.sortObjects = true;
 
-    // Initialize Physijs Scene
     scene = new Physijs.Scene();
     scene.setGravity( new THREE.Vector3(0, -120, 0) );
 
-    // Click-and-drag functionality
-    scene.addEventListener( 'update', function() {
-	if ( selected_thing !== null ) {
-	    _v3.copy( mouse_position ).sub( selected_thing.position ).multiplyScalar( 5 );
-	    selected_thing.setLinearVelocity( _v3 );
-	    _v3.set( 0, 0, 0 );
-	    for ( _i = 0; _i < moveable_objects.length; _i++ ) {
-		moveable_objects[_i].applyCentralImpulse( _v3 );
-	    }
-	}
-	scene.simulate( undefined, 1 );
+    // Fade In Scene
+    scene.addEventListener('update', function(e) {
+        if (!sim_started) {
+            $(div).fadeOut();
+            this.removeEventListener('update', arguments.callee);
+        }
     });
 
-    // camera
+    // Click-and-drag functionality
+    scene.addEventListener( 'update', function() {
+	      if ( selected_thing !== null ) {
+	          _v3.copy( mouse_position ).sub( selected_thing.position ).multiplyScalar( 5 );
+	          selected_thing.setLinearVelocity( _v3 );
+	          _v3.set( 0, 0, 0 );
+	          for ( _i = 0; _i < moveable_objects.length; _i++ ) {
+		            moveable_objects[_i].applyCentralImpulse( _v3 );
+	          }
+	      }
+	      scene.simulate( undefined, 1 );
+    });
+
     camera = new THREE.PerspectiveCamera(
-    	35,
-    	window.innerWidth / window.innerHeight,
-    	    1,
-    	350
+    	  35,
+    	  window.innerWidth / window.innerHeight,
+    	  1,
+    	  350
     );
     camera.position.set(120,50,90);
     camera.position.x = camera.position.x * Math.cos(.2) + camera.position.z * Math.sin(.2);
     camera.position.z = camera.position.z * Math.cos(.2) - camera.position.x * Math.sin(.2);
     camera.lookAt(scene.position);
 
-
-    //ambient light
     am_light = new THREE.AmbientLight( 0x404040 );
     scene.add( am_light );
 
-    // directional lights
     fill = new THREE.DirectionalLight( 0x202020, 2.25 );
     fill.position.set( 40, 45, 70 );
     fill.target.position.copy( scene.position );
@@ -127,7 +167,7 @@ initScene = function() {
     Table( -50, -17.25, -15, 50, 3, 100, '<%= asset_path 'concrete_1.jpg' %>', 0, 5, 17);
     Table( -25, -19.25, -15, 100, 2, 100,'<%= asset_path 'grass.jpg' %>', Math.PI / 2, 3, 3);
 
-	//sculptures init
+	  //sculptures init
     var oliveAssets = ['<%= asset_path 'binary/Olive_nopimento.ply' %>'];
     LoadPlyAssets(oliveAssets, oliveSculpture);
 
@@ -150,23 +190,23 @@ initScene = function() {
 
 function intersectionPlanes() {
     var intersect_plane = new THREE.Mesh(
-	new THREE.PlaneBufferGeometry( 400, 400 ),
-	new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0 , transparent: true })
+	      new THREE.PlaneBufferGeometry( 400, 400 ),
+	      new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0 , transparent: true })
     );
     intersect_plane.rotation.x = Math.PI / -2;
     scene.add( intersect_plane );
 
     var intersect_plane_y = new THREE.Mesh(
-	new THREE.PlaneBufferGeometry( 600, 300),
-	new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0 , transparent: true })
+	      new THREE.PlaneBufferGeometry( 600, 300),
+	      new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0 , transparent: true })
     );
     intersect_plane_y.position.set(-60,0,-35);
     intersect_plane_y.rotation.y = Math.PI/ 10;
     scene.add( intersect_plane_y );
 
     var intersect_plane_z = new THREE.Mesh(
-    	new THREE.PlaneBufferGeometry( 600, 300),
-    	new THREE.MeshBasicMaterial({ color: 0x0000ff, opacity: 0 , transparent: true })
+    	  new THREE.PlaneBufferGeometry( 600, 300),
+    	  new THREE.MeshBasicMaterial({ color: 0x0000ff, opacity: 0 , transparent: true })
     );
 
     intersect_plane_z.rotation.y = Math.PI/ 1.9;
@@ -191,14 +231,14 @@ function Table( x,y,z, x_size, y_size, z_size, texture_path, rotation, repeat_x,
     table_texture.repeat.set( repeat_x, repeat_z );
 
     var table_material = new Physijs.createMaterial(
-	   new THREE.MeshPhongMaterial({ map: table_texture }),
-	   0.9,
-	   0.9);
+	      new THREE.MeshPhongMaterial({ map: table_texture }),
+	      0.9,
+	      0.9);
 
     var table = new Physijs.BoxMesh(
-	new THREE.BoxGeometry( x_size, y_size, z_size ),
-	table_material,
-	10
+	      new THREE.BoxGeometry( x_size, y_size, z_size ),
+	      table_material,
+	      10
     );
 
     table.receiveShadow = true;
@@ -210,7 +250,7 @@ function Table( x,y,z, x_size, y_size, z_size, texture_path, rotation, repeat_x,
 
     table.setAngularFactor(armature_factor);
     table.setLinearFactor(armature_factor);
-    
+
     static_surfaces.push(table);
 
     //return table for ad hoc fun
@@ -221,14 +261,14 @@ function Table( x,y,z, x_size, y_size, z_size, texture_path, rotation, repeat_x,
 function hairballSculpture(x,z) {
 
     var box_material = Physijs.createMaterial(
-	new THREE.MeshLambertMaterial({ color: 0xFF66FF }),
-	0.9,
-	0.2);
+	      new THREE.MeshLambertMaterial({ color: 0xFF66FF }),
+	      0.9,
+	      0.2);
 
     var box = new Physijs.BoxMesh(
-	new THREE.BoxGeometry( 10, 10, 10 ),
-	box_material,
-	30
+	      new THREE.BoxGeometry( 10, 10, 10 ),
+	      box_material,
+	      30
     );
 
     box.position.set(x, -10.6, z);
@@ -245,18 +285,18 @@ function hairballSculpture(x,z) {
     var sphere_texture = THREE.ImageUtils.loadTexture('<%= asset_path 'hair.jpg' %>',THREE.SphericalRefractionMapping);
     sphere_texture.wrapS = sphere_texture.wrapT = THREE.RepeatWrapping;
     sphere_texture.repeat.set(3,3);
-    
+
     var sphere_material = Physijs.createMaterial(
-	new THREE.MeshPhongMaterial({ map: sphere_texture, color: 0xffa16b, shininess: 30}),
-	0.5,
-	0.9);
-    
+	      new THREE.MeshPhongMaterial({ map: sphere_texture, color: 0xffa16b, shininess: 30}),
+	      0.5,
+	      0.9);
+
     var sphere = new Physijs.SphereMesh(
-	new THREE.SphereGeometry(5,20,20),
-	sphere_material, 
-	9
+	      new THREE.SphereGeometry(5,20,20),
+	      sphere_material,
+	      9
     );
-    
+
     sphere.position.set(x, 5, z);
     sphere.castShadow = true;
     sphere.receiveShadow= true;
@@ -265,7 +305,7 @@ function hairballSculpture(x,z) {
 
     sphere.setAngularFactor( module_factor );
     sphere.setLinearFactor( module_factor );
-    
+
     new Sculpture(box,[sphere],1);
 }
 //end hairball constructor
@@ -277,11 +317,10 @@ function oliveSculpture(x, z) {
     if (typeof x === 'undefined') { x = 0; }
     if (typeof z === 'undefined') { z = -40; }
 
-    
     var armature = new Physijs.BoxMesh(
-	new THREE.BoxGeometry( 4, 2.5, 3 ),
-	new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
-	9
+	      new THREE.BoxGeometry( 4, 2.5, 3 ),
+	      new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
+	      9
     );
 
     armature.position.set(x,-15.5, z);
@@ -298,8 +337,8 @@ function oliveSculpture(x, z) {
     armature.setLinearFactor( armature_factor );
 
     var intersect_cylinder = new THREE.Mesh(
-	   new THREE.CylinderGeometry(0.3,0.3,40),
-	   new THREE.MeshPhongMaterial({ color: 0x664935 })
+	      new THREE.CylinderGeometry(0.3,0.3,40),
+	      new THREE.MeshPhongMaterial({ color: 0x664935 })
     );
 
     intersect_cylinder.position.set(x, 5,z);
@@ -326,16 +365,16 @@ function oliveSculpture(x, z) {
     var armature_y = -12;
 
     var olive_colors = [0x9F9812, 0x6D632A, 0x5A603E,
-                0x626220, 0x5E5E3C, 0x738754,
-                0x595A4C, 0x878032, 0x949C3E,
-                0x69613A, 0x595532, 0xA4962E,
-                0x605C49, 0x605C49];
+                        0x626220, 0x5E5E3C, 0x738754,
+                        0x595A4C, 0x878032, 0x949C3E,
+                        0x69613A, 0x595532, 0xA4962E,
+                        0x605C49, 0x605C49];
 
     var pimento_colors = [0xBF341F, 0xB53720, 0xC92035,
-                0xEA976F, 0xB2583E, 0xCD443A,
-                0xCC5125, 0xC2462A, 0xBB4C53,
-                0xCD444B, 0xEA6C60, 0xD5765A,
-                0xE2685D, 0xC92035];
+                          0xEA976F, 0xB2583E, 0xCD443A,
+                          0xCC5125, 0xC2462A, 0xBB4C53,
+                          0xCD444B, 0xEA6C60, 0xD5765A,
+                          0xE2685D, 0xC92035];
 
     computeFlipNormals(geometry);
 
@@ -344,13 +383,13 @@ function oliveSculpture(x, z) {
 
         var olive_material = new THREE.MeshPhongMaterial({color: olive_colors[i]});
 
-		var oliveMesh = new Physijs.CylinderMesh(
-		    geometry,
-		    // new THREE.CylinderGeometry(3,3,3,10),
+		    var oliveMesh = new Physijs.CylinderMesh(
+		        geometry,
+		        // new THREE.CylinderGeometry(3,3,3,10),
             olive_material,
             // material,
-		    5
-		);
+		        5
+		    );
 
         //suggested by, doesn't seem necessary lol
         //http://stackoverflow.com/questions/11032145/three-js-custom-objloader-geometry-lighting
@@ -360,24 +399,24 @@ function oliveSculpture(x, z) {
         var pimento_material = new THREE.MeshPhongMaterial({color: pimento_colors[i]});
 
         var pimento = new THREE.Mesh(
-		    new THREE.CylinderGeometry(1.5,1.5,1.5,5),
+		        new THREE.CylinderGeometry(1.5,1.5,1.5,5),
             pimento_material
-		);
+		    );
 
-		pimento.position.x = .25;
-		pimento.position.z = 3;
+		    pimento.position.x = .25;
+		    pimento.position.z = 3;
 
-		oliveMesh.add(pimento);
+		    oliveMesh.add(pimento);
 
         pimento.castShadow = true;
         pimento.receiveShadow = true;
 
-		oliveMesh.castShadow = true;
-		oliveMesh.receiveShadow = true;
+		    oliveMesh.castShadow = true;
+		    oliveMesh.receiveShadow = true;
 
-		oliveMesh.scale.set(0.6,0.55,0.6);
+		    oliveMesh.scale.set(0.6,0.55,0.6);
 
-		scene.add( oliveMesh );
+		    scene.add( oliveMesh );
 
         moveable_objects.push(oliveMesh);
 
@@ -394,16 +433,16 @@ function oliveSculpture(x, z) {
 
         oliveTotem.addModule(oliveMesh);
 
-        }
+    }
 }
 
 function eggSculpture(x,z) {
     var eggs = [];
 
     var armature = new Physijs.BoxMesh(
-    	new THREE.BoxGeometry( 5, 1, 5 ),
-    	new THREE.MeshPhongMaterial({ color: 0x664935 }),
-    	9
+    	  new THREE.BoxGeometry( 5, 1, 5 ),
+    	  new THREE.MeshPhongMaterial({ color: 0x664935 }),
+    	  9
     );
 
     armature.position.set(x,-17, z);
@@ -416,8 +455,8 @@ function eggSculpture(x,z) {
     armature.setLinearFactor( armature_factor );
 
     var intersect_cylinder = new THREE.Mesh(
-    	new THREE.CylinderGeometry(0.25,0.25,60),
-    	new THREE.MeshPhongMaterial({ color: 0x664935 })
+    	  new THREE.CylinderGeometry(0.25,0.25,60),
+    	  new THREE.MeshPhongMaterial({ color: 0x664935 })
     );
 
     intersect_cylinder.position.set(x,3,z);
@@ -431,59 +470,59 @@ function eggSculpture(x,z) {
 
     function EggCreator(num) {
 
-    	var egg_loader = new THREE.PLYLoader();
+    	  var egg_loader = new THREE.PLYLoader();
 
-    	var egg_material = new Physijs.createMaterial (
-	    new THREE.MeshPhongMaterial({ color: 0xefefe8, shininess: 10 }),
-	    0.1,
-	    0.7
-	    );
+    	  var egg_material = new Physijs.createMaterial (
+	          new THREE.MeshPhongMaterial({ color: 0xe5f0ff, shininess: 10 }),
+	          0.1,
+	          0.7
+	      );
 
-	var egg = egg_loader.load('<%= asset_path 'binary/Egg.ply' %>', function( geometry ){
-        computeFlipNormals(geometry);
-        // assignUVs(geometry);
+	      var egg = egg_loader.load('<%= asset_path 'binary/Egg.ply' %>', function( geometry ){
+            computeFlipNormals(geometry);
+            // assignUVs(geometry);
 
-	    var m = new THREE.Matrix4();
-	    var m1 = new THREE.Matrix4();
+	          var m = new THREE.Matrix4();
+	          var m1 = new THREE.Matrix4();
 
-	    m.makeTranslation(0,-8,0);
-	    m1.makeRotationY( Math.PI/2 );
-	    m.multiply(m1).multiplyScalar(0.7);
-	    geometry.applyMatrix(m);
+	          m.makeTranslation(0,-8,0);
+	          m1.makeRotationY( Math.PI/2 );
+	          m.multiply(m1).multiplyScalar(0.7);
+	          geometry.applyMatrix(m);
 
-	    for (var i = 0; i < num; i++){
-	    	var y = 0 + (eggs.length * 12);
-
-
-	    	var eggMesh = new Physijs.ConvexMesh(
-	    		geometry,
-	    		egg_material,
-	    		7
-	    	);
+	          for (var i = 0; i < num; i++){
+	    	        var y = 0 + (eggs.length * 12);
 
 
-	    	eggMesh.castShadow = true;
-	    	eggMesh.receiveShadow = true;
-		    eggMesh.position.set(armature.position.x, y, armature.position.z);
+	    	        var eggMesh = new Physijs.ConvexMesh(
+	    		          geometry,
+	    		          egg_material,
+	    		          7
+	    	        );
 
-	    	scene.add( eggMesh );
 
-		    eggMesh.rotation.x = Math.PI/2;
+	    	        eggMesh.castShadow = true;
+	    	        eggMesh.receiveShadow = true;
+		            eggMesh.position.set(armature.position.x, y, armature.position.z);
 
-            if ( i % 2 == 0 ) {
-                eggMesh.rotation.z = Math.PI/2;
-            }
+	    	        scene.add( eggMesh );
 
-            eggMesh.__dirtyRotation = true;
+		            eggMesh.rotation.x = Math.PI/2;
 
-	    	// eggMesh.setLinearFactor( module_factor );
+                if ( i % 2 == 0 ) {
+                    eggMesh.rotation.z = Math.PI/2;
+                }
 
-	    	// eggs.push(eggMesh);
-            eggSculpture.addModule(eggMesh);
+                eggMesh.__dirtyRotation = true;
 
-	    	moveable_objects.push(eggMesh);
-	    }
-	});
+	    	        // eggMesh.setLinearFactor( module_factor );
+
+	    	        // eggs.push(eggMesh);
+                eggSculpture.addModule(eggMesh);
+
+	    	        moveable_objects.push(eggMesh);
+	          }
+	      });
     }
 }
 
@@ -608,7 +647,7 @@ function wedgeSculpture(x, z) {
     var armature_mat = new THREE.MeshPhongMaterial({ color: 0x664935 });
 
     var armature = new Physijs.BoxMesh(
-    new THREE.BoxGeometry( 26, 1, 26 ),
+        new THREE.BoxGeometry( 26, 1, 26 ),
         armature_mat,
         9
     );
@@ -649,13 +688,13 @@ function wedgeSculpture(x, z) {
 
     var wedge_material = new Physijs.createMaterial (
         new THREE.MeshPhongMaterial({ color: 0x918c8c }),
-        .9,
-        .9
+            .9,
+            .9
     );
     var wedgeDroop_mat = new Physijs.createMaterial (
         new THREE.MeshPhongMaterial({ color: 0xff7b00 }),
-        .9,
-        .9
+            .9,
+            .9
     );
 
     computeFlipNormals(geometries[0]);
@@ -688,16 +727,16 @@ function wedgeSculpture(x, z) {
     var wedge_models = [geometry_flat, geo_flat_left, geometry_hammer, geo_hammer_left, wedgeDroop, wDLeft];
 
     var arrangement = [0, 0, 1, 0,
-                        0, 1, 1, 3,
-                        1, 1, 1, 3,
-                        1, 0, 0, 1,
-                        1, 1, 0, 1,
-                        0, 1, 0,
-                        3, 3, 3, 1,
-                        1, 1, 1, 4,
-                        0, 2, 0, 0,
-                        0, 2, 5, 1,
-                        1, 3, 2, 1,0];
+                       0, 1, 1, 3,
+                       1, 1, 1, 3,
+                       1, 0, 0, 1,
+                       1, 1, 0, 1,
+                       0, 1, 0,
+                       3, 3, 3, 1,
+                       1, 1, 1, 4,
+                       0, 2, 0, 0,
+                       0, 2, 5, 1,
+                       1, 3, 2, 1,0];
 
     var wedge_stack = new Sculpture( armature, wedges );
 
@@ -780,13 +819,13 @@ var Sculpture = function( armature, modules, limit ) {
 };
 
 Sculpture.prototype.removeModule = function( obj ) {
-	this.modules.splice( this.modules.indexOf(obj), 1 );
+	  this.modules.splice( this.modules.indexOf(obj), 1 );
     // obj.setAngularFactor(new THREE.Vector3[1,1,1]);
     // obj.setLinearFactor(new THREE.Vector3[1,1,1]);
-	// if (this.modules.length == 0) {
-	// 	moveable_objects.push(this.armature);
-	// 	this.limit = 0;
-	// }
+	  // if (this.modules.length == 0) {
+	  // 	moveable_objects.push(this.armature);
+	  // 	this.limit = 0;
+	  // }
 };
 
 
@@ -797,37 +836,37 @@ Sculpture.prototype.addModule = function( obj ) {
         var r = (obj.geometry.boundingBox.max.y - obj.geometry.boundingBox.min.y) / 2;
 
         if (this.modules.length == 0) {
-    	    snap_y = -7
-    		+ this.armature.geometry.boundingBox.max.y
-    		+ r;
-    	}
+    	      snap_y = -7
+    		        + this.armature.geometry.boundingBox.max.y
+    		        + r;
+    	  }
 
         else {
-    	    snap_y = this.modules[this.modules.length-1].position.y
-    		+ this.modules[this.modules.length-1].geometry.boundingBox.max.y
-    		+ r;
-    	}
+    	      snap_y = this.modules[this.modules.length-1].position.y
+    		        + this.modules[this.modules.length-1].geometry.boundingBox.max.y
+    		        + r;
+    	  }
 
-    	//put object in position
-    	obj.position.set( this.armature.position.x,
-    			  snap_y,
-    			  this.armature.position.z );
+    	  //put object in position
+    	  obj.position.set( this.armature.position.x,
+    			                snap_y,
+    			                this.armature.position.z );
 
-    	//make object static
+    	  //make object static
         obj.setDamping(.9,.9);
 
-    	_v3 = new THREE.Vector3(0,1,0);
-    	obj.setLinearFactor(_v3);
+    	  _v3 = new THREE.Vector3(0,1,0);
+    	  obj.setLinearFactor(_v3);
 
-    	_v3 = new THREE.Vector3(0,0,0);
-    	obj.setLinearVelocity(_v3);
+    	  _v3 = new THREE.Vector3(0,0,0);
+    	  obj.setLinearVelocity(_v3);
         obj.setAngularFactor(_v3);
 
         obj.__dirtyPosition = true;
         obj.__dirtyRotation = true;
 
-    	//finally, push selected_thing on the sculpture stack
-    	this.modules.push( obj );
+    	  //finally, push selected_thing on the sculpture stack
+    	  this.modules.push( obj );
     }
 };
 
@@ -866,189 +905,189 @@ function LoadPlyAssets( assetPathArray, callback ){
 
 //user input
 initEventHandling = (function() {
-var handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown, handleResize;
-var raycaster = new THREE.Raycaster();
-var thing_offset = new THREE.Vector3;
-var _vector = new THREE.Vector3();
-var sculpture, collisionResults, intersections, intersection;
-var spot_light_on = false;
+    var handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown, handleResize;
+    var raycaster = new THREE.Raycaster();
+    var thing_offset = new THREE.Vector3;
+    var _vector = new THREE.Vector3();
+    var sculpture, collisionResults, intersections, intersection;
+    var spot_light_on = false;
 
-handleResize = function( evt ) {
-camera.aspect = window.innerWidth / window.innerHeight;
-camera.updateProjectionMatrix();
-renderer.setSize( window.innerWidth, window.innerHeight );
-};
+    handleResize = function( evt ) {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+    };
 
-handleMouseDown = function( evt ) {
+    handleMouseDown = function( evt ) {
 
-camera.updateProjectionMatrix();
-_vector.set((evt.clientX / window.innerWidth) * 2 - 1,
-	    -(evt.clientY / window.innerHeight ) * 2 + 1,
-	    1);
+        camera.updateProjectionMatrix();
+        _vector.set((evt.clientX / window.innerWidth) * 2 - 1,
+	                  -(evt.clientY / window.innerHeight ) * 2 + 1,
+	                  1);
 
-raycaster.setFromCamera(_vector, camera);
-intersections = raycaster.intersectObjects( moveable_objects );
+        raycaster.setFromCamera(_vector, camera);
+        intersections = raycaster.intersectObjects( moveable_objects );
 
-if (intersections.length > 0) {
-    selected_thing = intersections[0].object;
+        if (intersections.length > 0) {
+            selected_thing = intersections[0].object;
 
-    // if it is on a sculpture, pop it and make it dynamic
-    for (i = 0; i < sculptures.length; i++) {
-        //for bink pox
-        if (selected_thing.id == sculptures[i].armature.id) sculptures[i].modules.pop();
-	    if (sculptures[i].modules.indexOf(selected_thing) >= 0) {
-            sculptures[i].removeModule(selected_thing);
-	    break;
-	  }
-    }
-
-
-    _vector.set(0,0,0);
-    selected_thing.setAngularFactor( _vector);
-    selected_thing.setAngularVelocity( _vector);
-    selected_thing.setLinearFactor( _vector);
-    selected_thing.setLinearVelocity( _vector);
-
-    mouse_position.copy(intersections[0].point);
-    thing_offset.subVectors( selected_thing.position, mouse_position);
-
-}
-};
-
-handleMouseUp = function( evt ) {
-
-if (selected_thing !== null) {
-
-    _vector.set(1,1,1);
-    selected_thing.setAngularFactor( _vector );
-    selected_thing.setLinearFactor( _vector );
-
-    // snapping to armature
-	_vector.set((evt.clientX / window.innerWidth) * 2 - 1,
-		-(evt.clientY / window.innerHeight ) * 2 + 1,
-		1);
-
-    raycaster.setFromCamera(_vector, camera);
-
-    //iterates through sculpture objects
-    for (i = 0; i < sculptures.length; i++) {
-        if(sculptures[i].isAtLimit()) continue;
-        collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
-		if (collisionResults.length !== 0) {
-		    sculpture = sculptures[i];
-            // for pink box extra special moveable armature
-            if (selected_thing.id == sculpture.armature.id) continue;
+            // if it is on a sculpture, pop it and make it dynamic
+            for (i = 0; i < sculptures.length; i++) {
+                //for bink pox
+                if (selected_thing.id == sculptures[i].armature.id) sculptures[i].modules.pop();
+	              if (sculptures[i].modules.indexOf(selected_thing) >= 0) {
+                    sculptures[i].removeModule(selected_thing);
+	                  break;
+	              }
+            }
 
 
-            sculpture.addModule( selected_thing );
+            _vector.set(0,0,0);
+            selected_thing.setAngularFactor( _vector);
+            selected_thing.setAngularVelocity( _vector);
+            selected_thing.setLinearFactor( _vector);
+            selected_thing.setLinearVelocity( _vector);
 
-          //turn off spotlight
-            spot_light.intensity = 0;
-            // spot_light.shadow.shadowCamera.updateProjectionMatrix();
-            // spot_light.visible = false;
-            spot_light_on = false;
-		    break;
-		}
-    }
-    renderer.domElement.style.cursor = "default"
-    //end snapping
+            mouse_position.copy(intersections[0].point);
+            thing_offset.subVectors( selected_thing.position, mouse_position);
 
-    selected_thing = null;
-}
-};
-
-handleMouseMove = function( evt ) {
-
-_vector.set(
-( evt.clientX / window.innerWidth ) * 2 - 1,
--( evt.clientY / window.innerHeight ) * 2 + 1,
-1);
-camera.updateProjectionMatrix();
-raycaster.setFromCamera(_vector, camera);
-
-intersection = raycaster.intersectObjects( intersect_planes );
-
-if  ( intersection[0] != undefined) {
-    if (selected_thing !== null) {
-        mouse_position.copy(intersection[0].point);
-        // renderer.domElement.style.cursor = "none";
-    }
-}
-
-//iterates through sculpture objects
-for (i = 0; i < sculptures.length; i++) {
-
-    // if (sculptures[i].isAtLimit()) continue;
-
-    collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
-
-    if (collisionResults.length !== 0) {
-        sculpture = sculptures[i];
-
-        if (selected_thing !== null && sculpture.isAtLimit()) {
-
-            continue;
         }
-        // for pink box extra special moveable armature
-        if (selected_thing !== null && selected_thing.id == sculpture.armature.id) continue;
+    };
 
-        renderer.domElement.style.cursor = "pointer";
+    handleMouseUp = function( evt ) {
 
-        var y = 0;
+        if (selected_thing !== null) {
 
-        if (sculpture.modules.length > 0) { 
-            y += sculpture.modules[sculpture.modules.length-1].position.y
-            + sculpture.modules[sculpture.modules.length-1].geometry.boundingBox.max.y;
+            _vector.set(1,1,1);
+            selected_thing.setAngularFactor( _vector );
+            selected_thing.setLinearFactor( _vector );
+
+            // snapping to armature
+	          _vector.set((evt.clientX / window.innerWidth) * 2 - 1,
+		                    -(evt.clientY / window.innerHeight ) * 2 + 1,
+		                    1);
+
+            raycaster.setFromCamera(_vector, camera);
+
+            //iterates through sculpture objects
+            for (i = 0; i < sculptures.length; i++) {
+                if(sculptures[i].isAtLimit()) continue;
+                collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
+		            if (collisionResults.length !== 0) {
+		                sculpture = sculptures[i];
+                    // for pink box extra special moveable armature
+                    if (selected_thing.id == sculpture.armature.id) continue;
+
+
+                    sculpture.addModule( selected_thing );
+
+                    //turn off spotlight
+                    spot_light.intensity = 0;
+                    // spot_light.shadow.shadowCamera.updateProjectionMatrix();
+                    // spot_light.visible = false;
+                    spot_light_on = false;
+		                break;
+		            }
+            }
+            renderer.domElement.style.cursor = "default"
+            //end snapping
+
+            selected_thing = null;
+        }
+    };
+
+    handleMouseMove = function( evt ) {
+
+        _vector.set(
+            ( evt.clientX / window.innerWidth ) * 2 - 1,
+                -( evt.clientY / window.innerHeight ) * 2 + 1,
+            1);
+        camera.updateProjectionMatrix();
+        raycaster.setFromCamera(_vector, camera);
+
+        intersection = raycaster.intersectObjects( intersect_planes );
+
+        if  ( intersection[0] != undefined) {
+            if (selected_thing !== null) {
+                mouse_position.copy(intersection[0].point);
+                // renderer.domElement.style.cursor = "none";
+            }
         }
 
-        y += 10;
+        //iterates through sculpture objects
+        for (i = 0; i < sculptures.length; i++) {
 
-        spot_light.target = sculpture.armature;
-        spot_light.intensity = 1.25;
-        spot_light_on = true;
-        break;
-    }
-    else {
-        renderer.domElement.style.cursor = "default";
-    }
-}
-};
-//rotate camera
-handleKeyDown =  function( evt ){
+            // if (sculptures[i].isAtLimit()) continue;
 
-    var x = camera.position.x,
-        y = camera.position.y,
-        z = camera.position.z;
-    var rotSpeed = 0.05;
+            collisionResults = raycaster.intersectObjects(sculptures[i].modules.concat(sculptures[i].armature));
 
-    if (evt.keyCode=="37"){
-        camera.position.x = x * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
-        camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
-    }
+            if (collisionResults.length !== 0) {
+                sculpture = sculptures[i];
 
-    else if (evt.keyCode=="39"){
-        camera.position.x = x * Math.cos(rotSpeed) - z * Math.sin(rotSpeed);
-        camera.position.z = z * Math.cos(rotSpeed) + x * Math.sin(rotSpeed);
-    }
+                if (selected_thing !== null && sculpture.isAtLimit()) {
 
-    camera.lookAt(scene.position);
+                    continue;
+                }
+                // for pink box extra special moveable armature
+                if (selected_thing !== null && selected_thing.id == sculpture.armature.id) continue;
+
+                renderer.domElement.style.cursor = "pointer";
+
+                var y = 0;
+
+                if (sculpture.modules.length > 0) {
+                    y += sculpture.modules[sculpture.modules.length-1].position.y
+                        + sculpture.modules[sculpture.modules.length-1].geometry.boundingBox.max.y;
+                }
+
+                y += 10;
+
+                spot_light.target = sculpture.armature;
+                spot_light.intensity = 1.25;
+                spot_light_on = true;
+                break;
+            }
+            else {
+                renderer.domElement.style.cursor = "default";
+            }
+        }
+    };
+    //rotate camera
+    handleKeyDown =  function( evt ){
+
+        var x = camera.position.x,
+            y = camera.position.y,
+            z = camera.position.z;
+        var rotSpeed = 0.05;
+
+        if (evt.keyCode=="37"){
+            camera.position.x = x * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
+            camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
+        }
+
+        else if (evt.keyCode=="39"){
+            camera.position.x = x * Math.cos(rotSpeed) - z * Math.sin(rotSpeed);
+            camera.position.z = z * Math.cos(rotSpeed) + x * Math.sin(rotSpeed);
+        }
+
+        camera.lookAt(scene.position);
 
     }
 
     return function() {
-    renderer.domElement.addEventListener( 'mousedown', handleMouseDown );
-    renderer.domElement.addEventListener( 'mousemove', handleMouseMove );
-    renderer.domElement.addEventListener( 'mouseup', handleMouseUp );
-    renderer.domElement.addEventListener( 'keydown', handleKeyDown );
-    window.addEventListener('resize', handleResize );
+        renderer.domElement.addEventListener( 'mousedown', handleMouseDown );
+        renderer.domElement.addEventListener( 'mousemove', handleMouseMove );
+        renderer.domElement.addEventListener( 'mouseup', handleMouseUp );
+        renderer.domElement.addEventListener( 'keydown', handleKeyDown );
+        window.addEventListener('resize', handleResize );
     };
 
 })();
 
 //render loop
-                // renderer.domElement.style.cursor = "default";
-                // cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
-                // camera.lookAt(cameraTarget);
+// renderer.domElement.style.cursor = "default";
+// cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-factor));
+// camera.lookAt(cameraTarget);
 render = function() {
     if (renderer.domElement.style.cursor == "default"){
         // cameraTarget = scene.position.clone().multiplyScalar(factor).add(cameraTarget.clone().multiplyScalar(1-(factor)));
@@ -1058,8 +1097,8 @@ render = function() {
             // spot_light.shadow.shadowCamera.updateProjectionMatrix();
         }
         else {
-                spot_light.intensity = 0;
-                // spot_light.shadow.shadowCamera.updateProjectionMatrix();
+            spot_light.intensity = 0;
+            // spot_light.shadow.shadowCamera.updateProjectionMatrix();
         }
     }
     scene.simulate(); // run physics
