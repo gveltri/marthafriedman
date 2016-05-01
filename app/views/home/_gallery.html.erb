@@ -34,7 +34,7 @@ div#load-in {
 }
 div#container canvas {
     position: fixed;
-    z-index: -1;
+    z-index: 0;
 }
 </style>
 
@@ -74,16 +74,12 @@ initScene = function() {
     scene = new Physijs.Scene();
     scene.setGravity( new THREE.Vector3(0, -120, 0) );
 
-    // Fade In Scene
-    scene.addEventListener('update', function(e) {
-        if (!sim_started) {
-            $(div).fadeOut();
-            this.removeEventListener('update', arguments.callee);
-        }
-    });
-
     // Click-and-drag functionality
     scene.addEventListener( 'update', function() {
+        if (!sim_started) {
+            $(div).fadeOut();
+            sim_started = false;
+        }
 	      if ( selected_thing !== null ) {
 	          _v3.copy( mouse_position ).sub( selected_thing.position ).multiplyScalar( 5 );
 	          selected_thing.setLinearVelocity( _v3 );
