@@ -12,5 +12,5 @@ class ApplicationController < ActionController::Base
       @cv = '/'
     end
   end
-  
+
 end

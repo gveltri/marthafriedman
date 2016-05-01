@@ -4,7 +4,6 @@
     <title>Martha Friedman</title>
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-    <%= %>
     <%= csrf_meta_tags %>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>  
@@ -12,28 +11,37 @@
   <body>
     <div id="container">
       <header>
-	<ul>
-	  <li><%= link_to("MARTHA FRIEDMAN", threed_path, class: "title menu-styles") %>
-	    <ul>
-	      <li><a class="menu-styles bold" href="/work" style="padding-top:50px;">Image Gallery</a></li>
-	      <!-- <li><a class="menu-styles bold" href="/about">About</a></li> -->
-	      <li><%= link_to "CV", @cv, class: 'menu-styles bold' %></li>
-	      <li><a class="menu-styles bold" href="/press">News</a></li>
-	      <% if admin_signed_in? %>
-		      <li><%= link_to "work dashboard", works_path, class: 'menu-styles bold' %></li>
-		      <li><%= link_to "information dashboard", information_index_path, class: 'menu-styles bold' %></li>
-		      <li><%= link_to "edit profile", edit_admin_registration_path, class: 'menu-styles bold' %></li>
-		      <li><%= link_to "sign out", destroy_admin_session_path, method: :delete, class: 'menu-styles bold' %></li>
-	      <% end %>
-	    </ul>
-	  </li>
-	</ul>
+	      <ul>
+	        <li><%= link_to("MARTHA FRIEDMAN", threed_path, class: "title menu-styles") %>
+	          <ul>
+	            <li><a class="menu-styles bold" href="/work" style="padding-top:50px;">Image Gallery</a></li>
+	            <!-- <li><a class="menu-styles bold" href="/about">About</a></li> -->
+	            <li><%= link_to "CV", @cv, class: 'menu-styles bold' %></li>
+	            <li><a class="menu-styles bold" href="/press">News</a></li>
+	            <% if admin_signed_in? %>
+		          <li><%= link_to "work dashboard", works_path, class: 'menu-styles bold' %></li>
+		          <li><%= link_to "information dashboard", information_index_path, class: 'menu-styles bold' %></li>
+		          <li><%= link_to "edit profile", edit_admin_registration_path, class: 'menu-styles bold' %></li>
+		          <li><%= link_to "sign out", destroy_admin_session_path, method: :delete, class: 'menu-styles bold' %></li>
+	            <% end %>
+	          </ul>
+	        </li>
+	      </ul>
       </header>
 
+      <% if browser.device.mobile? %>
+      <style>
+        header ul ul {
+        display: block;
+        font-size: 20px;
+        }
+      </style>
+      <% end %>
+
       <!-- if the scene is running already, kill it. very important script,
-      keeps the scene from rendering when it's not actually being displayed -->
+           keeps the scene from rendering when it's not actually being displayed -->
       <script>
-      if (scene) { scene = null; }
+        if (scene) { scene = null; }
       </script>
 
 

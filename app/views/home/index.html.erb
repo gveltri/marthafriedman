@@ -1,4 +1,49 @@
+<style>
+  body {
+    overflow-y: hidden;
+    background: rgba(255,255,255,1);
+    background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(255,255,255,1)), color-stop(29%, rgba(230,237,250,1)), color-stop(51%, rgba(204,199,214,1)), color-stop(65%, rgba(238,237,240,1)), color-stop(100%, rgba(255,255,255,1)));
+    background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: -o-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff', GradientType=0 );
+}
+
+html {
+    overflow-y: hidden;
+}
+
+</style>
+
+<% if browser.device.mobile? %>
+
+<style>
+
+  div#gallery-stand-in {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+    background: url(<%= asset_path 'mobile_background.png' %>) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+  
+</style>
+
+
+<div id="gallery-stand-in">
+</div>
+
+
+
+<% else %>
 <%= render 'gallery' %>
+<% end %>
+
 <footer>
   <div id="specialfooter">
     <a href="mailto:gerardo.veltri@gmail.com">Gerardo JV</a> // <a href="mailto:nschmidt@gmail.com">Nicolas Schmidt</a>

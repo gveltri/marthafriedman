@@ -48,6 +48,7 @@ GEM
     bcrypt (3.1.10)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
+    browser (2.0.3)
     builder (3.2.2)
     byebug (6.0.2)
     capistrano (3.4.0)
@@ -223,6 +224,7 @@ PLATFORMS
 
 DEPENDENCIES
   aws-sdk
+  browser
   byebug
   capistrano
   capistrano-bundler

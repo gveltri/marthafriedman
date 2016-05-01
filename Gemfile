@@ -83,3 +83,7 @@ gem 'dotenv-rails', :groups => [:development, :test]
 # video uploads
 
 gem 'paperclip-av-transcoder'
+
+# detect mobile gem
+
+gem 'browser'
