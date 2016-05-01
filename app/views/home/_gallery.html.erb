@@ -30,13 +30,29 @@ div#load-in {
     background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
     background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(230,237,250,1) 29%, rgba(204,199,214,1) 51%, rgba(238,237,240,1) 65%, rgba(255,255,255,1) 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff', GradientType=0 );
-
 }
+
 div#container canvas {
     position: fixed;
     z-index: 0;
 }
+
+img.button{
+    position:absolute;
+    z-index: 1;
+    bottom: 10%;
+    width:15px;
+    /*height:15px;*/
+}
+
+img.button:hover{
+    cursor : pointer;
+}
 </style>
+
+<img id="left" class="button" src='<%= asset_path 'left.png' %>' style="left:5%" onclick="rotLeft()">
+
+<img id="right" class="button" src='<%= asset_path 'right.png' %>' style="right:5%" onclick="rotRight()">
 
 <script>
 Physijs.scripts.worker = '<%= asset_path 'physijs_worker.js' %>';
@@ -159,8 +175,8 @@ initScene = function() {
     scene.add(spot_light);
 
 
-    Table( 0, -18, -40, 50, 3, 50, '<%= asset_path 'parquet_2.jpg' %>', Math.PI / 2, 8, 8 );    
-    Table( -50, -17.25, -15, 50, 3, 100, '<%= asset_path 'concrete_1.jpg' %>', 0, 5, 17);
+    Table( 0, -18, -40, 50, 3, 49.9, '<%= asset_path 'parquet_2.jpg' %>', Math.PI / 2, 8, 8 );    
+    Table( -50, -17.25, -15, 50, 3, 99.9, '<%= asset_path 'concrete_1.jpg' %>', 0, 5, 17);
     Table( -25, -19.25, -15, 100, 2, 100,'<%= asset_path 'grass.jpg' %>', Math.PI / 2, 3, 3);
 
 	  //sculptures init
@@ -266,6 +282,8 @@ function hairballSculpture(x,z) {
 	      box_material,
 	      30
     );
+
+    box.geometry.computeFaceNormals();
 
     box.position.set(x, -10.6, z);
     box.castShadow = true;
@@ -415,6 +433,9 @@ function oliveSculpture(x, z) {
 		    scene.add( oliveMesh );
 
         moveable_objects.push(oliveMesh);
+
+        // oliveMesh.setCcdMotionThreshold(.01);
+        // oliveMesh.setCcdSweptSphereRadius(.1);
 
         if (i == num ){
             oliveMesh.position.set(x + .5, 95, z + .75);
@@ -775,7 +796,7 @@ function wedgeSculpture(x, z) {
             scene.add( wedgeMesh );
 
             wedgeMesh.setCcdMotionThreshold(.01);
-            // wedgeMesh.setCcdSweptSphereRadius(.05);
+            // wedgeMesh.setCcdSweptSphereRadius(.07);
         }
 
 
@@ -1079,6 +1100,30 @@ initEventHandling = (function() {
     };
 
 })();
+
+rotLeft = function() {
+    var x = camera.position.x,
+    y = camera.position.y,
+    z = camera.position.z;
+    var rotSpeed = 0.05;
+
+    camera.position.x = x * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
+    camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
+
+    camera.lookAt(scene.position);
+}
+
+rotRight = function() {
+    var x = camera.position.x,
+    y = camera.position.y,
+    z = camera.position.z;
+    var rotSpeed = 0.05;
+
+    camera.position.x = x * Math.cos(rotSpeed) - z * Math.sin(rotSpeed);
+    camera.position.z = z * Math.cos(rotSpeed) + x * Math.sin(rotSpeed);
+
+    camera.lookAt(scene.position);
+}
 
 //render loop
 // renderer.domElement.style.cursor = "default";
