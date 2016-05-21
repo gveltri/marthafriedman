@@ -16,7 +16,7 @@
 	          <ul>
 	            <li><a class="menu-styles bold" href="/work" style="padding-top:80px;">Image Gallery</a></li>
 	            <!-- <li><a class="menu-styles bold" href="/about">About</a></li> -->
-	            <li><%= link_to "CV", @cv, class: 'menu-styles bold' %></li>
+	            <li><%= link_to "CV", @cv, class: 'menu-styles bold', target: '_blank' %></li>
 	            <li><a class="menu-styles bold" href="/press">News</a></li>
 	            <% if admin_signed_in? %>
 		          <li><%= link_to "work dashboard", works_path, class: 'menu-styles bold' %></li>
@@ -46,6 +46,17 @@
 
 
       <%= yield %>
+
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-77376627-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
     </div>
   </body>
 </html>
