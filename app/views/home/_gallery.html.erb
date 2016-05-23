@@ -268,7 +268,7 @@ function hairballSculpture(x,z) {
 	      30
     );
 
-    box.geometry.computeFaceNormals();
+    // box.geometry.computeFaceNormals();
 
     box.position.set(x, -10.6, z);
     box.castShadow = true;
@@ -300,6 +300,10 @@ function hairballSculpture(x,z) {
     sphere.castShadow = true;
     sphere.receiveShadow= true;
     scene.add( sphere );
+
+    sphere.setCcdMotionThreshold(.01);
+    sphere.setCcdSweptSphereRadius(.1);
+
     moveable_objects.push( sphere );
 
     sphere.setAngularFactor( module_factor );
@@ -385,10 +389,12 @@ function oliveSculpture(x, z) {
 		    var oliveMesh = new Physijs.CylinderMesh(
 		        geometry,
 		        // new THREE.CylinderGeometry(3,3,3,10),
-            olive_material,
-            // material,
+                olive_material,
+                // material,
 		        5
 		    );
+
+        // var pimentos = [];
 
         //suggested by, doesn't seem necessary lol
         //http://stackoverflow.com/questions/11032145/three-js-custom-objloader-geometry-lighting
@@ -397,43 +403,53 @@ function oliveSculpture(x, z) {
 
         var pimento_material = new THREE.MeshPhongMaterial({color: pimento_colors[i]});
 
+      //   var pimento = new Physijs.CylinderMesh(
+		    //     new THREE.CylinderGeometry(.75,.75,.75,5),
+      //           pimento_material,
+      //           1
+		    // );
         var pimento = new THREE.Mesh(
-		        new THREE.CylinderGeometry(1.5,1.5,1.5,5),
+            new THREE.CylinderGeometry(1.5,1.5,1.5,5),
             pimento_material
-		    );
-
-		    pimento.position.x = .25;
-		    pimento.position.z = 3;
-
-		    oliveMesh.add(pimento);
+        );
 
         pimento.castShadow = true;
         pimento.receiveShadow = true;
 
-		    oliveMesh.castShadow = true;
-		    oliveMesh.receiveShadow = true;
+        // pimento.geometry.computeBoundingBox();
+        // pimento.geometry.computeBoundingSphere();
 
-		    oliveMesh.scale.set(0.6,0.55,0.6);
+	    // oliveMesh.add(pimento);
 
-		    scene.add( oliveMesh );
+	    oliveMesh.castShadow = true;
+	    oliveMesh.receiveShadow = true;
 
-        moveable_objects.push(oliveMesh);
-
-        // oliveMesh.setCcdMotionThreshold(.01);
-        // oliveMesh.setCcdSweptSphereRadius(.1);
+	    oliveMesh.scale.set(0.6,0.55,0.6);
 
         if (i == num ){
             oliveMesh.position.set(x + .5, 95, z + .75);
             oliveMesh.__dirtyPosition = true;
             oliveMesh.__dirtyRotation = true;
 
-            // oliveMesh.setCcdMotionThreshold(.075);
-            // oliveMesh.setCcdSweptSphereRadius(.15);
-
             continue;
         }
-
+        
+        scene.add( oliveMesh );
+        moveable_objects.push(oliveMesh);
         oliveTotem.addModule(oliveMesh);
+
+        oliveMesh.setCcdMotionThreshold(.1);
+        oliveMesh.setCcdSweptSphereRadius(1.45);
+
+        // console.log(oliveMesh.position);
+        // pimento.position.set(.25, oliveMesh.position.y, 2);
+        pimento.position.x = .25;
+        pimento.position.z = 3;
+        // console.log(pimento.position);
+        scene.add(pimento);
+        // olivePimento.addModule(pimento);
+        // var olivePimento = new Sculpture( oliveMesh, [pimento], 1);
+        oliveMesh.add(pimento);
 
     }
 }
@@ -508,6 +524,9 @@ function eggSculpture(x,z) {
 		            eggMesh.position.set(armature.position.x, y, armature.position.z);
 
 	    	        scene.add( eggMesh );
+
+                    eggMesh.setCcdMotionThreshold(.01);
+                    eggMesh.setCcdSweptSphereRadius(.35);
 
 		            eggMesh.rotation.x = Math.PI/2;
 
@@ -616,6 +635,9 @@ function TongueSculpture(x,z) {
         rebar.rotation.y = -a;
 
         scene.add( tongueMesh );
+        tongueMesh.setCcdMotionThreshold(.01);
+        tongueMesh.setCcdSweptSphereRadius(.35);
+
         scene.add( rebar );
 
         tongueMesh.__dirtyRotation = true;
