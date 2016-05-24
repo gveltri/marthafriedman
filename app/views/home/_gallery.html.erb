@@ -149,14 +149,14 @@ initScene = function() {
     spot_light = new THREE.SpotLight( 0xf3f9de, 0, 150, Math.PI/32, 65, .1 );
     spot_light.position.set( 50, 40, 20);
     spot_light.intensity = 0;
-    spot_light.castShadow = true;
-    spot_light.shadow.bias = -.001
+    //spot_light.castShadow = true;
+    spot_light.shadow.bias = -.001;
 
     // spot_light.shadowMap.width = spot_light.shadowMap.height = 4096;
     // spot_light.target = scene;
-    // spot_light.shadowCameraVisible = true;
-    spot_light.shadow.camera.near = 1;
-    spot_light.shadow.camera.fov = 600;
+    //spot_light.shadow.camera.visible = true;
+    //spot_light.shadow.camera.near = 1;
+    //spot_light.shadow.camera.fov = 600;
     scene.add(spot_light);
 
 
