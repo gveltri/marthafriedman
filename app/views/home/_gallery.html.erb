@@ -425,24 +425,13 @@ function oliveSculpture(x, z) {
 	    oliveMesh.receiveShadow = true;
 
 	    oliveMesh.scale.set(0.6,0.55,0.6);
-
-        if (i == num ){
-            oliveMesh.position.set(x + .5, 95, z + .75);
-            oliveMesh.__dirtyPosition = true;
-            oliveMesh.__dirtyRotation = true;
-
-            continue;
-        }
         
         scene.add( oliveMesh );
         moveable_objects.push(oliveMesh);
-        oliveTotem.addModule(oliveMesh);
 
         oliveMesh.setCcdMotionThreshold(.1);
         oliveMesh.setCcdSweptSphereRadius(1.45);
 
-        // console.log(oliveMesh.position);
-        // pimento.position.set(.25, oliveMesh.position.y, 2);
         pimento.position.x = .25;
         pimento.position.z = 3;
         // console.log(pimento.position);
@@ -450,6 +439,20 @@ function oliveSculpture(x, z) {
         // olivePimento.addModule(pimento);
         // var olivePimento = new Sculpture( oliveMesh, [pimento], 1);
         oliveMesh.add(pimento);
+        
+        if (i == num ){
+            console.log(num);
+            oliveMesh.position.set(x + 2, 92, z - 1.75);
+            oliveMesh.__dirtyPosition = true;
+            oliveMesh.__dirtyRotation = true;
+
+            continue;
+        }
+
+        oliveTotem.addModule(oliveMesh);
+        // console.log(oliveMesh.position);
+        // pimento.position.set(.25, oliveMesh.position.y, 2);
+
 
     }
 }
