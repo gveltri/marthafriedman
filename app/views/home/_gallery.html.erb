@@ -40,8 +40,9 @@ img.button:hover{
 <img id="right" class="button" src='<%= asset_path 'right.png' %>' style="right:5%" onclick="rotRight()">
 
 <script>
-Physijs.scripts.worker = '<%= asset_path 'physijs_worker.js' %>';
-Physijs.scripts.ammo = 'https://raw.githubusercontent.com/gveltri/marthafriedman/galleryChanges/app/assets/javascripts/ammo.js';
+  Physijs.scripts.worker = '<%= asset_path 'physijs_worker.js' %>';
+  // Physijs.scripts.ammo = '<%= asset_path 'ammo.js' %>';
+  Physijs.scripts.ammo = 'https://s3.amazonaws.com/marthafriedman-assets/ammo.js';
 
 var initScene, render, renderer, scene, camera, initEventHandling, sim_started = false;
 var fill, backlight, am_light, spot_light, spot_light2, point_light;
